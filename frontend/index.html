@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prometheus</title>
+  <meta name="description" content="Project Prometheus — humanity's backup brain. Prepare today. Survive tomorrow. Rebuild the future.">
+  <link rel="icon" href="assets/emblem.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Shared SVG gradient for every emblem instance -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0" stop-color="#f2b45a"/>
+        <stop offset=".55" stop-color="#ffcf7a"/>
+        <stop offset="1" stop-color="#4fd1b5"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <nav class="rail" aria-label="Main">
+      <div class="brand">
+        <div class="emblem" id="railEmblem" data-state="idle"></div>
+        <div class="word">PROMETHEUS</div>
+      </div>
+      <button class="nav-btn" data-mode="companion"><span data-icon="spark"></span>Companion</button>
+      <button class="nav-btn" data-mode="prepare"><span data-icon="box"></span>Prepare</button>
+      <button class="nav-btn" data-mode="survive"><span data-icon="shield"></span>Survive</button>
+      <button class="nav-btn" data-mode="rebuild"><span data-icon="bolt"></span>Rebuild</button>
+      <button class="nav-btn" data-mode="vault"><span data-icon="book"></span>Knowledge Vault</button>
+      <div class="spacer"></div>
+      <button class="nav-btn" data-mode="settings"><span data-icon="gear"></span>Settings</button>
+    </nav>
+
+    <div class="stage">
+      <header class="topbar">
+        <div>
+          <h1 id="modeTitle">Companion</h1>
+          <div class="subtitle" id="modeSubtitle"></div>
+        </div>
+        <div class="chips">
+          <span class="chip" id="aiChip"><span class="dot"></span><span>Checking AI…</span></span>
+          <span class="chip ok" id="dataChip" title="Inventory, plans, knowledge and the tech tree are stored locally and work without AI"><span class="dot"></span><span>Offline data ready</span></span>
+          <button class="btn sm ctx-toggle" id="ctxToggle" aria-controls="context" aria-expanded="false">Context</button>
+        </div>
+      </header>
+
+      <div class="workarea">
+        <section class="chat" aria-label="Prometheus companion">
+          <div class="chat-head">
+            <div class="emblem" id="chatEmblem" data-state="idle"></div>
+            <div class="who">
+              <h2>PROMETHEUS</h2>
+              <div class="state" id="chatState" aria-live="polite">Standing by</div>
+            </div>
+            <div style="margin-left:auto"><button class="btn ghost sm" id="hoodToggle" title="Show technical details for every reply">Under the hood: off</button></div>
+          </div>
+          <div class="chat-log" id="chatLog" aria-live="polite"></div>
+          <div class="composer">
+            <div class="suggestions" id="suggestions"></div>
+            <form id="chatForm">
+              <label class="sr-only" for="chatInput">Message Prometheus</label>
+              <textarea id="chatInput" rows="1" placeholder="Talk to Prometheus…"></textarea>
+              <button class="btn primary" type="submit" id="sendBtn" aria-label="Send"><span data-icon="send"></span></button>
+            </form>
+          </div>
+        </section>
+
+        <main class="workspace" id="workspace" tabindex="-1"></main>
+      </div>
+    </div>
+
+    <aside class="context" id="context" aria-label="Context"></aside>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

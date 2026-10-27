@@ -1,0 +1,140 @@
+{
+  "id": "electricity",
+  "title": "Restoring Electricity",
+  "description": "From 'what is energy?' to a small, safe off-grid DC power system. A curated dependency graph: each node lists what you must understand first.",
+  "goal": "dc_system",
+  "nodes": [
+    {
+      "id": "energy_basics", "title": "Energy & power", "kind": "concept", "tier": 0,
+      "summary": "Energy is the capacity to do work; power is how fast it's used (watts). Every rebuilding decision is an energy budget.",
+      "why": "You can't plan electricity without knowing how much energy you have and how much you need.",
+      "prerequisites": [],
+      "materials": [{"name": "Notebook & pencil", "match": ["notebook", "pencil", "pen", "paper"]}],
+      "safety": {"level": "low", "note": "Pure theory — safe to learn anywhere."},
+      "sources": ["openstax_physics"], "knowledge": ["kb-science-energy"],
+      "goals": ["Explain the difference between energy (Wh) and power (W)", "Estimate a torch's daily energy use"],
+      "activity": "Read the label on three devices and write down their watts or milliamp-hours."
+    },
+    {
+      "id": "charge_current", "title": "Charge & current", "kind": "concept", "tier": 1,
+      "summary": "Electric current is the flow of charge through a conductor, driven by a difference in electric potential.",
+      "why": "Everything electrical — from a torch to a power grid — is controlled charge flow.",
+      "prerequisites": ["energy_basics"],
+      "materials": [],
+      "safety": {"level": "low", "note": "Theory and simulations only."},
+      "sources": ["openstax_physics", "phet_circuits"], "knowledge": ["kb-science-circuits"],
+      "goals": ["Describe conductors vs. insulators", "Explain AC vs. DC in one sentence"],
+      "activity": "Explore the PhET Circuit Construction Kit simulation (download it while you still have internet)."
+    },
+    {
+      "id": "electrical_safety", "title": "Electrical safety", "kind": "skill", "tier": 2,
+      "summary": "How shocks, burns and electrical fires happen, and the rules that prevent them.",
+      "why": "Mistakes with electricity can be fatal. Safety is a prerequisite for every hands-on node.",
+      "prerequisites": ["charge_current"],
+      "materials": [{"name": "Fire extinguisher (electrical-rated)", "match": ["extinguisher"]}, {"name": "First aid kit", "match": ["first aid"]}],
+      "safety": {"level": "professional", "note": "Mains wiring and fixed installations must be done by licensed electricians."},
+      "sources": ["esfi", "wa_building_energy"], "knowledge": ["kb-electrical-safety", "kb-generator-safety"],
+      "goals": ["List three mains-electricity hazards", "Know why back-feeding a house is lethal", "Know who to call for fixed wiring"],
+      "activity": "Find your home's switchboard and identify (don't open) the main switch and safety switches (RCDs)."
+    },
+    {
+      "id": "ohms_law", "title": "Voltage, current & resistance", "kind": "concept", "tier": 2,
+      "summary": "Ohm's law (V = I × R) and power (P = V × I) let you predict how circuits behave.",
+      "why": "Lets you size wires, fuses and batteries instead of guessing.",
+      "prerequisites": ["charge_current"],
+      "materials": [{"name": "Multimeter", "match": ["multimeter", "meter"]}],
+      "safety": {"level": "low", "note": "Practise with AA/AAA batteries and simulations only."},
+      "sources": ["openstax_physics", "phet_circuits"], "knowledge": ["kb-science-circuits"],
+      "goals": ["Calculate current from voltage and resistance", "Calculate power of a 12 V, 2 A load"],
+      "activity": "Simulate a bulb with 1, 2 and 3 batteries in PhET and record what changes."
+    },
+    {
+      "id": "circuits", "title": "Simple circuits", "kind": "skill", "tier": 3,
+      "summary": "Series and parallel circuits, switches and fuses at low (battery) voltage.",
+      "why": "Circuits are the building blocks of every lighting or charging setup.",
+      "prerequisites": ["ohms_law", "electrical_safety"],
+      "materials": [{"name": "Low-voltage learning kit", "match": ["kit", "breadboard", "led"]}, {"name": "AA batteries", "match": ["battery", "batteries"]}],
+      "safety": {"level": "caution", "note": "Low-voltage (≤12 V) battery circuits only. Never connect experiments to mains."},
+      "sources": ["phet_circuits", "openstax_physics"], "knowledge": ["kb-science-circuits"],
+      "goals": ["Build a series and a parallel LED circuit with a commercial kit", "Explain what a fuse protects"],
+      "activity": "With a certified low-voltage kit, light one LED, then two in parallel."
+    },
+    {
+      "id": "magnetism_induction", "title": "Magnetism & induction", "kind": "concept", "tier": 2,
+      "summary": "Moving a magnet near a coil induces a current — the principle behind every generator and alternator.",
+      "why": "It's how mechanical energy (wind, water, muscle) becomes electricity.",
+      "prerequisites": ["charge_current"],
+      "materials": [{"name": "Magnet", "match": ["magnet"]}],
+      "safety": {"level": "low", "note": "Theory and toy-scale demonstrations only."},
+      "sources": ["openstax_physics"], "knowledge": [],
+      "goals": ["Explain Faraday's law of induction in plain words", "Describe how a hand-crank radio charges"],
+      "activity": "Use a wind-up radio or torch and notice how cranking speed changes brightness."
+    },
+    {
+      "id": "generation", "title": "Mechanical generation", "kind": "technology", "tier": 3,
+      "summary": "Generators and alternators convert motion into electricity: hand-crank, bicycle, wind and water.",
+      "why": "Generation independent of the grid and of fuel supply.",
+      "prerequisites": ["magnetism_induction", "electrical_safety"],
+      "materials": [{"name": "Hand-crank or wind-up device", "match": ["wind-up", "crank", "dynamo"]}],
+      "safety": {"level": "caution", "note": "Use certified products. Fuel generators: outdoors only (carbon monoxide). Never connect to house wiring without a licensed electrician."},
+      "sources": ["openstax_physics", "cdc_generator"], "knowledge": ["kb-generator-safety", "kb-carbon-monoxide"],
+      "goals": ["Compare hand-crank vs. fuel generator energy output", "Explain why fuel generators must stay outside"],
+      "activity": "Time how long cranking a wind-up radio for one minute keeps it running."
+    },
+    {
+      "id": "energy_budget", "title": "Load & energy budgeting", "kind": "skill", "tier": 3,
+      "summary": "List every device, its watts and hours of use, and total the watt-hours per day.",
+      "why": "Tells you what size of solar panel and battery you actually need — and what to switch off.",
+      "prerequisites": ["ohms_law"],
+      "materials": [{"name": "Notebook & pencil", "match": ["notebook", "pencil", "pen", "paper"]}],
+      "safety": {"level": "low", "note": "Paper exercise."},
+      "sources": ["openstax_physics", "energy_gov_solar"], "knowledge": ["kb-science-energy", "kb-science-batteries"],
+      "goals": ["Write your household's essential daily Wh budget", "Rank loads: critical, useful, luxury"],
+      "activity": "Budget: 2 LED torches (1 W × 4 h), radio (2 W × 3 h), 2 phones (10 Wh each) — total it."
+    },
+    {
+      "id": "batteries", "title": "Batteries & storage", "kind": "technology", "tier": 3,
+      "summary": "Chemical storage of electrical energy: capacity (Wh), chemistry, charge/discharge and hazards.",
+      "why": "Solar and wind are intermittent. Storage lets you use energy when you need it.",
+      "prerequisites": ["ohms_law", "electrical_safety"],
+      "materials": [{"name": "Rechargeable batteries / power bank", "match": ["power bank", "rechargeable", "battery", "batteries"]}],
+      "safety": {"level": "caution", "note": "Never short-circuit, puncture or overheat batteries. Swollen lithium cells are a fire risk."},
+      "sources": ["openstax_physics", "esfi"], "knowledge": ["kb-science-batteries"],
+      "goals": ["Estimate runtime: Wh ÷ W", "Explain why lithium batteries need protection circuits"],
+      "activity": "Read the Wh rating on a power bank and estimate how many phone charges it holds."
+    },
+    {
+      "id": "solar_pv", "title": "Solar photovoltaics", "kind": "technology", "tier": 4,
+      "summary": "PV panels convert sunlight directly into DC electricity. Output varies with sun, angle, heat and shade.",
+      "why": "The most accessible off-grid generation for a household: no fuel, few moving parts.",
+      "prerequisites": ["energy_budget", "electrical_safety"],
+      "materials": [{"name": "Solar panel or solar charger", "match": ["solar"]}],
+      "safety": {"level": "caution", "note": "Panels produce voltage whenever lit. Use certified portable kits; roof systems need licensed installers."},
+      "sources": ["energy_gov_solar", "openstax_physics"], "knowledge": ["kb-science-solar"],
+      "goals": ["Estimate daily Wh from a panel's watt rating and sun hours", "Explain the effect of shading"],
+      "activity": "Charge a power bank from a small solar charger in morning vs. midday sun and compare."
+    },
+    {
+      "id": "solar_storage", "title": "Solar charging & storage", "kind": "technology", "tier": 5,
+      "summary": "Charge controllers, batteries and inverters: how solar energy is stored and used safely.",
+      "why": "Turns daytime sunlight into night-time light and communications.",
+      "prerequisites": ["solar_pv", "batteries", "electrical_safety"],
+      "materials": [{"name": "Portable power station / solar generator", "match": ["power station", "solar generator"]}, {"name": "Solar panel or solar charger", "match": ["solar"]}],
+      "safety": {"level": "professional", "note": "Use integrated, certified portable power stations. Building DIY battery banks or connecting to house wiring requires qualified professionals."},
+      "sources": ["energy_gov_solar", "esfi", "wa_building_energy"], "knowledge": ["kb-science-solar", "kb-science-batteries"],
+      "goals": ["Explain what a charge controller does", "Match a power station's Wh to your energy budget"],
+      "activity": "Compare two certified portable power stations by Wh capacity, output ports and solar input watts."
+    },
+    {
+      "id": "dc_system", "title": "Small off-grid DC power", "kind": "technology", "tier": 6,
+      "summary": "A safe household setup: solar panel + certified power station powering LED lights, radio and phone charging.",
+      "why": "Restores the essentials — light, information, communication — without the grid.",
+      "prerequisites": ["solar_storage", "circuits", "generation"],
+      "materials": [{"name": "Portable power station / solar generator", "match": ["power station", "solar generator"]}, {"name": "LED lights", "match": ["led", "lantern", "torch"]}, {"name": "Radio", "match": ["radio"]}],
+      "safety": {"level": "professional", "note": "Stay with plug-and-play certified equipment. Anything wired into the building is a job for a licensed electrician."},
+      "sources": ["energy_gov_solar", "esfi", "wa_building_energy"], "knowledge": ["kb-science-solar", "kb-electrical-safety"],
+      "goals": ["Design (on paper) a system meeting your essential Wh budget", "Plan maintenance and safe storage"],
+      "activity": "Write your household's off-grid essentials plan: loads, Wh per day, equipment you have, equipment missing."
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "scenarios": [
+    {
+      "id": "blackout",
+      "title": "Extended blackout",
+      "fictional": false,
+      "description": "The power grid is down for an unknown period. Internet and mobile networks may be unreliable.",
+      "triage_questions": [
+        "Is anyone injured, unwell, or reliant on powered medical equipment or refrigerated medicine?",
+        "Can you smell gas or smoke, or see fallen power lines nearby?",
+        "Is anyone using a generator, barbecue, camp stove or fuel heater indoors or in a garage?",
+        "Is it dangerously hot or cold where you are right now?",
+        "Do you have safe drinking water and a way to receive official updates (radio)?"
+      ],
+      "steps": [
+        {"text": "Check everyone is safe. If anyone's life is at risk, call emergency services (000 in Australia).", "priority": "immediate", "knowledge_refs": ["kb-first-aid-basics", "kb-medical-power"]},
+        {"text": "Rule out carbon monoxide and fire risks: no fuel-burning devices indoors; torches instead of candles.", "priority": "immediate", "knowledge_refs": ["kb-carbon-monoxide", "kb-blackout-first-hour"]},
+        {"text": "Turn on the battery/wind-up radio for official updates; put phones on low-power mode.", "priority": "immediate", "knowledge_refs": ["kb-communication"]},
+        {"text": "Unplug sensitive appliances; leave one light switched on to know when power returns.", "priority": "today", "knowledge_refs": ["kb-blackout-first-hour"]},
+        {"text": "Keep fridge and freezer shut; eat perishable food first, then pantry food.", "priority": "today", "knowledge_refs": ["kb-fridge-outage", "kb-food-supply"]},
+        {"text": "Count drinking water and set a daily allowance per person (don't under-drink).", "priority": "today", "knowledge_refs": ["kb-water-storage", "kb-water-treatment"]},
+        {"text": "Set up one room for warmth or cooling and check on vulnerable household members and neighbours.", "priority": "today", "knowledge_refs": ["kb-staying-warm-cool"]},
+        {"text": "Set up sanitation if water pressure fails (bagged toilet, hand hygiene station).", "priority": "ongoing", "knowledge_refs": ["kb-sanitation"]},
+        {"text": "Review the household plan daily: supplies remaining, health, official advice.", "priority": "ongoing", "knowledge_refs": ["kb-emergency-plan"]}
+      ],
+      "knowledge_refs": ["kb-blackout-first-hour", "kb-carbon-monoxide", "kb-fridge-outage", "kb-water-storage", "kb-communication", "kb-medical-power", "kb-generator-safety", "kb-staying-warm-cool"]
+    },
+    {
+      "id": "supply_disruption",
+      "title": "Food & supply disruption",
+      "fictional": false,
+      "description": "Shops are closed or empty for an extended period.",
+      "triage_questions": [
+        "Does anyone have urgent medication or dietary needs that will run out first?",
+        "How many days of water and food do you currently have?",
+        "Are there infants or pets with special food requirements?"
+      ],
+      "steps": [
+        {"text": "Inventory water, food (kcal), medication and hygiene supplies.", "priority": "immediate", "knowledge_refs": ["kb-food-supply", "kb-water-storage"]},
+        {"text": "Prioritise medication and infant needs; contact your pharmacist early.", "priority": "today", "knowledge_refs": ["kb-medical-power"]},
+        {"text": "Plan meals by energy, eating perishable items first.", "priority": "today", "knowledge_refs": ["kb-food-supply", "kb-fridge-outage"]},
+        {"text": "Maintain hygiene and sanitation to prevent illness.", "priority": "ongoing", "knowledge_refs": ["kb-sanitation"]}
+      ],
+      "knowledge_refs": ["kb-food-supply", "kb-water-storage", "kb-sanitation", "kb-medical-power"]
+    },
+    {
+      "id": "isolation",
+      "title": "Natural disaster / isolation",
+      "fictional": false,
+      "description": "Storm, flood or bushfire has cut roads and services. Follow official warnings first.",
+      "triage_questions": [
+        "Is there an active warning or evacuation order for your area?",
+        "Is anyone injured or trapped?",
+        "Is your home structurally safe and free of floodwater or fire risk?"
+      ],
+      "steps": [
+        {"text": "Check official warnings (e.g. Emergency WA) and follow evacuation orders immediately.", "priority": "immediate", "knowledge_refs": ["kb-communication", "kb-emergency-plan"]},
+        {"text": "Call emergency services for injuries or people trapped.", "priority": "immediate", "knowledge_refs": ["kb-first-aid-basics"]},
+        {"text": "Grab the emergency kit and documents if you need to leave.", "priority": "today", "knowledge_refs": ["kb-survival-kit"]},
+        {"text": "Make water safe if supply may be contaminated.", "priority": "today", "knowledge_refs": ["kb-water-treatment"]}
+      ],
+      "knowledge_refs": ["kb-emergency-plan", "kb-survival-kit", "kb-water-treatment", "kb-communication"]
+    },
+    {
+      "id": "zombie",
+      "title": "Zombie apocalypse (FICTIONAL SIMULATION)",
+      "fictional": true,
+      "description": "A training game. Real skills — planning, rationing, communication — wrapped in fiction. Not real-world guidance.",
+      "triage_questions": [
+        "Who is in your survivor group and what skills does each person bring?",
+        "How many days of water and food can you carry vs. store?",
+        "What is your rally point and backup rally point?"
+      ],
+      "steps": [
+        {"text": "[Simulation] Inventory your real supplies — the game uses your actual household data.", "priority": "immediate", "knowledge_refs": ["kb-survival-kit"]},
+        {"text": "[Simulation] Agree on rally points and communication signals.", "priority": "today", "knowledge_refs": ["kb-emergency-plan", "kb-communication"]},
+        {"text": "[Simulation] Plan a rebuild objective: restore light and radio using the electricity tech tree.", "priority": "ongoing", "knowledge_refs": ["kb-science-energy"]}
+      ],
+      "knowledge_refs": ["kb-fictional-scenarios", "kb-survival-kit", "kb-emergency-plan"]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "_note": "Transparent planning assumptions. 'basis' says where each number comes from: 'guideline' = taken from the cited source; 'prometheus' = a Prometheus planning default you can change. These are planning targets, not medical or nutritional advice.",
+  "version": "2026-10-27",
+  "food": {
+    "kcal_per_adult_per_day": 2000,
+    "kcal_per_child_per_day": 1600,
+    "meals_per_day": 3,
+    "basis": "prometheus",
+    "source": "dietary_guidelines",
+    "note": "Energy needs vary with age, sex, size and activity. 2,000 kcal/adult is a common planning reference; children's needs range widely (roughly 1,000-2,400 kcal), so 1,600 is a middle planning value. Food only counts toward this target when its kcal per unit is recorded."
+  },
+  "expiry_warning_days": 30,
+  "targets": [
+    {
+      "key": "water", "category": "water", "label": "Drinking & sanitation water",
+      "rule": "per_person_day", "amount": 3.8, "unit": "L",
+      "hot_climate_multiplier": 2.0,
+      "pet_litres_per_day": {"small": 0.5, "medium": 1.5, "large": 3.0},
+      "basis": "guideline", "source": "ready_water",
+      "explain": "At least ~1 US gallon (3.8 L) per person per day for drinking and sanitation. Needs can double in very hot conditions; children, nursing mothers and sick people may need more. Pet water is a Prometheus planning default."
+    },
+    {
+      "key": "food_kcal", "category": "food", "label": "Shelf-stable food energy",
+      "rule": "food_kcal", "unit": "kcal",
+      "basis": "prometheus", "source": "ready_food",
+      "explain": "Daily energy per person × days. Store non-perishable food your household will actually eat, accounting for dietary needs."
+    },
+    {
+      "key": "pet_food", "category": "food", "label": "Pet food",
+      "rule": "pet_days", "unit": "pet-days",
+      "basis": "prometheus", "source": "ready_kit",
+      "explain": "One pet-day of food per pet per day of the plan."
+    },
+    {
+      "key": "medication_days", "category": "medical", "label": "Prescription medication supply",
+      "rule": "medication_days", "unit": "days", "max_days": 30,
+      "basis": "guideline", "source": "redcross_au_packing",
+      "explain": "Enough of each regular medication to cover the plan. Talk to your doctor or pharmacist about safe stock levels and storage."
+    },
+    {
+      "key": "first_aid_kit", "category": "medical", "label": "First aid kit",
+      "rule": "per_household", "amount": 1, "unit": "each",
+      "basis": "guideline", "source": "redcross_au_packing",
+      "explain": "A stocked first aid kit, checked regularly."
+    },
+    {
+      "key": "torch", "category": "lighting", "label": "Torch / flashlight",
+      "rule": "per_person", "amount": 1, "minimum": 2, "unit": "each",
+      "basis": "prometheus", "source": "redcross_au_packing",
+      "explain": "One torch per person (minimum two) so nobody moves around in the dark. Avoid candles where possible."
+    },
+    {
+      "key": "batteries", "category": "power", "label": "Spare batteries (sets)",
+      "rule": "per_person_per_n_days", "amount": 1, "per_days": 7, "minimum": 2, "unit": "sets",
+      "basis": "prometheus", "source": "ready_kit",
+      "explain": "Roughly one spare set of batteries per person per week for torches and radio."
+    },
+    {
+      "key": "radio", "category": "communication", "label": "Battery or wind-up radio",
+      "rule": "per_household", "amount": 1, "unit": "each",
+      "basis": "guideline", "source": "redcross_au_packing",
+      "explain": "Lets you receive official emergency broadcasts when mobile data and power are down."
+    },
+    {
+      "key": "power_bank", "category": "power", "label": "Phone power bank",
+      "rule": "per_adult", "amount": 1, "minimum": 1, "unit": "each",
+      "basis": "prometheus", "source": "redcross_au_packing",
+      "explain": "Keep phones charged for emergency calls and alerts."
+    },
+    {
+      "key": "can_opener", "category": "tools", "label": "Manual can opener",
+      "rule": "per_household", "amount": 1, "unit": "each",
+      "basis": "guideline", "source": "ready_kit",
+      "explain": "Needed for canned food when electric openers don't work."
+    },
+    {
+      "key": "sanitation_bags", "category": "hygiene", "label": "Garbage bags & ties (sanitation)",
+      "rule": "per_person_per_n_days", "amount": 1, "per_days": 1, "minimum": 10, "unit": "bags",
+      "basis": "prometheus", "source": "ready_kit",
+      "explain": "Ready.gov lists garbage bags and plastic ties for personal sanitation; one bag per person per day is a Prometheus planning default."
+    },
+    {
+      "key": "toilet_paper", "category": "hygiene", "label": "Toilet paper",
+      "rule": "per_person_per_n_days", "amount": 1, "per_days": 5, "minimum": 2, "unit": "rolls",
+      "basis": "prometheus", "source": "ready_kit",
+      "explain": "About one roll per person every five days (planning default)."
+    },
+    {
+      "key": "hand_hygiene", "category": "hygiene", "label": "Soap / hand sanitiser",
+      "rule": "per_person_per_n_days", "amount": 1, "per_days": 14, "minimum": 1, "unit": "each",
+      "basis": "prometheus", "source": "ready_kit",
+      "explain": "Hand hygiene prevents illness when water for washing is limited."
+    },
+    {
+      "key": "documents", "category": "documents", "label": "Copies of important documents",
+      "rule": "per_household", "amount": 1, "unit": "set",
+      "basis": "guideline", "source": "redcross_au_packing",
+      "explain": "ID, insurance, medical information and emergency contacts in a waterproof bag."
+    }
+  ]
+}

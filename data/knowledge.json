@@ -1,0 +1,314 @@
+{
+  "_note": "Curated, offline knowledge vault. Every entry cites ids from data/sources.json. Content is general guidance written conservatively; always follow local emergency services first.",
+  "entries": [
+    {
+      "id": "kb-emergency-plan",
+      "topic": "preparedness",
+      "title": "Make a household emergency plan",
+      "summary": "Agree on contacts, meeting places and who does what before an emergency happens.",
+      "points": [
+        "Write down emergency contacts and keep a paper copy — phones may be flat or networks down.",
+        "Choose a meeting place near home and one outside your neighbourhood.",
+        "Assign roles: who checks on children, pets, older neighbours, and who collects the kit.",
+        "Know how you will receive official warnings (radio, emergency alert apps, local emergency services websites).",
+        "Review and practise the plan at least once a year."
+      ],
+      "sources": ["redcross_au_prepare", "dfes_wa"],
+      "safety": "general",
+      "tags": ["plan", "family", "contacts", "meeting place", "warnings"]
+    },
+    {
+      "id": "kb-survival-kit",
+      "topic": "preparedness",
+      "title": "What goes in an emergency survival kit",
+      "summary": "Food, water, light, a radio, first aid, medication, documents and chargers in one grab-and-go place.",
+      "points": [
+        "Food and water, torch and batteries, a battery or wind-up radio, a first aid kit and medication.",
+        "Mobile phone, chargers and power banks; warm waterproof clothing and sturdy shoes.",
+        "Copies of identity, insurance and medical documents in a waterproof bag.",
+        "A manual can opener, garbage bags and ties for sanitation, and a whistle to signal for help.",
+        "Check the kit regularly and replace expired items."
+      ],
+      "sources": ["redcross_au_packing", "redcross_au_checklist", "ready_kit"],
+      "safety": "general",
+      "tags": ["kit", "supplies", "checklist", "torch", "radio", "documents"]
+    },
+    {
+      "id": "kb-water-storage",
+      "topic": "water",
+      "title": "How much water to store and how to store it",
+      "summary": "Plan at least about 1 US gallon (3.8 L) per person per day; more in heat, for children, nursing mothers and sick people.",
+      "points": [
+        "Store at least ~3.8 L (1 US gallon) per person per day for drinking and sanitation.",
+        "Very hot conditions can double water needs; children, nursing mothers and people who are ill may need more.",
+        "Unopened commercially bottled water is the safest option; keep it in a cool, dark place.",
+        "If filling your own containers, use clean food-grade containers, seal them, label the date and replace periodically.",
+        "Don't ration drinking water in a way that causes dehydration — drink what you need today and look for more tomorrow."
+      ],
+      "sources": ["ready_water", "redcross_au_checklist"],
+      "safety": "general",
+      "tags": ["water", "storage", "litres", "gallon", "drinking", "hydration"]
+    },
+    {
+      "id": "kb-water-treatment",
+      "topic": "water",
+      "title": "Making water safe in an emergency",
+      "summary": "Boiling is the surest method; unscented bleach is a backup. Water contaminated with fuel or chemicals cannot be made safe this way.",
+      "points": [
+        "Follow any boil-water or do-not-drink notice from local authorities first.",
+        "Boiling: bring clear water to a rolling boil for 1 minute (3 minutes above 6,500 ft / ~2,000 m), cool, and store covered.",
+        "If water is cloudy, let it settle and filter it through clean cloth before treating.",
+        "Unscented household bleach can disinfect water when boiling isn't possible — follow the exact CDC dosing for your bleach strength.",
+        "Disinfectants work less well than boiling against some parasites (e.g. Cryptosporidium, Giardia).",
+        "Water contaminated with fuel, toxic chemicals or radioactive material cannot be made safe by boiling or disinfection — find another source."
+      ],
+      "sources": ["cdc_water"],
+      "safety": "caution",
+      "tags": ["water", "boil", "bleach", "disinfect", "purify", "contaminated"]
+    },
+    {
+      "id": "kb-food-supply",
+      "topic": "food",
+      "title": "Planning an emergency food supply",
+      "summary": "Count energy (kcal) and meals, not cans. Store food your household will actually eat and can prepare without power.",
+      "points": [
+        "Plan by energy and meals: a can of vegetables and a can of stew are not the same amount of food.",
+        "Choose non-perishable foods that need little or no cooking, water or refrigeration.",
+        "Account for allergies, dietary requirements, infants, older people and pets.",
+        "Rotate stock: use older items first and note expiry dates.",
+        "Include a manual can opener and basic utensils."
+      ],
+      "sources": ["ready_food", "dietary_guidelines"],
+      "safety": "general",
+      "tags": ["food", "calories", "kcal", "meals", "non-perishable", "shelf-stable", "rotation"]
+    },
+    {
+      "id": "kb-fridge-outage",
+      "topic": "food",
+      "title": "Food safety when the power goes out",
+      "summary": "Keep fridge and freezer doors shut: about 4 hours for a fridge, ~48 hours for a full freezer (~24 if half full).",
+      "points": [
+        "A closed refrigerator keeps food cold for about 4 hours.",
+        "A full freezer holds temperature for about 48 hours (about 24 hours if half full) if the door stays closed.",
+        "Discard perishable food (meat, poultry, fish, eggs, leftovers) that has been above 40°F / 4°C for more than 2 hours.",
+        "Frozen food that still has ice crystals or is at 40°F / 4°C or below can be refrozen, though quality may drop.",
+        "Never taste food to decide if it is safe. When in doubt, throw it out."
+      ],
+      "sources": ["foodsafety_outage", "ready_power"],
+      "safety": "caution",
+      "tags": ["fridge", "freezer", "refrigerator", "power outage", "blackout", "spoilage", "food safety"]
+    },
+    {
+      "id": "kb-blackout-first-hour",
+      "topic": "energy",
+      "title": "Extended blackout: the first hours",
+      "summary": "Check for danger, stay informed, protect food and medicines, and avoid carbon monoxide and fire risks.",
+      "points": [
+        "Check people first: anyone injured, unwell, or reliant on powered medical equipment needs priority — call emergency services if life is at risk.",
+        "Use torches rather than candles to reduce fire risk.",
+        "Switch off and unplug appliances to protect them from surges when power returns; leave one light switched on so you know when it's back.",
+        "Keep fridge and freezer closed; plan meals from pantry food first.",
+        "Listen to a battery or wind-up radio for official updates; conserve phone battery.",
+        "Check on neighbours, especially older people and those living alone."
+      ],
+      "sources": ["ready_power", "redcross_au_packing", "emergency_wa"],
+      "safety": "caution",
+      "tags": ["blackout", "power outage", "grid down", "electricity", "first steps", "candles", "radio"]
+    },
+    {
+      "id": "kb-carbon-monoxide",
+      "topic": "energy",
+      "title": "Carbon monoxide: generators, heaters and cooking",
+      "summary": "Never run generators, barbecues, camp stoves or fuel heaters indoors or in garages. CO is invisible and deadly.",
+      "points": [
+        "Never use a generator, charcoal grill, camp stove or other fuel-burning device inside a home, garage, basement or tent — even with doors or windows open.",
+        "Keep generators outdoors and at least 20 feet (~6 m) from doors, windows and vents.",
+        "Install battery-powered CO alarms where possible.",
+        "Headache, dizziness, weakness, nausea, confusion or sleepiness can be CO poisoning: get everyone into fresh air immediately and call emergency services."
+      ],
+      "sources": ["cdc_co", "cdc_generator"],
+      "safety": "seek_help",
+      "tags": ["carbon monoxide", "co", "generator", "heater", "barbecue", "poisoning", "fumes"]
+    },
+    {
+      "id": "kb-generator-safety",
+      "topic": "energy",
+      "title": "Portable generator safety",
+      "summary": "Run outdoors only, keep dry, and never connect a generator to household wiring unless installed by a licensed electrician.",
+      "points": [
+        "Operate outdoors only, away from doors, windows and vents.",
+        "Plug appliances into the generator with suitably rated outdoor extension leads.",
+        "Never 'back-feed' power into house wiring — it can kill utility workers and neighbours. A proper transfer switch must be installed by a licensed electrician.",
+        "Let the generator cool before refuelling and store fuel safely away from the home."
+      ],
+      "sources": ["cdc_generator", "ready_power", "wa_building_energy"],
+      "safety": "seek_help",
+      "tags": ["generator", "backfeed", "transfer switch", "fuel", "electrician"]
+    },
+    {
+      "id": "kb-medical-power",
+      "topic": "first-aid",
+      "title": "Medicines and powered medical devices in an outage",
+      "summary": "Plan ahead for medicines that need refrigeration and equipment that needs power.",
+      "points": [
+        "Keep a written list of medications, doses and prescribers in your kit.",
+        "Ask your doctor or pharmacist how long refrigerated medicines stay usable without power.",
+        "If someone depends on powered medical equipment, have a backup power plan and register with your electricity provider if they offer a life-support register.",
+        "If a medical device fails and someone's life is at risk, call emergency services immediately."
+      ],
+      "sources": ["ready_power", "redcross_au_packing"],
+      "safety": "seek_help",
+      "tags": ["medication", "medicine", "insulin", "medical device", "life support", "pharmacist"]
+    },
+    {
+      "id": "kb-first-aid-basics",
+      "topic": "first-aid",
+      "title": "First aid basics and when to call for help",
+      "summary": "Make the area safe, call for help early, and get trained. Prometheus is not a substitute for medical care.",
+      "points": [
+        "Check for danger to yourself and others before helping.",
+        "Call emergency services (000 in Australia, 911 in the US, 112 in many countries) for serious injury, breathing problems, chest pain, severe bleeding or unconsciousness.",
+        "Keep a stocked first aid kit and know where it is.",
+        "A recognised first aid course is the best preparation — written guidance cannot replace hands-on training."
+      ],
+      "sources": ["healthdirect_firstaid", "triple_zero"],
+      "safety": "seek_help",
+      "tags": ["first aid", "injury", "bleeding", "cpr", "emergency call", "000", "911"]
+    },
+    {
+      "id": "kb-sanitation",
+      "topic": "shelter",
+      "title": "Hygiene and sanitation without running water",
+      "summary": "Hand hygiene and safe waste handling prevent illness when water and services are disrupted.",
+      "points": [
+        "Wash hands with soap and safe water, or use hand sanitiser, before eating and after using the toilet.",
+        "Garbage bags and plastic ties can line a toilet or bucket for personal sanitation when toilets can't flush.",
+        "Store waste sealed and away from living areas, food and water.",
+        "Keep toilet paper, wet wipes and feminine hygiene supplies in your kit."
+      ],
+      "sources": ["ready_kit"],
+      "safety": "general",
+      "tags": ["sanitation", "hygiene", "toilet", "waste", "soap", "hand washing"]
+    },
+    {
+      "id": "kb-staying-warm-cool",
+      "topic": "shelter",
+      "title": "Staying warm or cool without power",
+      "summary": "Choose one room, layer clothing and protect vulnerable people from extreme heat or cold.",
+      "points": [
+        "In cold: gather in one room, close doors and curtains, wear layers and use blankets. Never use outdoor heaters or stoves indoors.",
+        "In heat: stay in the coolest part of the home, drink water regularly, use damp cloths, and avoid exertion in the hottest hours.",
+        "Infants, older people and people with health conditions are most at risk — check on them often.",
+        "Go to a designated relief or cooling/warming centre if conditions become unsafe."
+      ],
+      "sources": ["ready_power", "redcross_au_prepare"],
+      "safety": "caution",
+      "tags": ["heat", "cold", "shelter", "warmth", "heatwave", "temperature"]
+    },
+    {
+      "id": "kb-communication",
+      "topic": "communication",
+      "title": "Staying informed and in contact",
+      "summary": "A battery or wind-up radio, charged power banks and a written contact list keep you connected.",
+      "points": [
+        "Use a battery or wind-up radio for official emergency broadcasts.",
+        "Keep phones on low-power mode; send short text messages instead of calls when networks are congested.",
+        "Keep a paper list of contacts and your household plan.",
+        "Check official sources for warnings, for example Emergency WA in Western Australia."
+      ],
+      "sources": ["redcross_au_packing", "emergency_wa"],
+      "safety": "general",
+      "tags": ["radio", "communication", "phone", "battery", "text", "warnings"]
+    },
+    {
+      "id": "kb-fictional-scenarios",
+      "topic": "preparedness",
+      "title": "About fictional scenarios (zombie apocalypse and friends)",
+      "summary": "Fictional scenarios are training games. They rehearse real skills, but they are not real-world guidance.",
+      "points": [
+        "Prometheus labels fictional simulations clearly.",
+        "Use fiction to practise planning, communication and resource management in a low-stakes way.",
+        "In a real emergency, follow official guidance and emergency services, not game logic."
+      ],
+      "sources": ["ready_kit"],
+      "safety": "general",
+      "tags": ["zombie", "fiction", "simulation", "game", "apocalypse"]
+    },
+    {
+      "id": "kb-science-energy",
+      "topic": "science",
+      "title": "Energy: the currency of civilisation",
+      "summary": "Energy is the capacity to do work. Rebuilding anything starts with understanding how energy is stored, converted and lost.",
+      "points": [
+        "Energy comes in forms: chemical (food, fuel, batteries), kinetic (motion), thermal (heat), radiant (sunlight) and electrical.",
+        "Energy is never created or destroyed, only converted — and each conversion loses some as heat.",
+        "Power is the rate of energy use: 1 watt = 1 joule per second. Batteries are rated in watt-hours (Wh).",
+        "Thinking in energy budgets (how much you have vs. how much you use) is the foundation of every survival and rebuilding decision."
+      ],
+      "sources": ["openstax_physics"],
+      "safety": "general",
+      "tags": ["energy", "power", "watt", "joule", "conservation", "physics"]
+    },
+    {
+      "id": "kb-science-circuits",
+      "topic": "science",
+      "title": "Circuits, voltage, current and resistance",
+      "summary": "Current flows around a closed loop, pushed by voltage and limited by resistance (Ohm's law: V = I × R).",
+      "points": [
+        "Voltage (volts) is the electrical 'push'; current (amps) is the flow of charge; resistance (ohms) opposes flow.",
+        "Ohm's law: V = I × R. Power: P = V × I.",
+        "A circuit needs a complete loop. Series circuits share one path; parallel circuits split current across branches.",
+        "Safe way to learn: simulations (e.g. PhET Circuit Construction Kit) and low-voltage commercial learning kits."
+      ],
+      "sources": ["openstax_physics", "phet_circuits"],
+      "safety": "general",
+      "tags": ["circuit", "voltage", "current", "resistance", "ohm", "amps", "series", "parallel"]
+    },
+    {
+      "id": "kb-science-solar",
+      "topic": "science",
+      "title": "How solar electricity works",
+      "summary": "Photovoltaic cells turn sunlight directly into DC electricity; output depends on sunlight, angle, temperature and shading.",
+      "points": [
+        "Solar panels contain photovoltaic (PV) cells that convert light into direct current (DC) electricity.",
+        "Output depends on sunlight intensity, panel angle, shading and temperature — it's zero at night.",
+        "Storing solar energy requires batteries and a charge controller to charge them safely.",
+        "Portable, certified 'solar generator' kits are the safest starting point for households."
+      ],
+      "sources": ["energy_gov_solar", "openstax_physics"],
+      "safety": "caution",
+      "tags": ["solar", "photovoltaic", "pv", "panel", "sunlight", "dc", "renewable"]
+    },
+    {
+      "id": "kb-science-batteries",
+      "topic": "science",
+      "title": "Batteries and energy storage",
+      "summary": "Batteries store chemical energy and release it as DC electricity. Capacity in Wh tells you how long they can run a load.",
+      "points": [
+        "Runtime estimate: battery watt-hours ÷ device watts ≈ hours (real results are lower due to losses).",
+        "Different chemistries (alkaline, lead-acid, lithium) have different hazards, lifespans and charging needs.",
+        "Damaged, swollen or overheating lithium batteries can catch fire — stop using them and keep them away from flammables.",
+        "Never short-circuit a battery: large batteries can deliver enough current to cause burns and fires."
+      ],
+      "sources": ["openstax_physics", "esfi"],
+      "safety": "caution",
+      "tags": ["battery", "storage", "watt-hour", "lithium", "lead-acid", "capacity", "runtime"]
+    },
+    {
+      "id": "kb-electrical-safety",
+      "topic": "science",
+      "title": "Electrical safety fundamentals",
+      "summary": "Mains electricity can kill. Learn with low-voltage kits; leave mains wiring and fixed installations to licensed electricians.",
+      "points": [
+        "Mains (household) voltage can cause fatal shocks and fires. Never open or modify mains equipment or wiring.",
+        "Treat fallen power lines as live: stay well away and report them to emergency services.",
+        "Water and electricity don't mix: keep electrical equipment dry.",
+        "In Australia, electrical installation work must be done by licensed electricians — check your state regulator (e.g. Building and Energy in WA).",
+        "Learning safely: simulations, textbooks and certified low-voltage kits."
+      ],
+      "sources": ["esfi", "wa_building_energy"],
+      "safety": "seek_help",
+      "tags": ["electrical safety", "shock", "mains", "electrician", "power lines", "wiring"]
+    }
+  ]
+}
