@@ -6,6 +6,8 @@ Prometheus is a persistent, resource-aware **AI apocalypse buddy**. It is one co
 
 Built for the **Nebius × NVIDIA Global AI Hackathon, Personal AI track**.
 
+**Live demo:** https://project-prometheus-tp0i.onrender.com (free hosting, so the first load after a quiet spell can take a minute). Open **Settings → Load demo household** to try it.
+
 The companion is the heart of the app. The survival kit calculator, inventory, knowledge vault and technology tree are all **real tools** it calls against your saved data.
 
 ---

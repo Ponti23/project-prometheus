@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       url:
-        description: "App URL (defaults to the APP_URL repo variable)"
+        description: "App URL (defaults to the APP_URL repo variable, then the Render URL)"
         required: false
 
 jobs:
@@ -17,4 +17,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install httpx
-      - run: python scripts/smoke_test.py "${{ inputs.url || vars.APP_URL }}" --wait 300 --chat
+      - run: python scripts/smoke_test.py "${{ inputs.url || vars.APP_URL || 'https://project-prometheus-tp0i.onrender.com' }}" --wait 300 --chat

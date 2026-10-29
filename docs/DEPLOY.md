@@ -14,7 +14,7 @@ No credit card needed. The model still runs on Nebius Token Factory, which satis
 1. Sign up at render.com with your GitHub account.
 2. **New → Blueprint**, pick `Ponti23/project-prometheus`. Render reads `render.yaml` (free plan, Docker, auto-deploy from `main`).
 3. When asked for `NEBIUS_API_KEY`, paste your key, then click **Deploy Blueprint**. The first build takes a few minutes.
-4. Copy the URL (e.g. `https://project-prometheus.onrender.com`). In GitHub: **Settings → Secrets and variables → Actions → Variables → New repository variable**, name `APP_URL`, value the URL.
+4. Live URL: https://project-prometheus-tp0i.onrender.com. It is the default in the keep-awake and smoke-test workflows; set the repo variable `APP_URL` only if it changes.
 5. Run **Actions → Smoke test live app** to check the page, Nebius, the demo household and one real chat turn.
 
 Limits: free services sleep after 15 minutes without traffic, so **Keep app awake** visits the page every 10 minutes (no model calls). One always-on service fits in Render's 750 free hours a month. The disk is not persistent, so a restart or redeploy wipes saved households; judges load the demo household anyway.
