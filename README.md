@@ -11,7 +11,7 @@ Built for the **Nebius × NVIDIA Global AI Hackathon, Personal AI track**.
 The companion is the heart of the app. The survival kit calculator, inventory, knowledge vault and technology tree are all **real tools** it calls against your saved data.
 
 ### Two looks, one companion
-- **Simple mode** (`/`) is for normal people. It's a calm canvas of cards beside the chat. Tell Prometheus "I bought 5 L of water" and the flame flies out of the chat to the Water card, pencils in **60 L → 65 L** and waits for **Save**. Readiness is shown in stages (3 days → 1 week → 2 weeks → your goal) with a short **Next up** list, not a percentage. A red **SOS** button opens a full-screen emergency flow that works without AI, even offline.
+- **Simple mode** (`/`) is for normal people. It's a calm canvas of cards beside the chat, in the same dark look as the original. Tell Prometheus "I bought 5 L of water" and the flame flies out of the chat to the Water card, pencils in **60 L → 65 L** and waits for **Save**. Readiness is shown in stages (3 days → 1 week → 2 weeks → your goal) with a short **Next up** list, not a percentage. A red **SOS** button opens a full-screen emergency flow that works without AI, even offline.
 - **Advanced mode** (`advanced.html`) is the full workspace: every table, the tool call log and **Under the hood**. Switch from **≡ → Advanced mode** or **Settings → Simple mode**. **≡ → Show me how it works** opens it with Under the hood on.
 
 ![Simple mode: a pencilled change waiting for Save](docs/screenshots/redesign/2-pencil-desktop.png)

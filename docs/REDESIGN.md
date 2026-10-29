@@ -328,4 +328,5 @@ _(Append each default you had to pick, with a one-line reason.)_
 - **Phone first run**: the welcome is the first item in the card stack, not floating over the cards.
 - **Tool count is now 16** (`show_card`), updated in README and DEVPOST.md. DEMO_SCRIPT.md has a Simple-mode version of the demo next to the original.
 - **Checks run for each phase**: pytest (81 passed, plus the 3 live Nemotron tests), Playwright at 1440×900 and 390×844, and Advanced mode (each nav view renders, no console errors).
+- **Owner change (2026-10-29): Simple mode uses the original look.** The owner said the warm light palette didn't look like the app. `simple.css` now uses Advanced's tokens (dark `#121513` panels, teal `#4fd1b5` accent, amber for pencils, same font), dark only. Only the layout is simpler. This replaces the "warm palette, not teal" and "light-first" points in [Look and words](#12-look-and-words). Some older screenshots in `docs/screenshots/redesign/` still show the warm palette.
 
