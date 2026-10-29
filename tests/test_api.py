@@ -111,3 +111,4 @@ def test_offline_content_endpoints():
     assert g["triage_questions"] and g["label"] == "Real-world guidance"
     assert c.get("/api/scenarios/zombie").json()["scenario"]["fictional"] is True
     assert c.get("/").status_code == 200
+    assert "simple.css" in c.get("/").text and "js/app.js" in c.get("/advanced.html").text

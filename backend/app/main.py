@@ -17,6 +17,7 @@ from .db import Store
 from .knowledge import search as kb
 from .prepare.calculator import load_assumptions, target_keys
 from .prepare.readiness import calculate_readiness, missing_supplies
+from .prepare.summary import build_summary
 from .rebuild import techtree
 from .schemas import (
     ChatIn, ContextUpdate, HouseholdProfile, HouseholdProfileUpdate, InventoryItemIn, InventoryItemPatch,
@@ -181,6 +182,10 @@ def create_app(
         r = calculate_readiness(store.get_profile(hid), store.list_inventory(hid))
         r["missing"] = missing_supplies(r)
         return r
+
+    @app.get("/api/summary")
+    def summary(hid: str = H) -> dict[str, Any]:
+        return build_summary(store.get_profile(hid), store.list_inventory(hid))
 
     @app.get("/api/assumptions")
     def assumptions() -> dict[str, Any]:

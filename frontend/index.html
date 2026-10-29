@@ -2,69 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Prometheus</title>
   <meta name="description" content="Project Prometheus — humanity's backup brain. Prepare today. Survive tomorrow. Rebuild the future.">
+  <meta name="theme-color" content="#fbf7f1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1d1916" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="assets/emblem.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
+  <script>try { if (localStorage.getItem("prometheus.ui") === "advanced") location.replace("advanced.html"); } catch (e) { /* storage unavailable */ }</script>
+  <link rel="stylesheet" href="simple.css">
 </head>
 <body>
-  <div class="app">
-    <nav class="rail" aria-label="Main">
-      <div class="brand">
-        <div class="face rail-face"></div>
-        <div class="word">PROMETHEUS</div>
-      </div>
-      <button class="nav-btn" data-mode="companion"><span data-icon="spark"></span>Companion</button>
-      <button class="nav-btn" data-mode="prepare"><span data-icon="box"></span>Prepare</button>
-      <button class="nav-btn" data-mode="survive"><span data-icon="shield"></span>Survive</button>
-      <button class="nav-btn" data-mode="rebuild"><span data-icon="bolt"></span>Rebuild</button>
-      <button class="nav-btn" data-mode="vault"><span data-icon="book"></span>Knowledge Vault</button>
-      <div class="spacer"></div>
-      <button class="nav-btn" data-mode="settings"><span data-icon="gear"></span>Settings</button>
+  <header class="bar">
+    <a class="logo" href="./" aria-label="Prometheus home"><img src="assets/emblem.svg" alt=""><span>Prometheus</span></a>
+    <nav class="tabs" role="tablist" aria-label="Canvases">
+      <button class="tab" role="tab" data-canvas="prepare"><span data-icon="box"></span><span class="lbl">Prepare</span></button>
+      <button class="tab" role="tab" data-canvas="survive"><span data-icon="shield"></span><span class="lbl">Survive</span></button>
+      <button class="tab" role="tab" data-canvas="rebuild"><span data-icon="bolt"></span><span class="lbl">Rebuild</span></button>
+      <button class="tab" role="tab" data-canvas="vault"><span data-icon="book"></span><span class="lbl">Vault</span></button>
     </nav>
-
-    <div class="stage">
-      <header class="topbar">
-        <div>
-          <h1 id="modeTitle">Companion</h1>
-          <div class="subtitle" id="modeSubtitle"></div>
-        </div>
-        <div class="chips">
-          <span class="chip" id="aiChip"><span class="dot"></span><span>Checking AI…</span></span>
-          <span class="chip ok" id="dataChip" title="Inventory, plans, knowledge and the tech tree are stored locally and work without AI"><span class="dot"></span><span>Offline data ready</span></span>
-          <button class="btn sm ctx-toggle" id="ctxToggle" aria-controls="context" aria-expanded="false">Context</button>
-        </div>
-      </header>
-
-      <div class="workarea">
-        <section class="chat" aria-label="Prometheus companion">
-          <div class="chat-head">
-            <div class="face" id="chatFace"></div>
-            <div class="who">
-              <h2>PROMETHEUS</h2>
-              <div class="state" id="chatState" aria-live="polite">Standing by</div>
-            </div>
-            <div style="margin-left:auto"><button class="btn ghost sm" id="hoodToggle" title="Show technical details for every reply">Under the hood: off</button></div>
-          </div>
-          <div class="chat-log" id="chatLog" aria-live="polite"></div>
-          <div class="composer">
-            <div class="suggestions" id="suggestions"></div>
-            <form id="chatForm">
-              <label class="sr-only" for="chatInput">Message Prometheus</label>
-              <textarea id="chatInput" rows="1" placeholder="Talk to Prometheus…"></textarea>
-              <button class="btn primary" type="submit" id="sendBtn" aria-label="Send"><span data-icon="send"></span></button>
-            </form>
-          </div>
-        </section>
-
-        <main class="workspace" id="workspace" tabindex="-1"></main>
-      </div>
+    <div class="bar-end">
+      <button class="sos" id="sosBtn" aria-label="SOS: emergency help">SOS</button>
+      <button class="icon-btn" id="menuBtn" aria-label="Menu" aria-haspopup="menu" aria-expanded="false"><span data-icon="menu"></span></button>
     </div>
+  </header>
+  <div class="offline-note" id="offlineNote" hidden>No internet. Your plan and guides still work.</div>
 
-    <aside class="context" id="context" aria-label="Context"></aside>
+  <div class="main">
+    <main class="canvas" id="canvas" tabindex="-1">
+      <div class="world" id="world"></div>
+      <div class="canvas-ui">
+        <button class="add-card" id="addCard" aria-label="Add a card" aria-expanded="false" aria-controls="drawer"><span data-icon="plus"></span></button>
+        <aside class="drawer" id="drawer" aria-label="Cards you can add"></aside>
+        <div class="zoom-ctl" role="toolbar" aria-label="Canvas controls">
+          <button id="zoomOut" aria-label="Zoom out"><span data-icon="minus"></span></button>
+          <button id="zoomPct" aria-label="Reset zoom">100%</button>
+          <button id="zoomIn" aria-label="Zoom in"><span data-icon="plus"></span></button>
+          <span class="sep"></span>
+          <button id="fitBtn" title="Fit (Shift+1)"><span data-icon="fit"></span><span class="lbl">Fit</span></button>
+          <button id="tidyBtn" title="Tidy"><span data-icon="tidy"></span><span class="lbl">Tidy</span></button>
+          <button id="clearBtn" title="Remove unpinned cards"><span data-icon="eraser"></span><span class="lbl">Clear</span></button>
+        </div>
+        <div class="pointers" id="pointers"></div>
+      </div>
+    </main>
+
+    <section class="chat" id="chat" aria-label="Chat with Prometheus">
+      <button class="sheet-handle" id="sheetHandle" aria-label="Open chat" aria-expanded="false"><span></span></button>
+      <div class="chat-head">
+        <div class="seat" id="seat"><div class="face" id="homeFace"></div></div>
+        <div class="who"><strong>Prometheus</strong><span class="chat-state" id="chatState" aria-live="polite"></span></div>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+      <form class="composer" id="chatForm">
+        <div class="suggestions" id="suggestions"></div>
+        <label class="sr-only" for="chatInput">Message Prometheus</label>
+        <textarea id="chatInput" rows="1" placeholder="Message…"></textarea>
+        <div class="composer-row">
+          <span id="modeSlot"></span>
+          <button class="send" type="submit" id="sendBtn" aria-label="Send"><span data-icon="send"></span></button>
+        </div>
+      </form>
+    </section>
   </div>
 
-  <script type="module" src="js/app.js"></script>
+  <div class="menu" id="menu" role="menu" hidden></div>
+  <div class="sr-only" id="live" aria-live="polite"></div>
+  <script type="module" src="js/simple/main.js"></script>
 </body>
 </html>

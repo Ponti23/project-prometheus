@@ -1,6 +1,6 @@
 # UI redesign: Simple mode (an AI-native canvas)
 
-_Status: design agreed with the owner on 2026-10-29. **Nothing is built yet.** Tick the checklist in [Build plan](#build-plan) as you go._
+_Status: design agreed with the owner on 2026-10-29. Build in progress on `claude/charming-bell-9gytjt`. Tick the checklist in [Build plan](#build-plan) as you go._
 
 > **Resuming in a fresh session?** Read this whole file first. The owner asked you to work on your own (they're driving). Don't stop to ask questions: use the defaults written here, write down anything new under [Decisions made while the owner was away](#decisions-made-while-the-owner-was-away), and keep going.
 
@@ -250,12 +250,12 @@ Work top to bottom. After each phase:
 4. Commit, push, and tick the boxes below.
 
 **Phase 1: Shell and the Prepare canvas**
-- [ ] Move the current UI to `advanced.html`, add the new Simple `index.html` shell, and the toggles both ways
-- [ ] `simple.css`: tokens, light and dark themes, phone layout
-- [ ] Canvas engine: pan/zoom, dot grid, card drag, semantic zoom, controls, the "+" drawer, saving layouts, keyboard support
-- [ ] `GET /api/summary` with tests
-- [ ] Prepare cards: `stages`, `next`, `category:*`, `household`, `expiring`
-- [ ] Simple chat panel: history, send, approvals as Save / No
+- [x] Move the current UI to `advanced.html`, add the new Simple `index.html` shell, and the toggles both ways
+- [x] `simple.css`: tokens, light and dark themes, phone layout
+- [x] Canvas engine: pan/zoom, dot grid, card drag, semantic zoom, controls, the "+" drawer, saving layouts, keyboard support
+- [x] `GET /api/summary` with tests
+- [x] Prepare cards: `stages`, `next`, `category:*`, `household`, `expiring`
+- [x] Simple chat panel: history, send, approvals as Save / No
 
 **Phase 2: The chat drives the canvas**
 - [ ] Card ops in `ui_hints` (with tests); visible cards sent in the chat context
@@ -287,3 +287,12 @@ Work top to bottom. After each phase:
 
 ## Decisions made while the owner was away
 _(Append each default you had to pick, with a one-line reason.)_
+
+- **Phone canvas is a stack.** At ≤ 760px the cards sit in one column with normal scrolling (no free pan or zoom), which matches the phone sketch and lets a sideways swipe switch canvases without fighting a pan.
+- **Food in Next up opens the Food card** instead of a tick box. Ticking would add raw kcal, which isn't something a person buys.
+- **Ticking a Next up item uses the stage's amount.** It completes an open task only if that task has the same amount; otherwise it creates one for the stage. An old 30-day restock task (say 555 L) would otherwise add the wrong amount.
+- **Days are shown as calculated** ("60 L · 2.9 days"), not rounded to "about 3 days", because 2.9 is short of the 3-day stage and the card says so.
+- **Uncounted food asks for kcal from the label** ("kcal per can? (on the label)") and nothing is guessed, per the "don't invent nutrition numbers" rule.
+- **Compact cards keep their full-size footprint**, so zooming out gives a readable map without the layout jumping.
+- **Cards use the current stage.** Category cards show have vs need for the stage you're working on (the goal once every stage is reached); the Stages card shows the rest.
+- **Summary data lives in `backend/app/prepare/summary.py`**; Simple's JS lives in `frontend/js/simple/` (cards in `cards/`).
