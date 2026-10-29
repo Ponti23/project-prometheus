@@ -22,7 +22,7 @@ Prometheus is one continuous AI companion, a little fire spirit whose face react
 - **Rebuild:** an interactive electricity technology tree, from "Energy & power" to "Small off-grid DC power". It shows prerequisites, learning paths, the materials you have or lack, and safety gating (mains wiring stays professional-only).
 - **Knowledge Vault:** 20 curated offline entries, linked to sources such as the Australian Red Cross, Emergency WA, Ready.gov, CDC, FoodSafety.gov, OpenStax and PhET.
 
-The companion drives all of it through **15 real tools** that read and write your saved data, and it remembers you across sessions.
+The companion drives all of it through **16 real tools** that read and write your saved data, and it remembers you across sessions.
 
 ## How I built it
 - **Model:** NVIDIA Nemotron served by **Nebius Token Factory** through its OpenAI-compatible chat completions API with tool calling.

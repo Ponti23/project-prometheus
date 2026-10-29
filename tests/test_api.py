@@ -111,3 +111,19 @@ def test_offline_content_endpoints():
     assert g["triage_questions"] and g["label"] == "Real-world guidance"
     assert c.get("/api/scenarios/zombie").json()["scenario"]["fictional"] is True
     assert c.get("/").status_code == 200
+    assert "simple.css" in c.get("/").text and "js/app.js" in c.get("/advanced.html").text
+
+
+def test_sos_triage_maps_to_real_vault_entries():
+    from backend.app.knowledge.search import entry_ids
+    from backend.app.survive.scenarios import load_scenarios
+
+    for s in load_scenarios().values():
+        if s["fictional"]:
+            continue
+        assert len(s["triage"]) == len(s["triage_questions"]), s["id"]
+        for t in s["triage"]:
+            assert t.get("show") == "supplies" or (t["danger"] in {"yes", "no"} and t["kb"]), t
+            assert set(t.get("kb", [])) <= entry_ids(), t
+    c = make_client()
+    assert c.get("/api/scenarios/blackout").json()["triage"][2]["kb"] == ["kb-carbon-monoxide"]

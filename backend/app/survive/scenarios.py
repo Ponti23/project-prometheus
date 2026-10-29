@@ -65,6 +65,7 @@ def scenario_guide(scenario_id: str, profile: HouseholdProfile, inventory: list[
         "scenario": {k: s[k] for k in ("id", "title", "fictional", "description")},
         "label": "FICTIONAL SIMULATION — not real-world guidance" if s["fictional"] else "Real-world guidance",
         "triage_questions": s["triage_questions"],
+        "triage": s.get("triage", []),
         "guideline_steps": s["steps"],
         "household": household_situation(profile, inventory),
         "knowledge": [{"id": e["id"], "title": e["title"], "summary": e["summary"], "sources": e["sources"]} for e in knowledge],

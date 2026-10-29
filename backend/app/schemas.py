@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -106,9 +106,23 @@ class ContextUpdate(BaseModel):
     topic: str | None = Field(default=None, max_length=60)
 
 
+Canvas = Literal["prepare", "survive", "rebuild", "vault"]
+
+
 class ChatIn(BaseModel):
     message: str = Field(min_length=1, max_length=4000)
     mode: Mode | None = None
+    # Simple mode says what's on screen, so "this" can mean the card the user just tapped.
+    ui: Literal["simple", "advanced"] | None = None
+    canvas: Canvas | None = None
+    cards: list[Annotated[str, Field(max_length=120)]] = Field(default_factory=list, max_length=40)
+    focused_card: str | None = Field(default=None, max_length=120)
+    # Ask first (default) proposes everything; Auto saves small undoable supply changes; Plan only drafts.
+    permission_mode: Literal["ask", "auto", "plan"] = "ask"
+
+
+class ActionEdit(BaseModel):
+    changes: dict[str, Any] = Field(min_length=1)
 
 
 class PlanStepPatch(BaseModel):

@@ -9,6 +9,13 @@ export async function renderSettings(root, { state, refresh }) {
 
   clear(root,
     h("section", { class: "panel" },
+      h("div", { class: "panel-head" }, h("h2", {}, "Look"),
+        h("div", { class: "right" }, h("button", { class: "btn primary sm", onclick: () => {
+          try { localStorage.setItem("prometheus.ui", "simple"); } catch { /* storage unavailable */ }
+          location.href = "./";
+        } }, "Simple mode"))),
+      h("p", { class: "muted", style: { margin: 0, fontSize: "13px" } }, "Simple mode is a calmer canvas with the same data and the same approvals.")),
+    h("section", { class: "panel" },
       h("div", { class: "panel-head" }, h("h2", {}, "AI connection")),
       kv("Mode", ai.configured ? "Cloud inference" : "Unavailable — offline data only"),
       kv("Provider", ai.provider),

@@ -10,16 +10,17 @@ from fastapi.staticfiles import StaticFiles
 
 from . import demo
 from .agent.llm import ChatClient, LLMUnavailable, NebiusClient
-from .agent.loop import RateLimited, record_action_event, run_turn
-from .agent.tools import ActionError, TOOLS, execute_action
+from .agent.loop import RateLimited, apply_action, record_action_event, run_turn
+from .agent.tools import EDITED, ActionError, TOOLS, edit_action, simulate_action, undo_action
 from .config import FRONTEND_DIR, Settings, get_settings
 from .db import Store
 from .knowledge import search as kb
 from .prepare.calculator import load_assumptions, target_keys
 from .prepare.readiness import calculate_readiness, missing_supplies
+from .prepare.summary import build_summary, summary_changes
 from .rebuild import techtree
 from .schemas import (
-    ChatIn, ContextUpdate, HouseholdProfile, HouseholdProfileUpdate, InventoryItemIn, InventoryItemPatch,
+    ActionEdit, ChatIn, ContextUpdate, HouseholdProfile, HouseholdProfileUpdate, InventoryItemIn, InventoryItemPatch,
     MemoryNoteIn, PlanStepPatch, TaskComplete, TaskIn, TaskPatch,
 )
 from .survive.scenarios import scenario_guide, scenario_list
@@ -182,6 +183,10 @@ def create_app(
         r["missing"] = missing_supplies(r)
         return r
 
+    @app.get("/api/summary")
+    def summary(hid: str = H) -> dict[str, Any]:
+        return build_summary(store.get_profile(hid), store.list_inventory(hid))
+
     @app.get("/api/assumptions")
     def assumptions() -> dict[str, Any]:
         return load_assumptions()
@@ -230,6 +235,45 @@ def create_app(
     def actions(status: str | None = None, hid: str = H) -> list[dict[str, Any]]:
         return store.list_actions(hid, status=status)
 
+    def _preview(ids: list[str], hid: str) -> dict[str, Any]:
+        acts = [store.get_action(hid, i) for i in ids]
+        if not ids or any(a is None for a in acts):
+            raise _404("action")
+        profile, inv = store.get_profile(hid), store.list_inventory(hid)
+        before = build_summary(profile, inv)
+        for a in acts:
+            if a["status"] == "pending":  # type: ignore[index]
+                try:
+                    profile, inv = simulate_action(profile, inv, a)  # type: ignore[arg-type]
+                except (ActionError, ValueError) as e:
+                    raise HTTPException(422, f"could not preview action: {e}")
+        after = build_summary(profile, inv)
+        return {"action_ids": ids, "changes": summary_changes(before, after), "summary": after,
+                "profile": profile.model_dump(), "inventory": inv}
+
+    # Before → after for every number a pending change would move. Deterministic, no AI, nothing saved.
+    @app.get("/api/actions/preview")
+    def preview_many(ids: str, hid: str = H) -> dict[str, Any]:
+        return _preview([i for i in ids.split(",") if i], hid)
+
+    @app.get("/api/actions/{action_id}/preview")
+    def preview(action_id: str, hid: str = H) -> dict[str, Any]:
+        return _preview([action_id], hid)
+
+    @app.post("/api/actions/{action_id}/edit")
+    def edit(action_id: str, body: ActionEdit, hid: str = H) -> dict[str, Any]:
+        a = store.get_action(hid, action_id)
+        if a is None:
+            raise _404("action")
+        if a["status"] != "pending":
+            raise HTTPException(409, f"action already {a['status']}")
+        try:
+            payload, summary = edit_action(a, body.changes)
+        except (ActionError, ValueError) as e:
+            raise HTTPException(422, f"could not edit action: {e}")
+        store.update_action(hid, action_id, payload, summary)
+        return store.get_action(hid, action_id)  # type: ignore[return-value]
+
     @app.post("/api/actions/{action_id}/approve")
     def approve(action_id: str, hid: str = H) -> dict[str, Any]:
         a = store.get_action(hid, action_id)
@@ -238,14 +282,28 @@ def create_app(
         if a["status"] != "pending":
             raise HTTPException(409, f"action already {a['status']}")
         try:
-            result = execute_action(store, hid, a)
+            result = apply_action(store, hid, a)
         except (ActionError, ValueError) as e:
-            store.resolve_action(hid, action_id, "failed", {"error": str(e)})
             raise HTTPException(422, f"could not apply action: {e}")
-        store.resolve_action(hid, action_id, "approved", result)
-        store.log_tool(hid, a["kind"], a["payload"], result, True, "state_changed_after_approval")
-        record_action_event(store, hid, a, approved=True)
+        record_action_event(store, hid, a, approved=True,
+                            detail="The user edited it before saving." if a["summary"].endswith(EDITED) else "")
         return {"status": "approved", "result": result}
+
+    @app.post("/api/actions/{action_id}/undo")
+    def undo(action_id: str, hid: str = H) -> dict[str, Any]:
+        a = store.get_action(hid, action_id)
+        if a is None:
+            raise _404("action")
+        if a["status"] != "approved":
+            raise HTTPException(409, f"only saved changes can be undone (this one is {a['status']})")
+        try:
+            undo_action(store, hid, a)
+        except (ActionError, KeyError, TypeError, ValueError) as e:
+            raise HTTPException(422, f"could not undo: {e}")
+        store.resolve_action(hid, action_id, "undone", a["result"])
+        store.log_tool(hid, a["kind"], a["payload"], {"undone": True}, True, "undone_by_user")
+        record_action_event(store, hid, a, approved=False, verb="UNDID", detail="It is back to how it was before.")
+        return {"status": "undone"}
 
     @app.post("/api/actions/{action_id}/reject")
     def reject(action_id: str, hid: str = H) -> dict[str, Any]:
@@ -336,7 +394,9 @@ def create_app(
             )
         try:
             client = client_factory(settings)
-            return run_turn(store, hid, body.message, client, settings, mode=body.mode)
+            view = body.model_dump(include={"ui", "canvas", "cards", "focused_card", "permission_mode"})
+            return run_turn(store, hid, body.message, client, settings, mode=body.mode, view=view,
+                            permission=body.permission_mode)
         except RateLimited as e:
             return JSONResponse(status_code=429, content={"error": "rate_limited", "detail": str(e)})
         except LLMUnavailable as e:

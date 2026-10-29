@@ -67,7 +67,9 @@ CREATE TABLE IF NOT EXISTS pending_actions (
     status TEXT NOT NULL DEFAULT 'pending',
     result_json TEXT,
     created_at TEXT NOT NULL,
-    resolved_at TEXT
+    resolved_at TEXT,
+    before_json TEXT,
+    resolved_by TEXT
 );
 CREATE TABLE IF NOT EXISTS messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -126,6 +128,11 @@ class Store:
         self._memory_conn: sqlite3.Connection | None = None
         with self.conn() as c:
             c.executescript(SCHEMA)
+            # Columns added after the first release; older database files lack them.
+            cols = {r[1] for r in c.execute("PRAGMA table_info(pending_actions)")}
+            for col in ("before_json", "resolved_by"):
+                if col not in cols:
+                    c.execute(f"ALTER TABLE pending_actions ADD COLUMN {col} TEXT")
 
     @contextmanager
     def conn(self) -> Iterator[sqlite3.Connection]:
@@ -171,11 +178,11 @@ class Store:
     def get_profile(self, hid: str) -> HouseholdProfile:
         return self.get_household(hid)["profile"]
 
-    def save_profile(self, hid: str, profile: HouseholdProfile) -> HouseholdProfile:
+    def save_profile(self, hid: str, profile: HouseholdProfile, confirmed: bool = True) -> HouseholdProfile:
         with self.conn() as c:
             c.execute(
-                "UPDATE households SET profile_json = ?, profile_confirmed = 1, updated_at = ? WHERE id = ?",
-                (profile.model_dump_json(), now(), hid),
+                "UPDATE households SET profile_json = ?, profile_confirmed = ?, updated_at = ? WHERE id = ?",
+                (profile.model_dump_json(), int(confirmed), now(), hid),
             )
         return profile
 
@@ -318,6 +325,8 @@ class Store:
         if r:
             r["payload"] = json.loads(r.pop("payload_json"))
             r["result"] = json.loads(r.pop("result_json")) if r["result_json"] else None
+            before = r.pop("before_json", None)
+            r["before"] = json.loads(before) if before else None
         return r
 
     def list_actions(self, hid: str, status: str | None = None) -> list[dict[str, Any]]:
@@ -330,11 +339,24 @@ class Store:
             ids = [r["id"] for r in c.execute(q + " ORDER BY created_at", args).fetchall()]
         return [self.get_action(hid, i) for i in ids]  # type: ignore[misc]
 
-    def resolve_action(self, hid: str, aid: str, status: str, result: dict[str, Any] | None) -> None:
+    def update_action(self, hid: str, aid: str, payload: dict[str, Any], summary: str) -> None:
         with self.conn() as c:
             c.execute(
-                "UPDATE pending_actions SET status = ?, result_json = ?, resolved_at = ? WHERE id = ? AND household_id = ?",
-                (status, json.dumps(result, default=str) if result is not None else None, now(), aid, hid),
+                "UPDATE pending_actions SET payload_json = ?, summary = ? WHERE id = ? AND household_id = ? AND status = 'pending'",
+                (json.dumps(payload, default=str), summary, aid, hid),
+            )
+
+    def resolve_action(
+        self, hid: str, aid: str, status: str, result: dict[str, Any] | None,
+        before: dict[str, Any] | None = None, by: str | None = None,
+    ) -> None:
+        with self.conn() as c:
+            c.execute(
+                "UPDATE pending_actions SET status = ?, result_json = ?, resolved_at = ?,"
+                " before_json = COALESCE(?, before_json), resolved_by = COALESCE(?, resolved_by)"
+                " WHERE id = ? AND household_id = ?",
+                (status, json.dumps(result, default=str) if result is not None else None, now(),
+                 json.dumps(before, default=str) if before is not None else None, by, aid, hid),
             )
 
     # ---------- messages ----------

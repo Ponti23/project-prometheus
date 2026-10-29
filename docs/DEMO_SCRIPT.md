@@ -11,4 +11,14 @@ Every step uses a working feature. Before recording: set `NEBIUS_API_KEY`, start
 | 2:20–2:35 | **5 · Persistence** | Reload the page. The household, inventory, tasks, plan, topic and conversation are all still there. |
 | 2:35–2:50 | **6 · Technical proof** | Expand **Under the hood**: model `nvidia/nemotron-3-super-120b-a12b` as reported by Nebius, the response ID, latency, tokens, and the tool calls with their arguments. Open **Settings → Tool call log**: `pending_action`, then `state_changed_after_approval`. Close on: "Prepare today. Survive tomorrow. Rebuild the future." |
 
+### Simple-mode version (same features, friendlier look)
+Before recording: open `/`, then **≡ → Try the demo family**. Keep the chat in **Ask first**.
+
+1. **Prepare.** Say *"I bought 5 L of water"*. The flame flies to the Water card and pencils in **60 L → 65 L** ("7 left for 3 days"). Tap **Save**: it stamps the number and the stages card ticks down. Tap **Why?** for the cited working.
+2. **Auto.** Switch the chip to **Auto** (or Shift+Tab) and say *"I just bought 2 LED torches"*. It saves straight away with an Undo chip. Then *"I bought a slab of water"* still asks, because Prometheus had to guess the number.
+3. **Survive.** Say *"The power just went out across the whole street."* The flame flies to the Survive tab; the scenario and a drafted plan appear in pencil. **Save** it and tick a step.
+4. **SOS.** Tap **SOS**: Is anyone hurt? → Power out → one safety question per screen → steps with **Done ✓**. No AI involved.
+5. **Rebuild.** *"Teach me how electricity works."* Lesson 1 opens with "Try this safely".
+6. **Proof.** **≡ → Show me how it works** opens Advanced with Under the hood on.
+
 Fallback if the network fails during recording: show the offline data views and say plainly that chat needs the cloud. Never splice in fake replies.

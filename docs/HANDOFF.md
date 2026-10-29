@@ -5,6 +5,9 @@ Use this to resume work in a fresh session. _Updated: 2026-10-29._
 **Hackathon:** Nebius × NVIDIA Global AI Hackathon, Personal AI track. **Deadline: Oct 30, 2026, 10:00 AM PDT.**
 **Branch:** `main` (the default branch; renamed from `prometheus-mvp`). The repo is public.
 
+## UI redesign: built, on a branch
+A friendlier **Simple mode** (an AI-native canvas), with today's UI kept as **Advanced mode**. All seven phases in [REDESIGN.md](REDESIGN.md) are built and pushed to `claude/charming-bell-9gytjt` (not merged to `main`, no PR). The defaults picked while the owner was away are listed at the end of REDESIGN.md. Screenshots are in `docs/screenshots/redesign/`. To ship it, merge the branch to `main` (Render redeploys).
+
 ## Done
 - The full MVP is built and committed. See [FEATURES.md](FEATURES.md) for the status of each feature.
 - `pytest`: 56 passed, including the 3 live Nebius tests (they skip without `NEBIUS_API_KEY`).
