@@ -20,7 +20,7 @@ Use this to resume work in a fresh session. _Updated: 2026-10-29._
 - Citations in the chat come from tool results, not the model's text: `collect_sources()` in `backend/app/agent/loop.py`.
 - Write tools only create `pending_actions`. `POST /api/actions/{id}/approve` → `execute_action()` in `backend/app/agent/tools.py` is the only path that changes state.
 - Planning numbers live in `data/assumptions.json`. Citable links live only in `data/sources.json` (all `checked: false` for now).
-- Hosting choice: Nebius AI Cloud (Docker + persistent `/data` volume). Not deployed yet: it needs the user's approval because it costs money.
+- Hosting: free Hugging Face Docker Space, deployed by `.github/workflows/deploy-hf-space.yml` (needs `HF_TOKEN` and `NEBIUS_API_KEY` repo secrets). See [DEPLOY.md](DEPLOY.md).
 
 ## Next steps (in order)
 1. ~~Verify the Nebius key and model~~ (done).

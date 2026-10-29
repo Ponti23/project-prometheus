@@ -11,16 +11,15 @@ Each browser automatically gets its own isolated household (cookie). Judges clic
 ## Option 0 (chosen, free): Hugging Face Spaces (Docker)
 No credit card needed. The model still runs on Nebius Token Factory, which satisfies the hackathon's "runs on Nebius" rule. The `README.md` front matter (`sdk: docker`, `app_port: 8000`) tells Hugging Face how to run the image.
 
-1. Create a free account at huggingface.co, then **New Space** → SDK **Docker** → template **Blank** → hardware **CPU basic (free)** → visibility **Public**.
-2. In the Space: **Settings → Variables and secrets → New secret**, name `NEBIUS_API_KEY`, paste your key.
-3. Create a Hugging Face **write** access token (Settings → Access Tokens).
-4. In the GitHub repo: **Settings → Secrets and variables → Actions**:
-   - Secret `HF_TOKEN` = the Hugging Face token.
-   - Variable `HF_SPACE` = `your-hf-username/your-space-name`.
-5. Run **Actions → Deploy to Hugging Face Space → Run workflow** (it also runs on every push to `main`). It leaves out `docs/screenshots`, since Hugging Face rejects plain binary files.
-6. Give judges the direct URL `https://<user>-<space>.hf.space`, not the `huggingface.co/spaces/...` page. The page shows the app in an iframe, where the browser may block the household cookie.
+1. Create a free account at huggingface.co, then **Settings → Access Tokens → Create new token**, type **Write**.
+2. In the GitHub repo: **Settings → Secrets and variables → Actions → New repository secret**:
+   - `HF_TOKEN` = the Hugging Face token.
+   - `NEBIUS_API_KEY` = your Nebius key.
+   - Optional variable `HF_SPACE` (e.g. `your-name/prometheus`). The default is `<hf user>/project-prometheus`.
+3. Run **Actions → Deploy to Hugging Face Space → Run workflow** (it also runs on every push to `main`). `scripts/deploy_space.py` creates the public Space if needed, stores `NEBIUS_API_KEY` as a Space secret and uploads the app (not `docs/screenshots`). The workflow then waits for the build and runs `scripts/smoke_test.py --chat` against the live URL. The URL is in the run summary.
+4. Give judges the direct URL `https://<user>-<space>.hf.space`, not the `huggingface.co/spaces/...` page. The page shows the app in an iframe, where the browser may block the household cookie.
 
-Limits: free Spaces sleep after about 48 hours with no visitors (the first visit then takes about a minute) and the disk is not persistent, so a restart wipes saved households. Judges load the demo household anyway.
+Limits: free Spaces sleep after about 48 hours with no visitors, so **Keep Space awake** visits the page twice a day (no model calls). The disk is not persistent, so a restart wipes saved households; judges load the demo household anyway.
 
 ## Option A (paid): Nebius AI Cloud: Nebius AI Cloud
 Running on Nebius compute strengthens the "built on Nebius" submission. Nebius's container services change often, so **check the current Nebius AI Cloud docs** for the exact commands. The shape is:

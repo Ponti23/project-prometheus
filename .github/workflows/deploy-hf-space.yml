@@ -1,5 +1,6 @@
-# Pushes the app to a Hugging Face Docker Space.
-# Setup: repo secret HF_TOKEN (a Hugging Face write token) and repo variable HF_SPACE (e.g. "your-name/prometheus").
+# Creates/updates the Hugging Face Docker Space and smoke-tests the live app.
+# Setup: repo secrets HF_TOKEN (Hugging Face write token) and NEBIUS_API_KEY.
+# Optional repo variable HF_SPACE (default "<hf user>/project-prometheus").
 name: Deploy to Hugging Face Space
 
 on:
@@ -10,20 +11,24 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ vars.HF_SPACE != '' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Push a fresh snapshot to the Space
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install huggingface_hub httpx
+      - name: Check the token is set
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACE: ${{ vars.HF_SPACE }}
         run: |
-          # The Space only needs the app. Hugging Face rejects plain binary files, so leave out the screenshots.
-          rm -rf .git docs/screenshots
-          git init -q -b main
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
-          git add -A
-          git commit -qm "Deploy ${GITHUB_SHA::7}"
-          HF_USER="${HF_SPACE%%/*}"
-          git push --force "https://${HF_USER}:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}" main
+          if [ -z "$HF_TOKEN" ]; then echo "::error::Add the HF_TOKEN repo secret first (see docs/DEPLOY.md)"; exit 1; fi
+      - name: Deploy
+        id: deploy
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          NEBIUS_API_KEY: ${{ secrets.NEBIUS_API_KEY }}
+          HF_SPACE: ${{ vars.HF_SPACE }}
+        run: python scripts/deploy_space.py
+      - name: Smoke-test the live app (waits for the build)
+        run: python scripts/smoke_test.py "${{ steps.deploy.outputs.url }}" --wait 900 --chat
+      - run: echo "Live at ${{ steps.deploy.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
