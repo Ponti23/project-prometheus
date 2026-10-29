@@ -25,4 +25,4 @@ Use this to resume work in a fresh session. _Updated: 2026-10-29._
 3. Do a real demo run using [DEMO_SCRIPT.md](DEMO_SCRIPT.md) and fix anything rough.
 4. Run `python scripts/check_sources.py --write` on a normally connected machine and commit the result.
 5. Deploy following [DEPLOY.md](DEPLOY.md) (after the user approves). Confirm `/api/ai/verify` returns `ok: true` on the hosted URL.
-6. Record the video (under 3 minutes), and submit on Devpost.
+6. Record the video (under 3 minutes), paste [DEVPOST.md](DEVPOST.md) into Devpost with the images in `docs/screenshots/` and submit.

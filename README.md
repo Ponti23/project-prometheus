@@ -117,6 +117,7 @@ Prometheus provides general preparedness information only. In an emergency, foll
 - [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md): the 3-minute demo, using only working features
 - [docs/DEPLOY.md](docs/DEPLOY.md): deployment strategy for judging
 - [docs/HANDOFF.md](docs/HANDOFF.md): current status and next steps
+- [docs/DEVPOST.md](docs/DEVPOST.md): Devpost submission text and gallery screenshots
 
 ## License
 Apache-2.0. See [LICENSE](LICENSE).
