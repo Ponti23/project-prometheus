@@ -26,7 +26,7 @@ The companion is the heart of the app. The survival kit calculator, inventory, k
 | **Survive** | Scenario guides (extended blackout is fully worked; supply disruption, isolation, and a clearly labelled *fictional* zombie drill). Each guide has triage questions, your household's real resource picture (days of water and food, lighting, radio), source-backed steps, and a saved, checkable response plan. |
 | **Rebuild** | An interactive, validated **electricity technology tree** (12 nodes, from *Energy & power* to *Small off-grid DC power*). It shows prerequisites, learning paths, materials you have or lack, safety level and sources. The companion opens nodes and explains them. |
 | **Knowledge Vault** | 20 curated, offline entries on preparedness, water, food, shelter, first aid, energy and science, with linked sources (Australian Red Cross, WA DFES / Emergency WA, Ready.gov, CDC, FoodSafety.gov, OpenStax, PhET and others). |
-| **Companion** | Nemotron with 16 validated tools, persistent memory, conversation restore, and an **Under the hood** view showing the real model ID, response ID, latency, token usage, and every tool call with its arguments and effect. In Simple mode it also drives the canvas: each tool says which card it's about, and the app places the card. |
+| **Companion** | Nemotron with 16 validated tools (17 with optional Tavily web search), persistent memory, conversation restore, and an **Under the hood** view showing the real model ID, response ID, latency, token usage, and every tool call with its arguments and effect. In Simple mode it also drives the canvas: each tool says which card it's about, and the app places the card. |
 
 ### How Prometheus stays honest
 - **Real tool calling.** Every tool reads or writes the SQLite database. Read tools run automatically.
@@ -45,7 +45,7 @@ The companion is the heart of the app. The survival kit calculator, inventory, k
 
 **Model:** `nvidia/nemotron-3-super-120b-a12b` (Nemotron 3 Super, ~12B active parameters) is the default. Prometheus chains several tool calls per turn over long conversations, and Super 120B handled that reliably at a reasonable latency. `nvidia/Nemotron-3_5-Lightning` was also tested: it's faster, but in long conversations (~15k prompt tokens) it sometimes replied with the literal text `[ERROR: Max turns (10) exceeded]` instead of calling tools (2 of 3 demo runs). It can still be chosen with `NEBIUS_MODEL`.
 
-**How Nemotron is used:** out of the box, with no fine-tuning. A persona system prompt sets the honesty rules, each request carries a snapshot of the household, and the 16 tools are OpenAI-style functions with Pydantic-validated arguments (`backend/app/agent/`). Every number, citation and state change stays in deterministic code. Nemotron decides which tools to call and explains the results.
+**How Nemotron is used:** out of the box, with no fine-tuning. A persona system prompt sets the honesty rules, each request carries a snapshot of the household, and the 16 tools (17 with the optional Tavily `web_search`) are OpenAI-style functions with Pydantic-validated arguments (`backend/app/agent/`). Every number, citation and state change stays in deterministic code. Nemotron decides which tools to call and explains the results.
 
 **Where Token Factory sped things up:**
 - **No inference infrastructure.** No GPUs to run, just an API key and an HTTPS endpoint. `backend/app/agent/llm.py` calls the OpenAI-compatible chat completions API with plain `httpx` and no SDK, so the work went into the agent and its guardrails.
@@ -68,7 +68,7 @@ frontend/  (vanilla HTML/CSS/JS, no build step)
 backend/app/main.py  FastAPI ── cookie → household id (one isolated household per browser)
    ├── agent/llm.py       httpx → https://api.tokenfactory.nebius.com/v1/chat/completions  (OpenAI-compatible tools)
    ├── agent/loop.py      model → validate tool calls → execute → feed results → final answer (bounded rounds)
-   ├── agent/tools.py     16 tools: Pydantic-validated args, read / propose / note kinds, approval executors,
+   ├── agent/tools.py     17 tools (web_search only with a Tavily key): Pydantic-validated args, read / propose / note kinds, approval executors,
    │                      card hints for Simple mode, previews, edit, undo and the Auto-mode rules
    ├── agent/persona.py   Prometheus personality + per-turn household context snapshot
    ├── prepare/           deterministic calculator + readiness/shortages/restock drafts + readiness in stages
