@@ -44,19 +44,41 @@ function next() {
   const s = summary();
   const items = s.next_up;
   const label = stageLabel(s.focus_days);
+  // Saved tasks that aren't done yet (approved restock lists, your own), minus any the stage list already shows.
+  const tasks = app.data.tasks.filter((t) => t.status === "open" && !items.some((it) => it.key === t.target_key && it.quantity === t.quantity));
+  const count = items.length + tasks.length;
   return {
     icon: "list", title: "Next up", tag: s.current ? `for ${label}` : "", width: 300,
-    status: items.length ? "partial" : "met",
-    body: items.length
-      ? h("ul", { class: "checklist" }, items.map((it) => h("li", { "data-key": it.key },
-          it.key === "food_kcal"
-            ? [h("span", { class: "box", "aria-hidden": "true" }), h("span", { class: "t" }, it.title), link("How?", () => app.spawn("category", "food"))]
-            : h("label", { class: "tick" },
-                h("input", { type: "checkbox", onchange: (e) => tick(it, e.target) }),
-                h("span", { class: "t" }, it.title)))))
-      : h("p", { class: "headline ok" }, icon("check"), ` All set for ${label}`),
-    mini: mini(items.length ? `${items.length} to get` : "All set", `for ${label}`),
+    status: count ? "partial" : "met",
+    body: [
+      items.length
+        ? h("ul", { class: "checklist" }, items.map((it) => h("li", { "data-key": it.key },
+            it.key === "food_kcal"
+              ? [h("span", { class: "box", "aria-hidden": "true" }), h("span", { class: "t" }, it.title), link("How?", () => app.spawn("category", "food"))]
+              : h("label", { class: "tick" },
+                  h("input", { type: "checkbox", onchange: (e) => tick(it, e.target) }),
+                  h("span", { class: "t" }, it.title)))))
+        : h("p", { class: "headline ok" }, icon("check"), ` All set for ${label}`),
+      tasks.length ? [h("h3", { class: "list-head" }, "Your list"), h("ul", { class: "checklist" }, tasks.map((t) => h("li", { "data-task": t.id },
+        h("label", { class: "tick" },
+          h("input", { type: "checkbox", onchange: (e) => tickTask(t, e.target) }),
+          h("span", { class: "t" }, t.title)))))] : null,
+    ],
+    mini: mini(count ? `${count} to get` : "All set", `for ${label}`),
   };
+}
+
+// A saved task: done, and if it names an amount, added to supplies.
+async function tickTask(t, box) {
+  box.disabled = true;
+  try {
+    await api.post(`/tasks/${t.id}/complete`, { add_to_inventory: !!(t.target_key && t.quantity) });
+    announce(`Done: ${t.title}`);
+    await app.refresh({ ripple: true });
+  } catch (e) {
+    box.checked = false; box.disabled = false;
+    toast(e.message, true);
+  }
 }
 
 // Ticking an item completes its task and adds it to supplies (the existing task endpoint).

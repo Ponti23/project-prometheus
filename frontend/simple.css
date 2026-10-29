@@ -682,3 +682,4 @@ body.sos-open .flyer { display: none; }
   .world > .welcome p { font-size: 19px; flex: 1; text-align: left; }
   .world > .welcome .face.big { width: 52px; }
 }
+.list-head { font-size: 14px; color: var(--muted); font-weight: 700; margin-top: 4px; }
