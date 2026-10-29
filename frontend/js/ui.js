@@ -1,3 +1,5 @@
+import { setFaceBase } from "./face.js";
+
 // Small DOM helpers. All text goes through text nodes or escaping — never raw HTML from data.
 
 export function h(tag, attrs = {}, ...children) {
@@ -72,6 +74,7 @@ export function emblemSvg() {
 
 export function setEmblemState(state) {
   document.querySelectorAll(".emblem").forEach((e) => (e.dataset.state = state));
+  setFaceBase({ thinking: "thinking", tool: "thinking", offline: "sleeping" }[state] || "idle");
 }
 
 // ---- minimal, safe markdown (escape first, then a small set of inline/block rules)

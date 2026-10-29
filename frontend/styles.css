@@ -253,6 +253,13 @@ details.hood pre { background: var(--bg); border: 1px solid var(--line); border-
 .emblem[data-state="offline"] .flame { filter: grayscale(1) brightness(.7); animation: none; }
 .emblem.lg { width: 84px; height: 84px; }
 
+/* ------------------------------------------------------------------ face (Notch Face Kit, Block) */
+.face { --eye: #F2F4F8; flex: none; width: 92px; aspect-ratio: 11 / 4; background: #000; border-radius: 9px; box-shadow: 0 0 0 1px var(--line-2), 0 0 18px -6px var(--eye); transition: box-shadow .35s; }
+.face svg { display: block; width: 100%; height: 100%; }
+.face path { fill: var(--eye); stroke: var(--eye); stroke-width: 1.4; stroke-linejoin: round; transition: fill .35s, stroke .35s; }
+.face.lg { width: 168px; border-radius: 0 0 18px 18px; align-self: flex-start; margin-top: -22px; }
+@media (max-width: 640px) { .face.lg { width: 128px; } }
+
 /* ------------------------------------------------------------------ context panel */
 .ctx-section { margin-bottom: 18px; }
 .ctx-section > .eyebrow { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }

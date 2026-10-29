@@ -1,11 +1,11 @@
 import { api } from "../api.js";
-import { clear, emblemSvg, h, hydrateIcons, pct, toast } from "../ui.js";
+import { clear, h, hydrateIcons, pct, toast } from "../ui.js";
 
 export function renderCompanion(root, { state, refresh, navigate, sendChat }) {
   const { household, readiness, tasks, plans } = state;
   const open = tasks.filter((t) => t.status === "open").length;
   const plan = plans[0];
-  const big = h("div", { class: "emblem lg", "data-state": state.status?.ai.configured ? "idle" : "offline", html: emblemSvg() });
+  const big = h("div", { class: "face lg" });
 
   clear(root,
     h("div", { class: "hero" }, big,

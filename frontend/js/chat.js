@@ -1,4 +1,5 @@
 import { api } from "./api.js";
+import { flashFace } from "./face.js";
 import { clear, h, markdown, setEmblemState, toast } from "./ui.js";
 
 const log = document.getElementById("chatLog");
@@ -21,7 +22,10 @@ export function initChat(ctx) {
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(input.value); }
   });
-  input.addEventListener("input", () => { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 140) + "px"; });
+  input.addEventListener("input", () => {
+    input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 140) + "px";
+    if (!busy && input.value.trim()) flashFace(["listening", 1800]);
+  });
   hoodBtn.addEventListener("click", () => {
     showHood = !showHood;
     try { localStorage.setItem("prometheus.hood", showHood ? "1" : "0"); } catch { /* ignore */ }
@@ -128,8 +132,10 @@ async function resolve(a, verb) {
   try {
     await api.post(`/actions/${a.id}/${verb}`);
     toast(verb === "approve" ? "Approved — saved to your household" : "Rejected — nothing changed");
+    flashFace(verb === "approve" ? ["glee", 1800] : ["sad", 1600]);
     await app.refresh({ chat: true });
   } catch (e) {
+    flashFace(["error", 2000]);
     toast(e.message, true);
   }
 }
@@ -150,10 +156,13 @@ export async function sendChat(text) {
       if (hint.open) app.navigate(hint.open, hint.node ? { node: hint.node } : hint.scenario ? { scenario: hint.scenario } : {});
     }
     await app.refresh({ chat: true });
+    // Proposals waiting on the user get a wink; otherwise a plain happy finish.
+    flashFace(["speaking", 1600], [out.actions?.length ? "wink" : "happy", 1600]);
   } catch (e) {
     typing.remove();
     log.appendChild(h("div", { class: "msg error" }, "⚠ ", e.message));
     setBusy(false);
+    flashFace(["error", 2200], ["sad", 1600]);
     if (e.status === 0) toast(e.message, true);
   }
 }
