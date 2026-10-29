@@ -1,6 +1,6 @@
 // Offline support: network first, so you always get fresh data and code when online; the last copy when not.
 // Caches the app shell and every GET the app made (scenarios, guides, the tech tree, the last household snapshot).
-const CACHE = "prometheus-v1";
+const CACHE = "prometheus-v2";
 const SHELL = [
   "./", "index.html", "simple.css", "manifest.webmanifest", "assets/emblem.svg",
   "js/api.js", "js/ui.js", "js/face.js",

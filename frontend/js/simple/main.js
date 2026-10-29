@@ -229,7 +229,7 @@ function renderMenu() {
     item("What changed", "undo", showChanges),
     item("Print emergency card", "doc", printCard),
     item("Show me how it works", "atom", showHowItWorks),
-    item("Advanced mode", "gear", () => { store.set("prometheus.ui", "advanced"); location.href = "advanced.html"; }),
+    item("Advanced mode", "gear", () => { location.href = "advanced.html"; }),
     h("hr"),
     item("Clear conversation", "eraser", async () => { await api.del("/chat/history"); await renderChat(); }),
     item("Start over", "trash", resetHousehold));
@@ -282,11 +282,11 @@ async function resetHousehold() {
   announce("Started over");
 }
 
-// Two looks: the original dark one (default) and a warm light one. Remembered in this browser.
-function setTheme(theme) {
+// Two looks: the warm light one (default) and the original dark one. Only a tap is remembered in this browser.
+function setTheme(theme, remember = true) {
   const light = theme === "light";
   if (light) document.documentElement.dataset.theme = "light"; else delete document.documentElement.dataset.theme;
-  store.set("prometheus.theme", theme);
+  if (remember) store.set("prometheus.look", theme);
   const btn = $("themeBtn");
   btn.setAttribute("aria-pressed", String(light));
   btn.setAttribute("aria-label", light ? "Switch to the dark look" : "Switch to the light look");
@@ -311,7 +311,7 @@ function bindUi() {
   $("addCard").addEventListener("click", () => toggleDrawer());
   $("sosBtn").addEventListener("click", () => openSos());
   $("themeBtn").addEventListener("click", () => setTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light"));
-  setTheme(document.documentElement.dataset.theme || "dark");
+  setTheme(document.documentElement.dataset.theme || "dark", false);
   app.openSos = openSos;
   $("zoomIn").addEventListener("click", () => app.canvas.zoomAt(1.2));
   $("zoomOut").addEventListener("click", () => app.canvas.zoomAt(1 / 1.2));
