@@ -8,7 +8,21 @@ Judges need a working URL from submission (Oct 30) through the end of judging (a
 
 Each browser automatically gets its own isolated household (cookie). Judges click **Load demo household** to get synthetic data. No accounts or passwords are needed.
 
-## Option A (preferred story): Nebius AI Cloud
+## Option 0 (chosen, free): Hugging Face Spaces (Docker)
+No credit card needed. The model still runs on Nebius Token Factory, which satisfies the hackathon's "runs on Nebius" rule. The `README.md` front matter (`sdk: docker`, `app_port: 8000`) tells Hugging Face how to run the image.
+
+1. Create a free account at huggingface.co, then **New Space** → SDK **Docker** → template **Blank** → hardware **CPU basic (free)** → visibility **Public**.
+2. In the Space: **Settings → Variables and secrets → New secret**, name `NEBIUS_API_KEY`, paste your key.
+3. Create a Hugging Face **write** access token (Settings → Access Tokens).
+4. In the GitHub repo: **Settings → Secrets and variables → Actions**:
+   - Secret `HF_TOKEN` = the Hugging Face token.
+   - Variable `HF_SPACE` = `your-hf-username/your-space-name`.
+5. Run **Actions → Deploy to Hugging Face Space → Run workflow** (it also runs on every push to `main`). It leaves out `docs/screenshots`, since Hugging Face rejects plain binary files.
+6. Give judges the direct URL `https://<user>-<space>.hf.space`, not the `huggingface.co/spaces/...` page. The page shows the app in an iframe, where the browser may block the household cookie.
+
+Limits: free Spaces sleep after about 48 hours with no visitors (the first visit then takes about a minute) and the disk is not persistent, so a restart wipes saved households. Judges load the demo household anyway.
+
+## Option A (paid): Nebius AI Cloud: Nebius AI Cloud
 Running on Nebius compute strengthens the "built on Nebius" submission. Nebius's container services change often, so **check the current Nebius AI Cloud docs** for the exact commands. The shape is:
 1. Build and push the image to a registry Nebius can pull from (e.g. Nebius Container Registry):
    `docker build -t <registry>/prometheus:1 . && docker push <registry>/prometheus:1`

@@ -6,7 +6,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY backend ./backend
 COPY data ./data
 COPY frontend ./frontend
-RUN mkdir -p /data
+# Hugging Face Spaces runs the container as a non-root user, so /data must be writable by anyone.
+RUN mkdir -p /data && chmod 777 /data
 VOLUME ["/data"]
 EXPOSE 8000
 # NEBIUS_API_KEY must be supplied at runtime as a secret env var, never baked into the image.
