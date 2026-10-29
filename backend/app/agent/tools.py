@@ -19,6 +19,7 @@ from ..db import Store
 from ..knowledge import search as kb
 from ..prepare.calculator import load_assumptions, target_keys
 from ..prepare.readiness import calculate_readiness, missing_supplies, restock_task_drafts
+from ..prepare.summary import CATEGORIES, card_for, num_key
 from ..rebuild import techtree
 from ..schemas import HouseholdProfile, HouseholdProfileUpdate, InventoryItemIn, InventoryItemPatch, TaskIn
 from ..survive.scenarios import PRIORITIES, load_scenarios, scenario_guide
@@ -138,12 +139,39 @@ class SurvivalPlanArgs(BaseModel):
     steps: list[PlanStepArg] = Field(min_length=3, max_length=15)
 
 
+CARD_TYPES = Literal[
+    "stages", "next", "household", "category", "expiring", "scenario", "plan", "path", "lesson", "guide", "search", "memory",
+]
+
+
+class ShowCardArgs(BaseModel):
+    card: CARD_TYPES = Field(description="stages (ready in stages), next (shopping list), household, category (one supply "
+                                         "area), expiring, scenario, plan, path (learning path), lesson, guide, search, memory")
+    key: str | None = Field(default=None, max_length=120, description="category: " + ", ".join(c for c, _, _ in CATEGORIES)
+                            + "; scenario/plan: a scenario id; lesson: a node id; guide: a knowledge id; search: the query")
+
+
 class NoteArgs(BaseModel):
     text: str = Field(min_length=3, max_length=300, description="A fact the user stated that is worth remembering")
 
 
+# ---------------------------------------------------------------- canvas hints
+# Simple mode shows a card for what each tool reads or proposes. Hints are derived here, never from model text.
+# priority: 2 = a change is waiting on this card, 1 = this is what the turn was about, 0 = background reading.
+# The "open" key (and node/scenario) is what Advanced mode already reads, so it is only set where it was before.
+def _card(ctx: ToolContext, kind: str, key: str | None = None, *, priority: int = 1, focus: str | None = None,
+          action_id: str | None = None, **extra: Any) -> None:
+    hint: dict[str, Any] = {**extra, "card": {"type": kind, "key": key}, "priority": priority}
+    if focus:
+        hint["focus"] = focus
+    if action_id:
+        hint["action_id"] = action_id
+    ctx.ui_hints.append(hint)
+
+
 # ---------------------------------------------------------------- read handlers
 def _get_profile(ctx: ToolContext, _: NoArgs) -> dict[str, Any]:
+    _card(ctx, "household", priority=0)
     h = ctx.store.get_household(ctx.hid)
     return {
         "profile": h["profile"].model_dump(),
@@ -161,6 +189,8 @@ def _get_inventory(ctx: ToolContext, a: InventoryQuery) -> dict[str, Any]:
     items = ctx.store.list_inventory(ctx.hid)
     if a.category:
         items = [i for i in items if i["category"].lower() == a.category.lower()]
+        if card_for(category=a.category):
+            _card(ctx, "category", card_for(category=a.category))
     keep = ("id", "name", "category", "quantity", "unit", "target_key", "kcal_per_unit", "expires_on", "status", "notes")
     return {"count": len(items), "items": [{k: i[k] for k in keep} for i in items]}
 
@@ -171,7 +201,7 @@ def _readiness(ctx: ToolContext) -> dict[str, Any]:
 
 def _calc_readiness(ctx: ToolContext, _: NoArgs) -> dict[str, Any]:
     r = _readiness(ctx)
-    ctx.ui_hints.append({"open": "prepare"})
+    _card(ctx, "stages", priority=0, open="prepare")
     keep = ("key", "label", "quantity", "have", "unit", "coverage", "status", "working", "basis", "source")
     return {
         **{k: r[k] for k in ("household", "overall_coverage", "coverage_label", "supply_days", "disclaimer")},
@@ -183,6 +213,7 @@ def _calc_readiness(ctx: ToolContext, _: NoArgs) -> dict[str, Any]:
 
 
 def _missing(ctx: ToolContext, _: NoArgs) -> dict[str, Any]:
+    _card(ctx, "next")
     r = _readiness(ctx)
     return {"missing": missing_supplies(r), "expired": r["expired"], "expiring_soon": r["expiring_soon"]}
 
@@ -191,6 +222,8 @@ def _search_knowledge(ctx: ToolContext, a: KnowledgeQuery) -> dict[str, Any]:
     # An unknown topic (e.g. a scenario id like "blackout") would filter out everything, so ignore it.
     topic = a.topic if a.topic in kb.topics() else None
     results = kb.search(a.query, limit=4, topic=topic)
+    if results:
+        _card(ctx, "search", priority=0, filter=a.query)
     return {
         "results": results,
         "citation_rule": "Cite only these sources, using their exact title and url.",
@@ -200,7 +233,7 @@ def _search_knowledge(ctx: ToolContext, a: KnowledgeQuery) -> dict[str, Any]:
 
 def _scenario_guide(ctx: ToolContext, a: ScenarioQuery) -> dict[str, Any]:
     ctx.store.set_context(ctx.hid, mode="survive")
-    ctx.ui_hints.append({"open": "survive", "scenario": a.scenario})
+    _card(ctx, "scenario", a.scenario, open="survive", scenario=a.scenario)
     return scenario_guide(a.scenario, ctx.store.get_profile(ctx.hid), ctx.store.list_inventory(ctx.hid))
 
 
@@ -209,7 +242,7 @@ def _tech_node(ctx: ToolContext, a: NodeQuery) -> dict[str, Any]:
     if view is None:
         return {"ok": False, "error": f"unknown node_id; valid ids: {[n['id'] for n in techtree.load_tree()['nodes']]}"}
     ctx.store.set_context(ctx.hid, mode="rebuild", topic=a.node_id)
-    ctx.ui_hints.append({"open": "rebuild", "node": a.node_id})
+    _card(ctx, "lesson", a.node_id, open="rebuild", node=a.node_id)
     return view
 
 
@@ -219,6 +252,7 @@ def _prerequisites(ctx: ToolContext, a: NodeQuery) -> dict[str, Any]:
     if a.node_id not in nodes:
         return {"ok": False, "error": f"unknown node_id; valid ids: {list(nodes)}"}
     path = techtree.prerequisite_ids(tree, a.node_id)
+    _card(ctx, "path", filter=a.node_id)
     return {
         "node": {"id": a.node_id, "title": nodes[a.node_id]["title"]},
         "learning_path_in_order": [
@@ -230,6 +264,10 @@ def _prerequisites(ctx: ToolContext, a: NodeQuery) -> dict[str, Any]:
 
 def _get_tasks(ctx: ToolContext, _: NoArgs) -> dict[str, Any]:
     plans = ctx.store.list_plans(ctx.hid)
+    if plans:
+        _card(ctx, "plan", plans[0]["scenario"], priority=0)
+    else:
+        _card(ctx, "next", priority=0)
     return {
         "tasks": ctx.store.list_tasks(ctx.hid),
         "plans": [
@@ -251,7 +289,8 @@ def _pending(ctx: ToolContext, kind: str, payload: dict[str, Any], summary: str)
         "status": "awaiting_user_approval",
         "action_id": action["id"],
         "summary": summary,
-        "instruction": "Nothing has changed yet. Tell the user you have proposed this and that they can Approve or Reject it in the app.",
+        "instruction": "Nothing has changed yet. Tell the user you have drafted this and that it is saved only when they "
+                       "approve it in the app.",
     }
 
 
@@ -260,13 +299,20 @@ def _update_profile(ctx: ToolContext, a: HouseholdProfileUpdate) -> dict[str, An
     if not changes:
         return {"ok": False, "error": "no changes provided"}
     summary = "Update household profile: " + ", ".join(f"{k} → {v}" for k, v in changes.items())
-    return _pending(ctx, "update_profile", changes, summary)
+    result = _pending(ctx, "update_profile", changes, summary)
+    focus = "household.people" if {"adults", "children"} & changes.keys() else "household.goal" if "duration_days" in changes else None
+    _card(ctx, "household", priority=2, focus=focus, action_id=result["action_id"])
+    return result
 
 
 def _add_item(ctx: ToolContext, a: AddInventoryArgs) -> dict[str, Any]:
     item = a.model_dump(mode="json")
     summary = f"Add to inventory: {a.quantity:g} {a.unit} {a.name} ({a.category})"
-    return _pending(ctx, "add_inventory", item, summary)
+    result = _pending(ctx, "add_inventory", item, summary)
+    key = card_for(a.target_key, a.category)
+    if key:
+        _card(ctx, "category", key, priority=2, focus=num_key(a.target_key), action_id=result["action_id"])
+    return result
 
 
 def _update_item(ctx: ToolContext, a: UpdateInventoryArgs) -> dict[str, Any]:
@@ -277,7 +323,12 @@ def _update_item(ctx: ToolContext, a: UpdateInventoryArgs) -> dict[str, Any]:
     if not changes:
         return {"ok": False, "error": "no changes provided"}
     summary = f"Update '{item['name']}': " + ", ".join(f"{k} → {v}" for k, v in changes.items())
-    return _pending(ctx, "update_inventory", {"item_id": a.item_id, "changes": changes}, summary)
+    result = _pending(ctx, "update_inventory", {"item_id": a.item_id, "changes": changes}, summary)
+    target = changes.get("target_key") or item["target_key"]
+    key = card_for(target, changes.get("category") or item["category"])
+    if key:
+        _card(ctx, "category", key, priority=2, focus=num_key(target), action_id=result["action_id"], item=a.item_id)
+    return result
 
 
 def _propose_restock(ctx: ToolContext, a: RestockArgs) -> dict[str, Any]:
@@ -303,6 +354,7 @@ def _propose_restock(ctx: ToolContext, a: RestockArgs) -> dict[str, Any]:
     drafts = restock_task_drafts(missing)
     result = _pending(ctx, "save_approved_tasks", {"tasks": drafts}, f"Save {len(drafts)} restock tasks to your checklist")
     result["proposed_tasks"] = drafts
+    _card(ctx, "next", priority=2, action_id=result["action_id"])
     return result
 
 
@@ -311,11 +363,28 @@ def _create_plan(ctx: ToolContext, a: SurvivalPlanArgs) -> dict[str, Any]:
     payload = a.model_dump()
     payload["fictional"] = fictional
     label = " (FICTIONAL SIMULATION)" if fictional else ""
-    return _pending(ctx, "create_plan", payload, f"Save survival plan '{a.title}'{label} with {len(a.steps)} steps")
+    result = _pending(ctx, "create_plan", payload, f"Save survival plan '{a.title}'{label} with {len(a.steps)} steps")
+    _card(ctx, "plan", a.scenario, priority=2, action_id=result["action_id"])
+    return result
+
+
+def _show_card(ctx: ToolContext, a: ShowCardArgs) -> dict[str, Any]:
+    valid = {
+        "category": {c for c, _, _ in CATEGORIES}, "scenario": set(load_scenarios()), "plan": set(load_scenarios()),
+        "lesson": {n["id"] for n in techtree.load_tree()["nodes"]}, "guide": kb.entry_ids(),
+    }
+    if a.card in valid and a.key not in valid[a.card]:
+        return {"ok": False, "error": f"unknown key for {a.card}; use one of {sorted(valid[a.card])}"}
+    if a.card == "search":
+        _card(ctx, "search", filter=a.key or "")
+    else:
+        _card(ctx, a.card, a.key if a.card in valid else None)
+    return {"shown": a.card, "key": a.key, "note": "The card is on the user's screen now. Refer to it in a few words."}
 
 
 def _remember(ctx: ToolContext, a: NoteArgs) -> dict[str, Any]:
     note = ctx.store.add_note(ctx.hid, a.text, status="suggested", source="prometheus")
+    _card(ctx, "memory")
     return {
         "saved_as": "suggested",
         "note_id": note["id"],
@@ -333,6 +402,7 @@ TOOLS: list[Tool] = [
     Tool("get_technology_node", "Open a node in the electricity technology tree: what it is, why it matters, prerequisites, materials the household has or lacks, safety level and sources. Also shows it to the user.", NodeQuery, "read", _tech_node),
     Tool("get_prerequisites", "Get the ordered learning path of prerequisites for a technology tree node.", NodeQuery, "read", _prerequisites),
     Tool("get_tasks_and_plans", "List saved tasks and survival plans with progress.", NoArgs, "read", _get_tasks),
+    Tool("show_card", "Show a card in the app (e.g. the household, one supply area, a lesson or a guide) when the user asks to see something and no other tool already shows it.", ShowCardArgs, "read", _show_card),
     Tool("update_household_profile", "PROPOSE a change to the household profile. Requires user approval. Only propose values the user actually stated.", HouseholdProfileUpdate, "propose", _update_profile),
     Tool("add_inventory_item", "PROPOSE adding an item to inventory. Requires user approval. Include kcal_per_unit for food when known.", AddInventoryArgs, "propose", _add_item),
     Tool("update_inventory_item", "PROPOSE changing an existing inventory item (quantity, status working/unavailable, expiry...). Requires user approval.", UpdateInventoryArgs, "propose", _update_item),
@@ -401,6 +471,48 @@ def execute_action(store: Store, hid: str, action: dict[str, Any]) -> dict[str, 
         plan = store.add_plan(hid, p["scenario"], p["title"], p["fictional"], p.get("summary", ""), steps)
         return {"plan": plan}
     raise ActionError(f"unknown action kind {kind}")
+
+
+def simulate_action(profile: HouseholdProfile, inventory: list[dict[str, Any]], action: dict[str, Any]) -> tuple[HouseholdProfile, list[dict[str, Any]]]:
+    """Apply a pending action to copies of the profile and inventory, for a preview. Nothing is saved."""
+    kind, p = action["kind"], action["payload"]
+    inventory = [dict(i) for i in inventory]
+    if kind == "update_profile":
+        current = profile.model_dump()
+        current.update(HouseholdProfileUpdate.model_validate(p).model_dump(exclude_none=True))
+        profile = HouseholdProfile.model_validate(current)
+    elif kind == "add_inventory":
+        item = InventoryItemIn.model_validate(p).model_dump(mode="json")
+        inventory.append({**item, "id": -1 - len(inventory)})
+    elif kind == "update_inventory":
+        changes = InventoryItemPatch.model_validate(p["changes"]).model_dump(mode="json", exclude_none=True)
+        for i in inventory:
+            if i["id"] == p["item_id"]:
+                i.update(changes)
+    return profile, inventory
+
+
+EDITED = " (edited by you)"
+
+
+def edit_action(action: dict[str, Any], changes: dict[str, Any]) -> tuple[dict[str, Any], str]:
+    """The user changes a proposal before saving it. Re-validated with the same models as the tool arguments."""
+    kind, p = action["kind"], copy.deepcopy(action["payload"])
+    summary = action["summary"].removesuffix(EDITED)
+    if kind == "add_inventory":
+        p.update(changes)
+        a = AddInventoryArgs.model_validate(p)
+        p = a.model_dump(mode="json")
+        summary = f"Add to inventory: {a.quantity:g} {a.unit} {a.name} ({a.category})"
+    elif kind == "update_inventory":
+        p["changes"] = InventoryItemPatch.model_validate({**p["changes"], **changes}).model_dump(mode="json", exclude_none=True)
+        summary = summary.split(":")[0] + ": " + ", ".join(f"{k} → {v}" for k, v in p["changes"].items())
+    elif kind == "update_profile":
+        p = HouseholdProfileUpdate.model_validate({**p, **changes}).model_dump(exclude_none=True)
+        summary = "Update household profile: " + ", ".join(f"{k} → {v}" for k, v in p.items())
+    else:
+        raise ActionError(f"{kind} proposals can't be edited")
+    return p, summary + EDITED
 
 
 def ensure_priority_order(steps: list[dict[str, Any]]) -> list[dict[str, Any]]:

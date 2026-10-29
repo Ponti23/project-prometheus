@@ -17,8 +17,8 @@ export function clearSavedLayouts() {
 
 export class Canvas {
   // render(card) → { icon, title, tag, body, mini, status, width } or null when the card has nothing to show.
-  constructor(root, { render, defaults, rank, onZoom, onRemove }) {
-    Object.assign(this, { root, render, defaults, rank, onZoom, onRemove });
+  constructor(root, { render, decorate, defaults, rank, onZoom, onRemove }) {
+    Object.assign(this, { root, render, decorate, defaults, rank, onZoom, onRemove });
     this.world = root.querySelector(".world");
     this.pointersEl = root.querySelector(".pointers");
     this.cam = { x: 0, y: 0, z: 1 };
@@ -99,7 +99,42 @@ export class Canvas {
     clear(el.querySelector(".card-tag"), v.tag || "");
     clear(el.querySelector(".card-body"), v.body);
     clear(el.querySelector(".card-mini"), v.mini || "");
+    el.classList.remove("has-proposal");
+    this.decorate?.(c);
+    this.settleSoon();
     return true;
+  }
+
+  settleSoon() {
+    cancelAnimationFrame(this.settleRaf);
+    this.settleRaf = requestAnimationFrame(() => this.settle());
+  }
+
+  // Cards grow (a pencil value, a form). Push the ones underneath down so nothing overlaps.
+  settle() {
+    if (this.stack) return;
+    const list = [...this.cards.values()].filter((c) => c.x > -9000);
+    let moved = false;
+    for (let pass = 0; pass < list.length; pass++) {
+      let changed = false;
+      list.sort((a, b) => a.y - b.y);
+      for (let i = 0; i < list.length; i++) {
+        const a = list[i], ah = a.el.offsetHeight, aw = a.el.offsetWidth;
+        for (let j = i + 1; j < list.length; j++) {
+          const b = list[j];
+          const sideBySide = a.x + aw <= b.x || b.x + b.el.offsetWidth <= a.x;
+          if (!sideBySide && b.y >= a.y && b.y < a.y + ah + GAP / 2) { b.y = a.y + ah + GAP; changed = moved = true; }
+        }
+      }
+      if (!changed) break;
+    }
+    if (!moved) return;
+    if (!reduce.matches) {
+      this.world.classList.add("tidying");
+      setTimeout(() => this.world.classList.remove("tidying"), 500);
+    }
+    list.forEach((c) => this.position(c));
+    this.saveSoon();
   }
 
   renderAll() {
@@ -113,7 +148,7 @@ export class Canvas {
   get(id) { return this.cards.get(id); }
 
   // Show a card: focus it if it's already here, otherwise place it in free space near the middle and glide to it.
-  async spawn(type, key = null, { focus = true, at = null } = {}) {
+  async spawn(type, key = null, { focus = true, reveal = true, at = null } = {}) {
     const id = cardId(type, key);
     let c = this.cards.get(id);
     if (c) { this.paint(c); }
@@ -128,8 +163,18 @@ export class Canvas {
       this.reorder();
       this.saveSoon();
     }
-    if (focus) await this.reveal(id, { focus: true });
+    if (focus || reveal) await this.reveal(id, { focus });
     return c;
+  }
+
+  // Glide so all of these cards are in view (used when one chat turn touches several).
+  async revealAll(ids) {
+    const list = ids.map((i) => this.cards.get(i)).filter(Boolean);
+    if (!list.length || list.every((c) => this.visible(c))) return;
+    if (this.stack || list.length === 1) return this.reveal(list[0].id);
+    const b = this.bounds(list), W = this.root.clientWidth, H = this.root.clientHeight;
+    const z = clamp(Math.min((W - 120) / b.w, (H - 120) / b.h, Math.max(this.cam.z, COMPACT_Z), 1), MIN_Z, 1);
+    await this.glide({ z, x: W / 2 - (b.x + b.w / 2) * z, y: H / 2 - (b.y + b.h / 2) * z });
   }
 
   drop(id) {

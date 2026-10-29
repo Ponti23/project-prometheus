@@ -460,3 +460,33 @@ input[type="text"], input[type="number"], select {
 }
 .item-ctl .link { color: var(--muted); font-weight: 500; font-size: 13.5px; }
 .item-ctl .link:hover { color: var(--brand-ink); }
+
+/* ------------------------------------------------------------------ pencil previews */
+.num.was { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1.5px; text-decoration-color: color-mix(in srgb, var(--muted) 60%, transparent); }
+.pencil {
+  display: inline-flex; align-items: center; gap: 4px; margin-left: 6px; padding: 0 7px; border-radius: 7px;
+  border: 1.5px dashed var(--pencil); background: var(--pencil-bg); color: var(--pencil); font-weight: 750;
+  opacity: 0; transition: opacity 0.35s;
+}
+.pencil.drawn { opacity: 1; animation: draw 0.5s ease-out; }
+.pencil .arrow { font-weight: 500; opacity: 0.8; }
+.headline .pencil { font-size: 0.85em; }
+@keyframes draw { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.card.has-proposal { border: 1.5px dashed var(--pencil); }
+.proposal-bar { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--pencil-bg); border: 1px solid color-mix(in srgb, var(--pencil) 35%, transparent); }
+.proposal-bar .what { display: flex; gap: 8px; align-items: flex-start; font-weight: 650; }
+.proposal-bar .what svg { width: 17px; height: 17px; margin-top: 2px; color: var(--pencil); }
+.proposal-bar .field { flex: 1 1 80px; }
+.proposal-bar input { width: 100%; }
+.fading { opacity: 0.35; transition: opacity 0.4s; }
+.pointed { background: color-mix(in srgb, var(--brand) 18%, transparent); }
+
+/* ------------------------------------------------------------------ the flying flame */
+.flyer { position: fixed; left: 0; top: 0; z-index: 55; pointer-events: none; will-change: transform; }
+.flyer.stamp svg { animation: stamp 0.26s ease-in forwards; }
+.flyer.sparkle::after {
+  content: "✨"; position: absolute; left: 70%; top: -10%; font-size: 20px; animation: rise 0.5s ease-out both;
+}
+@keyframes stamp { 0% { transform: translateY(0) scale(1); } 60% { transform: translateY(14px) scale(1.08, 0.9); } 100% { transform: translateY(10px) scale(1); } }
+.seat.away { border: 2px dashed var(--line-2); }
+.seat.away .face { visibility: hidden; }

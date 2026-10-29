@@ -102,7 +102,8 @@ def test_tech_node_tool_sets_context_and_checks_materials(store, hid):
     assert ok and res["title"] == "Solar photovoltaics"
     assert any(m["have"] for m in res["materials"])  # demo has a small solar charger
     assert store.get_household(hid)["current_topic"] == "solar_pv"
-    assert hints == [{"open": "rebuild", "node": "solar_pv"}]
+    # Advanced mode reads "open" and "node"; Simple mode reads "card". Both come from the tool, not the model.
+    assert hints == [{"open": "rebuild", "node": "solar_pv", "card": {"type": "lesson", "key": "solar_pv"}, "priority": 1}]
     bad, ok, _ = run_tool(store, hid, "get_technology_node", {"node_id": "fusion_reactor"})
     assert not ok
 

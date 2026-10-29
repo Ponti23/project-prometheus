@@ -6,6 +6,10 @@ from datetime import date
 from typing import Any
 
 from ..db import Store
+from ..knowledge.search import get_entry
+from ..prepare.summary import CATEGORIES
+from ..rebuild.techtree import load_tree
+from ..survive.scenarios import load_scenarios
 
 PERSONA = """You are PROMETHEUS — "humanity's backup brain": a persistent AI companion that helps one household \
 prepare for emergencies, get through them, and eventually rebuild using science.
@@ -58,7 +62,47 @@ point to the next safe learning step.
 Keep continuity: refer back to what you know about this household across modes."""
 
 
-def context_snapshot(store: Store, hid: str) -> str:
+CARD_NAMES = {
+    "stages": "Ready in stages", "next": "Next up", "household": "Household", "expiring": "Check these",
+    "why": "How do we know?", "scenario": "Scenario", "safety": "Safety check", "resources": "What you've got",
+    "plan": "Plan", "path": "Learning path", "lesson": "Lesson", "guide": "Guide", "search": "Search", "memory": "Memory",
+}
+
+
+def card_name(card_id: str) -> str:
+    """'category:water' → 'Water'. The model sees names, so it never repeats internal ids."""
+    kind, _, key = card_id.partition(":")
+    if kind == "category":
+        return next((label for k, label, _ in CATEGORIES if k == key), key.replace("_", " "))
+    if kind == "scenario" and key in load_scenarios():
+        return load_scenarios()[key]["title"]
+    if kind == "lesson":
+        node = next((n for n in load_tree()["nodes"] if n["id"] == key), None)
+        return f"Lesson: {node['title']}" if node else "Lesson"
+    if kind == "guide":
+        entry = get_entry(key)
+        return f"Guide: {entry['title']}" if entry else "Guide"
+    if kind == "why":
+        return "How do we know?"
+    return CARD_NAMES.get(kind, kind)
+
+
+def view_lines(view: dict[str, Any] | None) -> list[str]:
+    if not view or view.get("ui") != "simple":
+        return []
+    names = ", ".join(card_name(c) for c in view.get("cards") or []) or "none"
+    lines = [
+        f"App: Simple mode, on the {view.get('canvas') or 'prepare'} canvas. Cards on screen: {names}. "
+        "The approve button says Save. Keep replies short: one to three sentences in plain words, no tables, "
+        "unless the user asks for detail. Never mention internal ids or category keys.",
+    ]
+    if view.get("focused_card"):
+        lines.append(f"The user tapped the {card_name(view['focused_card'])} card just before typing, so 'this' or 'that' "
+                     "probably means it.")
+    return lines
+
+
+def context_snapshot(store: Store, hid: str, view: dict[str, Any] | None = None) -> str:
     h = store.get_household(hid)
     p = h["profile"]
     inv = store.list_inventory(hid)
@@ -79,11 +123,12 @@ def context_snapshot(store: Store, hid: str) -> str:
     ]
     if notes:
         lines.append("Memory notes: " + "; ".join(f"[{n['status']}] {n['text']}" for n in notes[-8:]))
+    lines += view_lines(view)
     return "\n".join(lines)
 
 
-def system_message(store: Store, hid: str) -> dict[str, Any]:
+def system_message(store: Store, hid: str, view: dict[str, Any] | None = None) -> dict[str, Any]:
     return {
         "role": "system",
-        "content": PERSONA + "\n\nCURRENT CONTEXT (summary; use tools for details)\n" + context_snapshot(store, hid),
+        "content": PERSONA + "\n\nCURRENT CONTEXT (summary; use tools for details)\n" + context_snapshot(store, hid, view),
     }

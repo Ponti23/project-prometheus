@@ -2,7 +2,7 @@
 import { api } from "../api.js";
 import { flashFace, setFaceBase } from "../face.js";
 import { clear, h, icon, markdown, toast } from "../ui.js";
-import { announce, app, qty } from "./app.js";
+import { app, qty } from "./app.js";
 
 const $ = (id) => document.getElementById(id);
 const log = $("chatLog"), form = $("chatForm"), input = $("chatInput"), sendBtn = $("sendBtn");
@@ -109,8 +109,8 @@ function actionEl(a) {
     a.kind === "create_plan" ? h("ol", {}, a.payload.steps.map((s) => h("li", {}, s.text))) : null,
     pending
       ? h("div", { class: "row" },
-          h("button", { class: "btn primary sm", type: "button", onclick: () => resolve(a, "approve") }, "Save"),
-          h("button", { class: "btn sm ghost", type: "button", onclick: () => resolve(a, "reject") }, "No"))
+          h("button", { class: "btn primary sm", type: "button", onclick: () => app.approve(a) }, "Save"),
+          h("button", { class: "btn sm ghost", type: "button", onclick: () => app.reject(a) }, "No"))
       : h("div", { class: "done" }, done[1]));
 }
 
@@ -118,7 +118,7 @@ function actionEl(a) {
 export function describe(a) {
   const p = a.payload || {};
   const item = (id) => app.data.inventory?.find((i) => i.id === id);
-  if (a.kind === "add_inventory") return `Add ${qty(p.quantity, p.unit)} ${p.name}`;
+  if (a.kind === "add_inventory") return p.unit === "each" ? `Add ${qty(p.quantity)} × ${p.name}` : `Add ${qty(p.quantity, p.unit)} ${p.name}`;
   if (a.kind === "update_inventory") {
     const it = item(p.item_id), ch = p.changes || {}, parts = [];
     if (ch.quantity != null) parts.push(`set to ${qty(ch.quantity, ch.unit || it?.unit)}`);
@@ -144,21 +144,6 @@ function fmtVal(v) {
   return String(v);
 }
 
-export async function resolve(a, verb) {
-  try {
-    await api.post(`/actions/${a.id}/${verb}`);
-    flashFace(verb === "approve" ? ["glee", 1600] : ["sad", 1400]);
-    announce(verb === "approve" ? `Saved: ${describe(a)}` : "Not saved");
-    await app.refresh({ ripple: verb === "approve" });
-    await renderChat();
-    return true;
-  } catch (e) {
-    flashFace(["error", 2000]);
-    toast(e.message, true);
-    return false;
-  }
-}
-
 export async function sendChat(text) {
   text = (text || "").trim();
   if (!text || busy) return;
@@ -171,11 +156,12 @@ export async function sendChat(text) {
   setBusy(true);
   try {
     const out = await api.post("/chat", { message: text, mode: app.canvasName, ...app.chatContext() });
+    app.holdPencils = true;
     await app.refresh();
     setBusy(false);
     await renderChat();
-    await app.applyHints(out.ui_hints || [], out.actions || [], text);
     flashFace(["speaking", 1400], [out.actions?.length ? "wink" : "happy", 1400]);
+    await app.applyHints(out.ui_hints || [], out.actions || [], text);
   } catch (e) {
     typing.remove();
     setBusy(false);

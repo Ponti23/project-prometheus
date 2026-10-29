@@ -5,6 +5,8 @@ import { announce, app, notify } from "./app.js";
 import { Canvas, cardId, clearSavedLayouts, typing } from "./canvas.js";
 import { CANVASES, canvasFor, CARDS, defaultCards, drawerItems, rank, renderCard } from "./cards/index.js";
 import { initChat, renderChat, sendChat, setSuggestions } from "./chat.js";
+import * as flame from "./flame.js";
+import { decorate, loadPreview, ownerCard, pending, target } from "./pencils.js";
 
 const $ = (id) => document.getElementById(id);
 const NAMES = Object.keys(CANVASES);
@@ -21,6 +23,7 @@ app.refresh = async ({ ripple = false } = {}) => {
     api.get("/tasks"), api.get("/actions"), api.get("/plans"),
   ]);
   Object.assign(app.data, { summary, household, inventory, readiness, tasks, actions, plans });
+  await loadPreview();
   app.canvas?.renderAll();
   if (before) rippleChanges(before);
 };
@@ -68,17 +71,61 @@ app.spawn = async (type, key = null, opts = {}) => {
 };
 
 app.chatContext = () => ({
+  ui: "simple",
   canvas: app.canvasName,
   cards: [...app.canvas.cards.keys()],
   focused_card: app.focusedCard && app.canvas.get(app.focusedCard) ? app.focusedCard : null,
 });
 
+// The chat drives the canvas: tools say which cards a turn was about; the app places them and the flame shows the way.
 app.applyHints = async (hints) => {
-  for (const hint of hints) {
-    if (hint.card) await app.spawn(hint.card.type, hint.card.key ?? null);
-    else if (hint.open && CANVASES[hint.open] && hint.open !== app.canvasName) await app.show(hint.open);
+  try { await choreograph(hints); } finally {
+    app.holdPencils = false;
+    document.querySelectorAll(".pencil").forEach((p) => p.classList.add("drawn"));
   }
 };
+
+async function choreograph(hints) {
+  const withCard = hints.filter((x) => x.card && CARDS[x.card.type]);
+  let chosen = withCard.filter((x) => (x.priority ?? 1) >= 1);
+  // Background reads (priority 0) only show a card when nothing else did, and only on this canvas.
+  if (!chosen.length) chosen = withCard.filter((x) => canvasFor(x.card.type) === app.canvasName).slice(-1);
+  const byId = new Map();
+  for (const x of [...chosen].sort((a, b) => (b.priority ?? 1) - (a.priority ?? 1))) {
+    const id = cardId(x.card.type, x.card.key ?? null);
+    if (!byId.has(id)) byId.set(id, x);
+  }
+  const picks = [...byId.entries()].slice(0, 3);
+  if (!picks.length) {
+    const open = hints.find((x) => x.open && CANVASES[x.open]);
+    if (open && open.open !== app.canvasName) await app.show(open.open);
+    return;
+  }
+  const where = canvasFor(picks[0][1].card.type);
+  if (where !== app.canvasName) {
+    await flame.toTab(document.querySelector(`.tab[data-canvas="${where}"]`));
+    await app.show(where);
+  }
+  const here = picks.filter(([, x]) => canvasFor(x.card.type) === app.canvasName);
+  for (const [, x] of here) {
+    const c = await app.canvas.spawn(x.card.type, x.card.key ?? null, { focus: false, reveal: false });
+    if (c && x.filter !== undefined) { c.ui.filter = x.filter; app.canvas.paint(c); }
+  }
+  await app.canvas.revealAll(here.map(([id]) => id));
+  const waiting = pending().filter((a) => here.some(([id]) => ownerCard(a) === id));
+  if (waiting.length) {
+    // Visit the changed number on each proposal's card, then other numbers that would move (at most three).
+    const els = waiting.map(target).filter(Boolean);
+    const more = [...document.querySelectorAll(".card .num.was")].filter((n) => !els.some((e) => e === n || e.contains(n)) && !app.canvas.stack);
+    await flame.pencil([...els, ...more]);
+  } else {
+    const els = here.map(([id, x]) => {
+      const c = app.canvas.get(id);
+      return c && ((x.focus && c.el.querySelector(`[data-num="${x.focus}"]`)) || c.el.querySelector(".card-head"));
+    }).filter(Boolean);
+    await flame.point(els);
+  }
+}
 
 // ---------------------------------------------------------------- drawer, menu, controls
 function renderDrawer() {
@@ -230,7 +277,7 @@ function bindUi() {
 
 async function boot() {
   bindUi();
-  app.canvas = new Canvas($("canvas"), { render: renderCard, defaults: defaultCards, rank, onZoom: updateZoom, onRemove });
+  app.canvas = new Canvas($("canvas"), { render: renderCard, decorate, defaults: defaultCards, rank, onZoom: updateZoom, onRemove });
   try {
     app.status = await api.get("/status"); // creates the household cookie before the parallel calls
     await app.refresh();

@@ -330,6 +330,13 @@ class Store:
             ids = [r["id"] for r in c.execute(q + " ORDER BY created_at", args).fetchall()]
         return [self.get_action(hid, i) for i in ids]  # type: ignore[misc]
 
+    def update_action(self, hid: str, aid: str, payload: dict[str, Any], summary: str) -> None:
+        with self.conn() as c:
+            c.execute(
+                "UPDATE pending_actions SET payload_json = ?, summary = ? WHERE id = ? AND household_id = ? AND status = 'pending'",
+                (json.dumps(payload, default=str), summary, aid, hid),
+            )
+
     def resolve_action(self, hid: str, aid: str, status: str, result: dict[str, Any] | None) -> None:
         with self.conn() as c:
             c.execute(

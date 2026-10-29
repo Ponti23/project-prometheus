@@ -9,7 +9,10 @@ export const CAT_ICON = {
   radio: "radio", hygiene: "soap", tools: "wrench", documents: "doc",
 };
 // Inventory categories that belong on each card when an item isn't linked to a target.
-const LOOSE = { water: "water", food: "food", medical: "medicine", lighting: "light_power", power: "light_power", communication: "radio", hygiene: "hygiene", tools: "tools", documents: "documents" };
+export const LOOSE = { water: "water", food: "food", medical: "medicine", lighting: "light_power", power: "light_power", communication: "radio", hygiene: "hygiene", tools: "tools", documents: "documents" };
+
+const NUM_KEYS = { water: "water.have", food_kcal: "food.days", pet_food: "pet_food.days", medication_days: "medication_days.have" };
+export const numKey = (target) => (target ? NUM_KEYS[target] || `${target}.have` : null);
 
 const summary = () => app.data.summary;
 const catOf = (key) => summary().categories.find((c) => c.key === key);
@@ -28,8 +31,8 @@ function stages() {
         title: st.reached ? `Ready for ${st.label}` : `${st.left} left for ${st.label}`,
       }, h("span", { class: "rung" }, st.reached ? icon("check") : null), h("span", { class: "lbl" }, st.label)))),
       cur
-        ? h("p", { class: "headline" }, num(String(cur.left), "stages.left"), ` left for ${cur.label}`)
-        : h("p", { class: "headline ok" }, icon("check"), ` Ready for ${goal.label}`),
+        ? h("p", { class: "headline" }, num(`${cur.left} left for ${cur.label}`, "stages.left"))
+        : h("p", { class: "headline ok" }, icon("check"), num(`Ready for ${goal.label}`, "stages.left")),
       cur ? link("See what to get", () => app.spawn("next")) : null,
     ],
     mini: mini(cur ? `${cur.left} left` : "Ready", cur ? `for ${cur.label}` : `for ${goal.label}`),

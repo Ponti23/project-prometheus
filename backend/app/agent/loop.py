@@ -114,7 +114,8 @@ def _needs_plan_nudge(results: list[tuple[str, dict, dict]]) -> bool:
 
 
 def run_turn(
-    store: Store, hid: str, user_text: str, client: ChatClient, settings: Settings, mode: str | None = None
+    store: Store, hid: str, user_text: str, client: ChatClient, settings: Settings, mode: str | None = None,
+    view: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     mine, total = store.bump_usage(hid)
     if mine > settings.daily_turns_per_household or total > settings.daily_turns_global:
@@ -132,7 +133,7 @@ def run_turn(
     tools = tool_specs()
 
     for round_no in range(1, settings.max_tool_rounds + 2):
-        messages = [system_message(store, hid)] + history_for_model(store, hid, settings.history_messages)
+        messages = [system_message(store, hid, view)] + history_for_model(store, hid, settings.history_messages)
         # Last round: no tools, force a final answer.
         offer_tools = tools if round_no <= settings.max_tool_rounds else []
         try:

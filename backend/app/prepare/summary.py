@@ -27,6 +27,21 @@ CATEGORIES = [
     ("documents", "Documents", ["documents"]),
 ]
 CATEGORY_OF = {k: c for c, _, keys in CATEGORIES for k in keys}
+# Items that aren't linked to a target land on a card by their inventory category.
+LOOSE = {
+    "water": "water", "food": "food", "medical": "medicine", "lighting": "light_power", "power": "light_power",
+    "communication": "radio", "hygiene": "hygiene", "tools": "tools", "documents": "documents",
+}
+# The number on a card that changes when this target changes (the flame lands on it).
+NUM_KEYS = {"water": "water.have", "food_kcal": "food.days", "pet_food": "pet_food.days", "medication_days": "medication_days.have"}
+
+
+def card_for(target_key: str | None = None, category: str | None = None) -> str | None:
+    return CATEGORY_OF.get(target_key or "") or LOOSE.get((category or "").lower())
+
+
+def num_key(target_key: str | None) -> str | None:
+    return NUM_KEYS.get(target_key, f"{target_key}.have") if target_key else None
 
 # Short names for counted gear: (one, many).
 NOUNS = {
@@ -165,3 +180,21 @@ def build_summary(profile: HouseholdProfile, inventory: list[dict[str, Any]], to
         "untracked": focus["untracked"],
         "disclaimer": focus["disclaimer"],
     }
+
+
+def summary_changes(before: dict[str, Any], after: dict[str, Any]) -> list[dict[str, Any]]:
+    """What a change would do to the numbers people see: stage counts and each target's have / days / status."""
+    out: list[dict[str, Any]] = []
+    b_st, a_st = {x["days"]: x for x in before["stages"]}, {x["days"]: x for x in after["stages"]}
+    for d in sorted(set(b_st) | set(a_st)):
+        b, a = b_st.get(d), a_st.get(d)
+        if b != a:
+            out.append({"what": "stage", "days": d, "before": b, "after": a})
+    rows = lambda s: {t["key"]: t for c in s["categories"] for t in c["targets"]}  # noqa: E731
+    b_rows, a_rows = rows(before), rows(after)
+    for k in sorted(set(b_rows) | set(a_rows)):
+        pick = lambda t: t and {f: t[f] for f in ("have", "have_text", "days", "status")}  # noqa: E731
+        b, a = pick(b_rows.get(k)), pick(a_rows.get(k))
+        if b != a:
+            out.append({"what": "target", "key": k, "category": CATEGORY_OF.get(k), "before": b, "after": a})
+    return out

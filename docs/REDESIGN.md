@@ -258,9 +258,9 @@ Work top to bottom. After each phase:
 - [x] Simple chat panel: history, send, approvals as Save / No
 
 **Phase 2: The chat drives the canvas**
-- [ ] Card ops in `ui_hints` (with tests); visible cards sent in the chat context
-- [ ] `GET /api/actions/{id}/preview` and pencil values on cards
-- [ ] Flame flight choreography, ripple, edge pointers, switching canvases
+- [x] Card ops in `ui_hints` (with tests); visible cards sent in the chat context
+- [x] `GET /api/actions/{id}/preview` and pencil values on cards
+- [x] Flame flight choreography, ripple, edge pointers, switching canvases
 
 **Phase 3: Permission modes**
 - [ ] Chip + Shift+Tab: Ask first / Auto / Plan
@@ -296,3 +296,11 @@ _(Append each default you had to pick, with a one-line reason.)_
 - **Compact cards keep their full-size footprint**, so zooming out gives a readable map without the layout jumping.
 - **Cards use the current stage.** Category cards show have vs need for the stage you're working on (the goal once every stage is reached); the Stages card shows the rest.
 - **Summary data lives in `backend/app/prepare/summary.py`**; Simple's JS lives in `frontend/js/simple/` (cards in `cards/`).
+- **Hint priority.** Each card hint has `priority`: 2 = a change waits on this card, 1 = what the turn was about, 0 = background reading (e.g. the profile, which the model reads on most turns). Simple shows at most 3 cards per turn, and priority-0 cards only when nothing else came up and they belong on the current canvas. This keeps the canvas from filling up.
+- **`open` stays exactly where it was.** New hints only add `card` (and `focus`, `action_id`, `filter`), so Advanced mode, which reads `open`, behaves as before.
+- **Pencils compare rendered cards.** The frontend renders each card a second time with the preview data (`GET /api/actions/preview?ids=…`, which applies all pending changes in order) and shows a pencil wherever a `data-num` text differs. Card formatting stays in one place.
+- **Edit is real.** `POST /api/actions/{id}/edit` changes a pending proposal (re-validated with the tool's own models) and marks it "(edited by you)". On approve, the event the model sees says the user edited it.
+- **The prompt gets card names, not ids** ("Cards on screen: Ready in stages, Water"). With ids, the model repeated "light_power" to the user.
+- **A tool-result instruction changed.** It used to say "Approve or Reject"; it now says the change is "saved only when they approve it in the app", which fits both modes' buttons.
+- **Cards that grow push the cards below them down** (`settle()`), so a pencil line or form never overlaps a neighbour.
+
