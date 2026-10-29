@@ -12,7 +12,7 @@ An AI apocalypse buddy on NVIDIA Nemotron + Nebius that knows your household, tr
 
 ```markdown
 ## Inspiration
-Most of us are one blackout, bushfire or supply disruption away from realising we have no plan. Preparedness advice is scattered across government sites and PDFs, it's generic, and nobody reads it until the power is already out. We wanted a *personal* AI that already knows your family, your pets, your medication and what's in your cupboard, and that stays useful from the calm "prepare" phase all the way to "how do we restore power ourselves?"
+Most of us are one blackout, bushfire or supply disruption away from realising we have no plan. Preparedness advice is scattered across government sites and PDFs, it's generic, and nobody reads it until the power is already out. I wanted a *personal* AI that already knows your family, your pets, your medication and what's in your cupboard, and that stays useful from the calm "prepare" phase all the way to "how do we restore power ourselves?"
 
 ## What it does
 Prometheus is one continuous AI companion, a little fire spirit whose face reacts as it listens, thinks and answers, with three modes:
@@ -24,28 +24,29 @@ Prometheus is one continuous AI companion, a little fire spirit whose face react
 
 The companion drives all of it through **15 real tools** that read and write your saved data, and it remembers you across sessions.
 
-## How we built it
+## How I built it
 - **Model:** NVIDIA Nemotron served by **Nebius Token Factory** through its OpenAI-compatible chat completions API with tool calling.
 - **Agent loop:** a bounded loop: model → Pydantic-validated tool calls → execute → feed results back → final answer, with a cap on tool rounds.
 - **Backend:** FastAPI + SQLite. Each browser gets its own isolated household, keyed by a cookie. The database holds memory notes, inventory, tasks, pending actions, plans, a tool-call log and rate-limit usage.
 - **Deterministic engines:** the supply calculator, readiness and shortage logic, BM25 search over the knowledge base, and a validated tech-tree graph (acyclic, with safety prerequisites).
-- **Frontend:** vanilla HTML/CSS/JS with no build step. Prometheus's animated fire-spirit face uses the eye expressions from our Notch Face Kit: it blinks at idle, burns violet while thinking, sparkles when happy, flares red on errors and dims to an ember when offline.
+- **Frontend:** vanilla HTML/CSS/JS with no build step. Prometheus's animated fire-spirit face uses the eye expressions from my Notch Face Kit: it blinks at idle, burns violet while thinking, sparkles when happy, flares red on errors and dims to an ember when offline.
 - **Transparency:** an "Under the hood" panel shows the model ID Nebius reported, the response ID, latency, token usage, and every tool call with its arguments and effect.
+- **AI coding tools:** I built this with help from Claude Code, an AI coding assistant.
 
-## Challenges we ran into
-- **Keeping an LLM honest in a safety-critical domain.** We moved every number out of the model. Water, food (counted in kcal, not cans) and shortfalls come from a deterministic calculator and a cited assumptions file. The model can only cite sources returned by its own tools, and plan steps that reference unknown sources are rejected.
+## Challenges I ran into
+- **Keeping an LLM honest in a safety-critical domain.** I moved every number out of the model. Water, food (counted in kcal, not cans) and shortfalls come from a deterministic calculator and a cited assumptions file. The model can only cite sources returned by its own tools, and plan steps that reference unknown sources are rejected.
 - **Agency without surprises.** Write tools never change state directly. They create *pending actions*, and only the user's Approve click executes them.
-- **Reliable tool calling.** We had to handle malformed tool calls, multi-round tool use and provider failures, and show those failures to the user instead of hiding them.
+- **Reliable tool calling.** I had to handle malformed tool calls, multi-round tool use and provider failures, and show those failures to the user instead of hiding them.
 - **Working offline.** If the cloud AI is unreachable, the app says so plainly, and every data view still works.
 
-## Accomplishments that we're proud of
+## Accomplishments that I'm proud of
 - An agent that feels like one companion, yet every action it takes is auditable and needs your approval.
 - No survival probabilities. Prometheus reports "coverage of planning targets", and AI guesses stay marked *suggested* until you confirm them.
 - A Rebuild mode that turns "the grid is gone" into a learning path tied to what's actually in your inventory.
 - Automated tests covering the calculator, readiness, tool validation, the approval flow, the agent loop, the tech tree, and persistence across restarts.
 
-## What we learned
-Tool calling is only as trustworthy as the tools around it. The more we pushed into deterministic code (calculations, citations, state changes), the better and safer the model's answers got. We also learned that being upfront about limits ("Cloud AI unavailable", "planning default", "suggested") builds more trust than a polished but opaque answer.
+## What I learned
+Tool calling is only as trustworthy as the tools around it. The more I pushed into deterministic code (calculations, citations, state changes), the better and safer the model's answers got. I also learned that being upfront about limits ("Cloud AI unavailable", "planning default", "suggested") builds more trust than a polished but opaque answer.
 
 ## What's next for Project Prometheus
 - A **local AI mode** (llama.cpp + GGUF behind the same client interface), so the companion works when the internet doesn't.
@@ -53,6 +54,11 @@ Tool calling is only as trustworthy as the tools around it. The more we pushed i
 - Fully worked guides for more scenarios, plus localised guidance by region.
 - Shared household plans for families and neighbourhoods.
 ```
+
+## Feedback on Nebius and NVIDIA tools
+- **Token Factory:** the OpenAI-compatible API meant I could call it with plain `httpx`, no SDK needed. The returned model ID and token usage made the "Under the hood" panel easy to build.
+- **Nemotron 3 Super 120B:** chained tools reliably through the full demo conversation, with no failures in 2 runs.
+- **Nemotron 3.5 Lightning:** fast, but in long conversations (~15k prompt tokens) it sometimes replied with the literal text `[ERROR: Max turns (10) exceeded]` instead of calling tools (2 of 3 demo runs). A proper API error, or docs on the limit, would help.
 
 ## Built with
 python, fastapi, uvicorn, sqlite, pydantic, httpx, javascript, html5, css3, nvidia-nemotron, nebius-token-factory, docker, render, pytest
@@ -80,6 +86,5 @@ A screenshot of a real Nemotron conversation with **Under the hood** open would 
 
 ## Check before submitting
 - Confirm the real model ID with `python scripts/verify_nebius.py` and use it wherever the model is named.
-- Add the demo video link (YouTube or Vimeo, under 3 minutes). See [DEMO_SCRIPT.md](DEMO_SCRIPT.md).
-- If submitting solo, switch "we" to "I".
-- Check the hackathon rules on disclosing AI coding tools.
+- Add the demo video link (YouTube or Vimeo, under 3 minutes). The narration is in [VOICEOVER.md](VOICEOVER.md).
+- Paste the license (Apache 2.0) and the feedback section into the matching Devpost fields if the form asks for them.
