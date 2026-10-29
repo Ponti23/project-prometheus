@@ -8,18 +8,16 @@ Judges need a working URL from submission (Oct 30) through the end of judging (a
 
 Each browser automatically gets its own isolated household (cookie). Judges click **Load demo household** to get synthetic data. No accounts or passwords are needed.
 
-## Option 0 (chosen, free): Hugging Face Spaces (Docker)
-No credit card needed. The model still runs on Nebius Token Factory, which satisfies the hackathon's "runs on Nebius" rule. The `README.md` front matter (`sdk: docker`, `app_port: 8000`) tells Hugging Face how to run the image.
+## Option 0 (chosen, free): Render
+No credit card needed. The model still runs on Nebius Token Factory, which satisfies the hackathon's "runs on Nebius" rule. (Hugging Face Spaces was tried first, but Docker Spaces now need a paid PRO subscription.)
 
-1. Create a free account at huggingface.co, then **Settings → Access Tokens → Create new token**, type **Write**.
-2. In the GitHub repo: **Settings → Secrets and variables → Actions → New repository secret**:
-   - `HF_TOKEN` = the Hugging Face token.
-   - `NEBIUS_API_KEY` = your Nebius key.
-   - Optional variable `HF_SPACE` (e.g. `your-name/prometheus`). The default is `<hf user>/project-prometheus`.
-3. Run **Actions → Deploy to Hugging Face Space → Run workflow** (it also runs on every push to `main`). `scripts/deploy_space.py` creates the public Space if needed, stores `NEBIUS_API_KEY` as a Space secret and uploads the app (not `docs/screenshots`). The workflow then waits for the build and runs `scripts/smoke_test.py --chat` against the live URL. The URL is in the run summary.
-4. Give judges the direct URL `https://<user>-<space>.hf.space`, not the `huggingface.co/spaces/...` page. The page shows the app in an iframe, where the browser may block the household cookie.
+1. Sign up at render.com with your GitHub account.
+2. **New → Blueprint**, pick `Ponti23/project-prometheus`. Render reads `render.yaml` (free plan, Docker, auto-deploy from `main`).
+3. When asked for `NEBIUS_API_KEY`, paste your key, then click **Deploy Blueprint**. The first build takes a few minutes.
+4. Copy the URL (e.g. `https://project-prometheus.onrender.com`). In GitHub: **Settings → Secrets and variables → Actions → Variables → New repository variable**, name `APP_URL`, value the URL.
+5. Run **Actions → Smoke test live app** to check the page, Nebius, the demo household and one real chat turn.
 
-Limits: free Spaces sleep after about 48 hours with no visitors, so **Keep Space awake** visits the page twice a day (no model calls). The disk is not persistent, so a restart wipes saved households; judges load the demo household anyway.
+Limits: free services sleep after 15 minutes without traffic, so **Keep app awake** visits the page every 10 minutes (no model calls). One always-on service fits in Render's 750 free hours a month. The disk is not persistent, so a restart or redeploy wipes saved households; judges load the demo household anyway.
 
 ## Option A (paid): Nebius AI Cloud: Nebius AI Cloud
 Running on Nebius compute strengthens the "built on Nebius" submission. Nebius's container services change often, so **check the current Nebius AI Cloud docs** for the exact commands. The shape is:
@@ -32,7 +30,7 @@ Running on Nebius compute strengthens the "built on Nebius" submission. Nebius's
 
 > ⚠️ This step creates paid infrastructure. It is **not done** and waits for your approval.
 
-## Option B (fallback): Render / Railway / Fly.io
+## Option B (fallback): Railway / Fly.io / Koyeb
 Any host that runs a Dockerfile with a persistent disk works. Avoid platforms without persistent storage (for example plain serverless functions): SQLite data would vanish.
 
 ## Checklist before submitting

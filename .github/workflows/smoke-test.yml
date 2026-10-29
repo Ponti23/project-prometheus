@@ -1,0 +1,20 @@
+# Runs scripts/smoke_test.py against the live app, including one real chat turn.
+name: Smoke test live app
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "App URL (defaults to the APP_URL repo variable)"
+        required: false
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install httpx
+      - run: python scripts/smoke_test.py "${{ inputs.url || vars.APP_URL }}" --wait 300 --chat

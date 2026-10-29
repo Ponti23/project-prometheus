@@ -1,0 +1,16 @@
+# Free Render services sleep after 15 minutes without traffic. Visiting the static page
+# every 10 minutes keeps the demo awake for judges (one service fits in Render's 750 free hours a month).
+# Set the repo variable APP_URL (e.g. https://project-prometheus.onrender.com). No model calls, no credits used.
+name: Keep app awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    if: ${{ vars.APP_URL != '' }}
+    steps:
+      - run: curl -fsS -o /dev/null -w "%{http_code} ${{ vars.APP_URL }}\n" --retry 5 --retry-delay 20 --max-time 120 "${{ vars.APP_URL }}/"
