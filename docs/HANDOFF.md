@@ -32,3 +32,11 @@ Use this to resume work in a fresh session. _Updated: 2026-10-29._
 4. ~~Check source links~~ (16/21 done). Open the 4 Ready.gov pages and esfi.org in a browser and mark them `checked: true` if they load.
 5. ~~Deploy~~ (done, free on Render; smoke test passed).
 6. Record the video (under 3 minutes) on the live URL, add its link to [DEVPOST.md](DEVPOST.md), check the Devpost rules on disclosing AI coding tools, paste DEVPOST.md into Devpost with the images in `docs/screenshots/` and submit.
+
+## Keeping the demo up after submission
+- **Don't push to `main` during judging.** Every push redeploys on Render and wipes saved households (judges just click **Load demo household** again, but a broken build would take the site down).
+- **Keep-awake** pings the site every 10 minutes from GitHub Actions. GitHub turns off scheduled workflows after 60 days with no repo activity, which is well past judging.
+- **Render free plan:** 750 hours a month covers one always-on service. Render doesn't delete idle free web services.
+- **Nebius credits:** chat stops working if the Token Factory balance runs out. Check the balance before leaving, and top it up if it's low. The app's per-household rate limit keeps usage small.
+- Render emails the account owner if a deploy fails. GitHub emails you if keep-awake starts failing.
+
