@@ -3,12 +3,13 @@
 Use this to resume work in a fresh session. _Updated: 2026-10-29._
 
 **Hackathon:** Nebius × NVIDIA Global AI Hackathon, Personal AI track. **Deadline: Oct 30, 2026, 10:00 AM PDT.**
-**Branch:** `prometheus-mvp` (the first and only branch; there's no `main` yet).
+**Branch:** `main` (the default branch; renamed from `prometheus-mvp`). The repo is public.
 
 ## Done
 - The full MVP is built and committed. See [FEATURES.md](FEATURES.md) for the status of each feature.
 - `pytest`: 47 passed, 3 skipped. The skipped ones are the live Nebius tests, which need `NEBIUS_API_KEY`.
 - The browser flow was checked with Playwright: demo household → chat → approve restock tasks → "Done + add to inventory" → shortage recalculates → chat opens the Rebuild node → reload keeps all state. That run used a scripted stand-in model (UI test only, not in the repo).
+- Prometheus has a face: a fire spirit (`frontend/js/face.js`) with Notch Face Kit eyes that reacts to chat state. It's also the sidebar logo and favicon (`frontend/assets/emblem.svg`).
 
 ## Key decisions
 - Stack: FastAPI + stdlib SQLite + vanilla JS (no build step). Each household is isolated by the `prometheus_household` cookie.
@@ -24,4 +25,4 @@ Use this to resume work in a fresh session. _Updated: 2026-10-29._
 3. Do a real demo run using [DEMO_SCRIPT.md](DEMO_SCRIPT.md) and fix anything rough.
 4. Run `python scripts/check_sources.py --write` on a normally connected machine and commit the result.
 5. Deploy following [DEPLOY.md](DEPLOY.md) (after the user approves). Confirm `/api/ai/verify` returns `ok: true` on the hosted URL.
-6. Make the repo public, merge into a default branch, record the video (under 3 minutes), and submit on Devpost.
+6. Record the video (under 3 minutes), and submit on Devpost.
