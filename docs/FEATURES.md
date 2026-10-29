@@ -5,7 +5,7 @@ Legend:
 - 🟡 **implemented, needs live verification**: built, but not yet confirmed with real credentials or a real browser on your machine.
 - ⏳ **planned**: not built yet.
 
-_Last updated: 2026-10-27._
+_Last updated: 2026-10-29._
 
 ## AI companion
 | Feature | Status | Evidence |
@@ -52,6 +52,22 @@ _Last updated: 2026-10-27._
 |---|---|
 | 20 curated entries, 21 registered sources, offline BM25 search, topic filters | ✅ |
 | Source links verified to resolve | 🟡 The build sandbox couldn't reach these sites. Run `scripts/check_sources.py --write`. |
+
+## Simple mode (the redesign, see REDESIGN.md)
+| Feature | Status |
+|---|---|
+| Simple `/` and Advanced `advanced.html`, switching both ways; Show me how it works | ✅ checked in the browser (Playwright) |
+| Canvas: pan, zoom, dot grid, drag, semantic zoom, Fit / Tidy / Clear, the + drawer, saved layouts, keyboard, phone stack | ✅ browser-checked |
+| Readiness in stages (`GET /api/summary`) in human units | ✅ `test_summary.py` (demo numbers: 8 left for 3 days, 7 after +5 L) |
+| Cards: Prepare (stages, Next up, 9 supply areas, household, check these, how do we know?), Survive, Rebuild (numbered lessons), Vault, Memory | ✅ browser-checked |
+| Chat drives the canvas (card hints from tools, what's on screen sent with each message) | ✅ `test_canvas.py`, live Nemotron runs |
+| Pencil previews (`GET /api/actions/{id}/preview`), Save / Edit / No | ✅ `test_canvas.py`, live runs |
+| The flame flies to the number, stamps on Save, flies home; ripple; edge pointers | ✅ browser-checked, reduced motion respected |
+| Permission modes: Ask first, Auto (number check), Plan (blueprint, Save all); Undo; What changed | ✅ `test_permissions.py`, live runs |
+| SOS: no AI, one question per screen, vault text only, steps one at a time | ✅ `test_sos_triage_maps_to_real_vault_entries`, browser-checked |
+| Works offline (service worker), printable emergency card | ✅ browser-checked offline |
+| First run: Tell me who lives with you, Fill in myself, Quick check | ✅ browser-checked, live run |
+| Accessibility: axe-core clean on every canvas and SOS, light and dark | ✅ |
 
 ## Offline / deployment
 | Feature | Status |

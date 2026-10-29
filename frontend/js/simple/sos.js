@@ -23,6 +23,8 @@ export function openSos(scenario = null) {
   root = h("div", { class: "sos-screen", role: "dialog", "aria-modal": "true", "aria-label": "Emergency help" });
   document.body.appendChild(root);
   document.body.classList.add("sos-open");
+  // Everything behind the takeover is out of reach for keyboards and screen readers.
+  document.querySelectorAll("body > :not(.sos-screen)").forEach((el) => { el.inert = true; });
   state = { history: [] };
   root.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSos(); });
   if (scenario) pick(scenario); else show(hurt);
@@ -32,6 +34,7 @@ export function closeSos() {
   root?.remove();
   root = null;
   document.body.classList.remove("sos-open");
+  document.querySelectorAll("body > *").forEach((el) => { el.inert = false; });
   lastFocus?.focus?.();
 }
 
@@ -41,14 +44,14 @@ function show(screen, push = true) {
   state.current = screen;
   Promise.resolve(screen()).then((body) => {
     clear(root,
-      h("header", {},
+      h("div", { class: "sos-head" },
         state.history.length ? h("button", { class: "sos-back", type: "button", onclick: back }, "‹ Back") : h("span", { class: "sos-title" }, "SOS"),
         h("a", { class: "sos-call sm", href: "tel:000" }, icon("phone"), "Call 000"),
         h("button", { class: "sos-close", type: "button", "aria-label": "Close SOS", onclick: closeSos }, icon("x"))),
-      h("main", {}, body));
+      h("div", { class: "sos-main" }, body));
     root.querySelector("h1")?.setAttribute("tabindex", "-1");
     root.querySelector("h1")?.focus();
-  }).catch((e) => clear(root, h("main", {}, h("h1", {}, "Couldn't load this."), h("p", {}, e.message), big("Close", closeSos))));
+  }).catch((e) => clear(root, h("div", { class: "sos-main" }, h("h1", {}, "Couldn't load this."), h("p", {}, e.message), big("Close", closeSos))));
 }
 
 function back() {

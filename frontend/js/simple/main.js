@@ -59,7 +59,8 @@ function updateWelcome() {
         if (c) { c.ui.edit = structuredClone(app.data.household.profile); app.canvas.paint(c); app.canvas.reveal("household", { focus: true }); }
       } }, "Fill in myself"),
       h("button", { class: "btn", type: "button", onclick: loadDemo }, "Try the demo family")));
-  document.querySelector(".canvas-ui").appendChild(w);
+  // On a phone it's the first thing in the stack of cards; on a desktop it floats over the canvas.
+  if (app.canvas.stack) $("world").prepend(w); else document.querySelector(".canvas-ui").appendChild(w);
 }
 
 // Every number on a card carries data-num; after a change, cards whose numbers moved glow.
@@ -87,6 +88,7 @@ app.show = async (name, { push = true } = {}) => {
   app.canvasName = name;
   document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.canvas === name)));
   $("canvas").setAttribute("aria-label", `${CANVASES[name].title} canvas`);
+  $("pageTitle").textContent = `Prometheus: ${CANVASES[name].title}`;
   document.body.dataset.canvas = name;
   store.set("prometheus.simple.canvas", name);
   if (push && location.hash !== `#${name}`) history.replaceState(null, "", `#${name}`);

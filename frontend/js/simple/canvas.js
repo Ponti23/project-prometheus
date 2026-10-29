@@ -67,9 +67,9 @@ export class Canvas {
   // ------------------------------------------------------------ cards
   add({ type, key = null, x = 0, y = 0, pinned = false }) {
     const c = { id: cardId(type, key), type, key, x, y, pinned, ui: {} };
-    c.el = h("article", { class: "card", tabindex: 0, "data-id": c.id, role: "group" },
+    c.el = h("div", { class: "card", tabindex: 0, "data-id": c.id, role: "group" },
       h("header", { class: "card-head" },
-        h("span", { class: "card-icon" }), h("h3", { class: "card-title" }), h("span", { class: "card-tag" }),
+        h("span", { class: "card-icon" }), h("h2", { class: "card-title" }), h("span", { class: "card-tag" }),
         h("button", { class: "card-btn pin", type: "button", "aria-label": "Pin card", "aria-pressed": String(pinned), onclick: () => this.togglePin(c.id) }, icon("pin")),
         h("button", { class: "card-btn close", type: "button", "aria-label": "Remove card", onclick: () => this.remove(c.id) }, icon("x"))),
       h("div", { class: "card-body" }),

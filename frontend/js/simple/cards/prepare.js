@@ -358,7 +358,7 @@ function why(c) {
   return {
     icon: "help", title: "How do we know?", width: 320, status: "",
     body: [
-      h("h4", {}, t.label),
+      h("h3", {}, t.label),
       h("p", {}, h("strong", {}, `For ${stageLabel(summary().focus_days)}: `), `${t.working} = ${t.need_text}`),
       h("p", { class: "muted" }, t.explain),
       h("p", {}, t.basis === "guideline" ? pill("met", "From a guideline") : h("span", { class: "pill" }, icon("info"), "Planning default")),

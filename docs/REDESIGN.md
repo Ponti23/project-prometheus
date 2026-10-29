@@ -1,6 +1,6 @@
 # UI redesign: Simple mode (an AI-native canvas)
 
-_Status: design agreed with the owner on 2026-10-29. Build in progress on `claude/charming-bell-9gytjt`. Tick the checklist in [Build plan](#build-plan) as you go._
+_Status: design agreed with the owner on 2026-10-29. **All seven phases are built** on `claude/charming-bell-9gytjt` (not merged, no PR). The defaults chosen along the way are listed at the end._
 
 > **Resuming in a fresh session?** Read this whole file first. The owner asked you to work on your own (they're driving). Don't stop to ask questions: use the defaults written here, write down anything new under [Decisions made while the owner was away](#decisions-made-while-the-owner-was-away), and keep going.
 
@@ -278,7 +278,7 @@ Work top to bottom. After each phase:
 - [x] Household card filling in live, "Fill in myself", Quick check
 
 **Phase 7: Polish**
-- [ ] Phone pass, accessibility pass, reduced motion; update README, FEATURES.md and screenshots
+- [x] Phone pass, accessibility pass, reduced motion; update README, FEATURES.md and screenshots
 
 ## Testing notes
 - **Running it:** `pip install -r requirements.txt`, then `uvicorn backend.app.main:app --port 8000`. Node Playwright is preinstalled in the cloud container (`require('playwright')`, `chromium.launch()`). Python Playwright isn't.
@@ -324,4 +324,8 @@ _(Append each default you had to pick, with a one-line reason.)_
 - **Quick check covers counted gear only** (torch, radio, first aid kit, can opener, power bank, batteries, bin bags, toilet paper, soap, documents). Tapping one asks "how many?" (default 1) and adds it. Water and food need amounts, so they link to their own cards.
 - **Every Household line has a `data-num`** (people, pets, goal, medicine), so a profile proposal from the chat shows up in pencil on the card.
 - **Edge pointers only point at cards you can't see at all.** A card that's half on screen doesn't get a "changed →" chip on top of it.
+- **Accessibility pass with axe-core**: no violations on any canvas or SOS, in light and dark. Cards are `div role="group"` with `h2` titles, the page has a visually hidden `h1` ("Prometheus: Prepare"), the brand text colour got darker (`#9c4700`) to pass contrast on the selected tab, and everything behind SOS is `inert` while it's open.
+- **Phone first run**: the welcome is the first item in the card stack, not floating over the cards.
+- **Tool count is now 16** (`show_card`), updated in README and DEVPOST.md. DEMO_SCRIPT.md has a Simple-mode version of the demo next to the original.
+- **Checks run for each phase**: pytest (81 passed, plus the 3 live Nemotron tests), Playwright at 1440×900 and 390×844, and Advanced mode (each nav view renders, no console errors).
 

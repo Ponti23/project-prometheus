@@ -11,7 +11,7 @@
   --brand: #ff8a1f;
   --brand-2: #ffd23f;
   --core: #d61f5f;
-  --brand-ink: #b65300;
+  --brand-ink: #9c4700;
   --brand-soft: #fff0df;
   --ok: #2f7d4a;
   --ok-bg: #e5f4e8;
@@ -193,7 +193,7 @@ svg { flex: none; }
 .kv .v { font-weight: 600; text-align: right; }
 .kv.edit { min-height: 38px; }
 .notes { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
-h4 { font-size: 16px; }
+.card-body h3 { font-size: 16px; }
 .source { font-size: 14px; }
 
 .btn {
@@ -346,7 +346,7 @@ input[type="text"], input[type="number"], select {
 .bubble { background: var(--surface-2); padding: 10px 14px; border-radius: 18px 18px 18px 6px; }
 .bubble p + p, .bubble ul, .bubble ol { margin-top: 6px; }
 .bubble ul, .bubble ol { padding-left: 20px; margin-bottom: 0; }
-.bubble h4 { margin-top: 8px; }
+.bubble h4 { margin-top: 8px; font-size: 16px; }
 .bubble code { font: inherit; background: var(--surface); padding: 0 4px; border-radius: 4px; }
 .msg.event { align-self: center; font-size: 13.5px; color: var(--muted); display: flex; align-items: center; gap: 5px; text-align: center; }
 .msg.event.ok { color: var(--ok); }
@@ -598,12 +598,12 @@ ul.plain li:has(.sdot)::before { content: none; }
 .sos-screen *, .sos-screen *::before, .sos-screen *::after { animation: none !important; transition: none !important; }
 body.sos-open { overflow: hidden; }
 body.sos-open .flyer { display: none; }
-.sos-screen header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 2px solid #333; position: sticky; top: 0; background: #0d0d0d; }
+.sos-head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 2px solid #333; position: sticky; top: 0; background: #0d0d0d; }
 .sos-title { font-weight: 900; font-size: 20px; color: #ff5a5a; margin-right: auto; }
 .sos-back { margin-right: auto; border: 2px solid #fff; background: none; color: #fff; border-radius: 12px; padding: 8px 16px; font-weight: 800; font-size: 17px; }
 .sos-close { width: 48px; height: 48px; border: 2px solid #fff; background: none; color: #fff; border-radius: 12px; display: grid; place-items: center; }
 .sos-close svg { width: 24px; height: 24px; }
-.sos-screen main { width: 100%; max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 18px; }
+.sos-main { width: 100%; max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 18px; }
 .sos-screen h1 { font-size: 30px; line-height: 1.2; font-weight: 850; outline: none; }
 .sos-screen h2 { font-size: 21px; }
 .sos-screen a { color: #ffd23f; }
@@ -664,4 +664,8 @@ body.sos-open .flyer { display: none; }
 .quick .chip.got { background: var(--ok-bg); border-color: transparent; color: var(--ok); }
 .quick .chip svg { width: 14px; height: 14px; }
 .quick-pick { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: var(--surface-2); }
-@media (max-width: 760px) { .welcome { position: fixed; bottom: 160px; top: auto; translate: -50% 0; } }
+@media (max-width: 760px) {
+  .world > .welcome { position: static; translate: none; max-width: none; flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 14px; box-shadow: var(--shadow); }
+  .world > .welcome p { font-size: 19px; flex: 1; text-align: left; }
+  .world > .welcome .face.big { width: 52px; }
+}

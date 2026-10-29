@@ -47,7 +47,7 @@ function scenario(c) {
         if (!steps.length) return null;
         const open = p === "immediate" || c.ui[p];
         return [
-          h("h4", {}, open ? label : h("button", { class: "fold", type: "button", "aria-expanded": "false", onclick: () => { c.ui[p] = true; app.canvas.paint(c); } },
+          h("h3", {}, open ? label : h("button", { class: "fold", type: "button", "aria-expanded": "false", onclick: () => { c.ui[p] = true; app.canvas.paint(c); } },
             `${label} (${steps.length})`, h("span", { "aria-hidden": "true" }, " ▸"))),
           open ? h("ul", { class: "steps" }, steps.map((x) => h("li", {},
             h("span", {}, x.text), x.knowledge_refs?.[0] ? link("Why?", () => app.spawn("guide", x.knowledge_refs[0])) : null))) : null,
@@ -128,7 +128,7 @@ function plan(c) {
       p.summary ? h("p", { class: "muted" }, p.summary) : null,
       STEP_GROUPS.map(([prio, label]) => {
         const list = steps.map((s, i) => [s, i]).filter(([s]) => s.priority === prio);
-        return list.length ? [h("h4", {}, label), h("ul", { class: `checklist${saved ? "" : " drafted"}` }, list.map(([s, i]) => h("li", {},
+        return list.length ? [h("h3", {}, label), h("ul", { class: `checklist${saved ? "" : " drafted"}` }, list.map(([s, i]) => h("li", {},
           h("label", { class: "tick" },
             h("input", { type: "checkbox", checked: s.done, disabled: !saved, onchange: (e) => tickStep(p, i, e.target) }),
             h("span", { class: "t" }, s.text)),
