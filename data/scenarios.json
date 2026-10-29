@@ -1,4 +1,5 @@
 {
+  "_triage_note": "triage[i] goes with triage_questions[i] for the SOS safety check. When the answer equals danger, show those vault entries (their own text only) first; call adds the emergency-call button; show: supplies shows the household's water and food days instead of yes or no.",
   "scenarios": [
     {
       "id": "blackout",
@@ -11,6 +12,13 @@
         "Is anyone using a generator, barbecue, camp stove or fuel heater indoors or in a garage?",
         "Is it dangerously hot or cold where you are right now?",
         "Do you have safe drinking water and a way to receive official updates (radio)?"
+      ],
+      "triage": [
+        {"danger": "yes", "kb": ["kb-medical-power"], "call": true},
+        {"danger": "yes", "kb": ["kb-first-aid-basics"], "call": true},
+        {"danger": "yes", "kb": ["kb-carbon-monoxide"]},
+        {"danger": "yes", "kb": ["kb-staying-warm-cool"]},
+        {"danger": "no", "kb": ["kb-water-treatment", "kb-communication"]}
       ],
       "steps": [
         {"text": "Check everyone is safe. If anyone's life is at risk, call emergency services (000 in Australia).", "priority": "immediate", "knowledge_refs": ["kb-first-aid-basics", "kb-medical-power"]},
@@ -35,6 +43,11 @@
         "How many days of water and food do you currently have?",
         "Are there infants or pets with special food requirements?"
       ],
+      "triage": [
+        {"danger": "yes", "kb": ["kb-medical-power"]},
+        {"show": "supplies"},
+        {"danger": "yes", "kb": ["kb-food-supply"]}
+      ],
       "steps": [
         {"text": "Inventory water, food (kcal), medication and hygiene supplies.", "priority": "immediate", "knowledge_refs": ["kb-food-supply", "kb-water-storage"]},
         {"text": "Prioritise medication and infant needs; contact your pharmacist early.", "priority": "today", "knowledge_refs": ["kb-medical-power"]},
@@ -52,6 +65,11 @@
         "Is there an active warning or evacuation order for your area?",
         "Is anyone injured or trapped?",
         "Is your home structurally safe and free of floodwater or fire risk?"
+      ],
+      "triage": [
+        {"danger": "yes", "kb": ["kb-communication", "kb-emergency-plan"]},
+        {"danger": "yes", "kb": ["kb-first-aid-basics"], "call": true},
+        {"danger": "no", "kb": ["kb-survival-kit", "kb-emergency-plan"], "call": true}
       ],
       "steps": [
         {"text": "Check official warnings (e.g. Emergency WA) and follow evacuation orders immediately.", "priority": "immediate", "knowledge_refs": ["kb-communication", "kb-emergency-plan"]},

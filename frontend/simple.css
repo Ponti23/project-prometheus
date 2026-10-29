@@ -589,3 +589,64 @@ ul.plain li:has(.sdot)::before { content: none; }
 .chip { border: 1px solid var(--line-2); background: var(--surface); border-radius: 999px; padding: 3px 11px; font-size: 13.5px; color: var(--muted); text-transform: capitalize; }
 .chip[aria-pressed="true"] { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-ink); }
 .fold { border: 0; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--brand-ink); }
+
+/* ------------------------------------------------------------------ SOS: always high-contrast dark, no animation */
+.sos-screen {
+  position: fixed; inset: 0; z-index: 100; overflow-y: auto; background: #0d0d0d; color: #fff;
+  font-size: 19px; line-height: 1.45; display: flex; flex-direction: column;
+}
+.sos-screen *, .sos-screen *::before, .sos-screen *::after { animation: none !important; transition: none !important; }
+body.sos-open { overflow: hidden; }
+body.sos-open .flyer { display: none; }
+.sos-screen header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 2px solid #333; position: sticky; top: 0; background: #0d0d0d; }
+.sos-title { font-weight: 900; font-size: 20px; color: #ff5a5a; margin-right: auto; }
+.sos-back { margin-right: auto; border: 2px solid #fff; background: none; color: #fff; border-radius: 12px; padding: 8px 16px; font-weight: 800; font-size: 17px; }
+.sos-close { width: 48px; height: 48px; border: 2px solid #fff; background: none; color: #fff; border-radius: 12px; display: grid; place-items: center; }
+.sos-close svg { width: 24px; height: 24px; }
+.sos-screen main { width: 100%; max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; display: flex; flex-direction: column; gap: 18px; }
+.sos-screen h1 { font-size: 30px; line-height: 1.2; font-weight: 850; outline: none; }
+.sos-screen h2 { font-size: 21px; }
+.sos-screen a { color: #ffd23f; }
+.sos-btn {
+  min-height: 64px; width: 100%; border: 3px solid #fff; background: #1d1d1d; color: #fff; border-radius: 16px;
+  font-size: 21px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 10px 18px;
+}
+.sos-btn svg { width: 26px; height: 26px; }
+.sos-btn:hover, .sos-btn:focus-visible { background: #333; }
+.sos-btn.danger { background: #d7001f; border-color: #d7001f; }
+.sos-btn.ok { background: #ffd23f; border-color: #ffd23f; color: #111; }
+.sos-btn.quiet { border-color: #777; color: #ddd; min-height: 54px; font-size: 18px; }
+.sos-screen :focus-visible { outline: 4px solid #ffd23f; outline-offset: 3px; }
+.sos-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sos-col { display: flex; flex-direction: column; gap: 12px; }
+.sos-col .sos-btn { justify-content: flex-start; }
+.sos-call {
+  display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 76px; border-radius: 18px;
+  background: #d7001f; color: #fff !important; font-size: 28px; font-weight: 900; text-decoration: none;
+}
+.sos-call svg { width: 30px; height: 30px; }
+.sos-call.sm { min-height: 44px; font-size: 17px; padding: 0 14px; border-radius: 12px; }
+.sos-call.sm svg { width: 20px; height: 20px; }
+.sos-numbers { font-size: 18px; text-align: center; color: #ddd; }
+.sos-entry { border: 2px solid #444; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.sos-entry ul { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; }
+.sos-src { font-size: 15px; color: #bbb; }
+.sos-step { font-size: 16px; font-weight: 700; color: #ffd23f; }
+.sos-big { font-size: 26px; font-weight: 800; }
+.sos-have { font-size: 18px; padding: 10px 14px; border-radius: 12px; background: #1d1d1d; border: 2px solid #444; }
+.sos-note { color: #ccc; font-size: 17px; }
+.sos-link { align-self: flex-start; border: 0; background: none; color: #ffd23f; font-size: 18px; font-weight: 800; text-decoration: underline; padding: 4px 0; }
+
+/* ------------------------------------------------------------------ printable emergency card */
+.print-card { display: none; }
+@media print {
+  body { overflow: visible; display: block; background: #fff; color: #000; font-size: 12pt; }
+  body > *:not(.print-card) { display: none !important; }
+  .print-card { display: block; }
+  .print-card h1 { font-size: 20pt; margin-bottom: 4pt; }
+  .print-card h2 { font-size: 13pt; margin: 12pt 0 4pt; border-bottom: 1pt solid #000; }
+  .print-card .call { font-size: 16pt; font-weight: 800; border: 2pt solid #000; padding: 6pt 10pt; display: inline-block; background: none; color: #000; }
+  .print-card ul, .print-card ol { margin: 0; padding-left: 16pt; }
+  .print-card li { margin: 2pt 0; }
+  .print-card .foot { margin-top: 14pt; font-size: 9pt; color: #444; }
+}

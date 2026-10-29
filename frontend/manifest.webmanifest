@@ -1,0 +1,11 @@
+{
+  "name": "Prometheus",
+  "short_name": "Prometheus",
+  "description": "Prepare today. Survive tomorrow. Rebuild the future.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbf7f1",
+  "theme_color": "#ff8a1f",
+  "icons": [{ "src": "assets/emblem.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

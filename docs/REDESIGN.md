@@ -271,8 +271,8 @@ Work top to bottom. After each phase:
 - [x] Survive, Rebuild (path + lesson) and Vault (search + guide) cards
 
 **Phase 5: SOS**
-- [ ] Takeover flow
-- [ ] PWA offline + printable emergency card
+- [x] Takeover flow
+- [x] PWA offline + printable emergency card
 
 **Phase 6: First-run setup**
 - [ ] Household card filling in live, "Fill in myself", Quick check
@@ -315,4 +315,9 @@ _(Append each default you had to pick, with a one-line reason.)_
 - **Lesson numbers follow tier order**, and a tier with several nodes shows "Choose next" (3 · 4 · 5).
 - **Fixed a material match in `electricity.json`.** "Notebook & pencil" matched "paper" and "pen", so toilet paper and a can opener counted as a notebook and a pen (in Advanced too). It now matches notebook, pencil and notepad, with a test.
 - **Each card type declares its width** in the registry, so the first layout is right even while a card is still loading.
+- **SOS triage mapping** lives in `scenarios.json` as `triage[i]` next to `triage_questions[i]`: `danger` (which answer is dangerous), `kb` (vault entries to show, using only their own text), `call` (add the Call 000 button), or `show: supplies` for the "how many days do you have" question, which shows the household's numbers instead of yes/no. A test checks that every id exists. "Gas, smoke or fallen power lines" has no vault entry of its own, so it shows first aid basics ("Check for danger…", "Call emergency services…") with Call 000, not invented text.
+- **SOS steps come from your saved plan** for that scenario if there is one (Done ticks the real plan step, instantly), otherwise from the scenario's guideline steps (Done is remembered for the browser session).
+- **"You have: …" on a step** is matched by keywords in the step text (radio, torch, water, food, phone/charger, first aid) against the scenario guide's household data.
+- **Offline is network-first** (`frontend/sw.js`): online you always get fresh code and data; offline you get the last copy of the app shell, scenarios, guides, the tech tree and the household snapshot. Chat and changes need the server and say so.
+- **The emergency card** ("Print emergency card" in the menu) prints who lives here, what you have, the emergency numbers and the saved plan (or the blackout steps). It's built from saved data only.
 

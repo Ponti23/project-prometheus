@@ -8,6 +8,8 @@ import { describe, initChat, renderChat, sendChat, setSuggestions } from "./chat
 import * as flame from "./flame.js";
 import { initModes } from "./modes.js";
 import { decorate, loadPreview, ownerCard, pending, target } from "./pencils.js";
+import { printCard } from "./print.js";
+import { openSos } from "./sos.js";
 
 const $ = (id) => document.getElementById(id);
 const NAMES = Object.keys(CANVASES);
@@ -191,6 +193,7 @@ function renderMenu() {
   clear($("menu"),
     item("Try the demo family", "people", loadDemo),
     item("What changed", "undo", showChanges),
+    item("Print emergency card", "doc", printCard),
     item("Show me how it works", "atom", showHowItWorks),
     item("Advanced mode", "gear", () => { store.set("prometheus.ui", "advanced"); location.href = "advanced.html"; }),
     h("hr"),
@@ -259,6 +262,8 @@ function bindUi() {
   hydrateIcons();
   document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => app.show(t.dataset.canvas)));
   $("addCard").addEventListener("click", () => toggleDrawer());
+  $("sosBtn").addEventListener("click", () => openSos());
+  app.openSos = openSos;
   $("zoomIn").addEventListener("click", () => app.canvas.zoomAt(1.2));
   $("zoomOut").addEventListener("click", () => app.canvas.zoomAt(1 / 1.2));
   $("zoomPct").addEventListener("click", () => app.canvas.zoomTo(1));
@@ -323,4 +328,6 @@ async function boot() {
 }
 
 boot();
+// Works offline: the app shell, guides and the last household snapshot are cached.
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
 export { sendChat };
