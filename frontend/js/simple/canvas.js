@@ -360,6 +360,16 @@ export class Canvas {
     return { x: c.x * z + x, y: c.y * z + y, w: c.el.offsetWidth * z, h: c.el.offsetHeight * z };
   }
 
+  // Any part of the card on screen (edge pointers only point at cards you can't see at all).
+  onScreen(c) {
+    if (this.stack) {
+      const r = c.el.getBoundingClientRect(), v = this.root.getBoundingClientRect();
+      return r.bottom > v.top && r.top < v.bottom - 140;
+    }
+    const r = this.screenRect(c);
+    return r.x + r.w > 0 && r.y + r.h > 0 && r.x < this.root.clientWidth && r.y < this.root.clientHeight;
+  }
+
   visible(c, margin = 16) {
     if (this.stack) {
       const r = c.el.getBoundingClientRect(), v = this.root.getBoundingClientRect();
@@ -393,7 +403,7 @@ export class Canvas {
     void c.el.offsetWidth;
     c.el.classList.add("glow");
     setTimeout(() => c.el.classList.remove("glow"), 1600);
-    if (!this.visible(c)) {
+    if (!this.onScreen(c)) {
       c.pointer = { label: `${c.el.getAttribute("aria-label")} changed`, until: Date.now() + 9000 };
       this.updatePointers();
       setTimeout(() => this.updatePointers(), 9100);
@@ -405,7 +415,7 @@ export class Canvas {
     const W = this.root.clientWidth, H = this.root.clientHeight;
     const chips = [];
     for (const c of this.cards.values()) {
-      if (!c.pointer || c.pointer.until < Date.now() || this.visible(c, 0)) { c.pointer = null; continue; }
+      if (!c.pointer || c.pointer.until < Date.now() || this.onScreen(c)) { c.pointer = null; continue; }
       if (this.stack) { chips.push(h("button", { class: "pointer bottom", onclick: () => this.reveal(c.id, { focus: true }) }, c.pointer.label, icon("arrow"))); continue; }
       const r = this.screenRect(c);
       const cx = r.x + r.w / 2, cy = r.y + r.h / 2;

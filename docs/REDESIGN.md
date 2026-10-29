@@ -275,7 +275,7 @@ Work top to bottom. After each phase:
 - [x] PWA offline + printable emergency card
 
 **Phase 6: First-run setup**
-- [ ] Household card filling in live, "Fill in myself", Quick check
+- [x] Household card filling in live, "Fill in myself", Quick check
 
 **Phase 7: Polish**
 - [ ] Phone pass, accessibility pass, reduced motion; update README, FEATURES.md and screenshots
@@ -320,4 +320,8 @@ _(Append each default you had to pick, with a one-line reason.)_
 - **"You have: …" on a step** is matched by keywords in the step text (radio, torch, water, food, phone/charger, first aid) against the scenario guide's household data.
 - **Offline is network-first** (`frontend/sw.js`): online you always get fresh code and data; offline you get the last copy of the app shell, scenarios, guides, the tech tree and the household snapshot. Chat and changes need the server and say so.
 - **The emergency card** ("Print emergency card" in the menu) prints who lives here, what you have, the emergency numbers and the saved plan (or the blackout steps). It's built from saved data only.
+- **First run** means the profile isn't confirmed and nothing is recorded. Prepare then opens with the Household and Quick check cards, the flame waits at the bottom middle ("Tell me who lives with you." · Fill in myself · Try the demo family) so it doesn't cover them, and the chat suggests "It's just me" and similar. Once the household is saved, Ready in stages and Next up appear.
+- **Quick check covers counted gear only** (torch, radio, first aid kit, can opener, power bank, batteries, bin bags, toilet paper, soap, documents). Tapping one asks "how many?" (default 1) and adds it. Water and food need amounts, so they link to their own cards.
+- **Every Household line has a `data-num`** (people, pets, goal, medicine), so a profile proposal from the chat shows up in pencil on the card.
+- **Edge pointers only point at cards you can't see at all.** A card that's half on screen doesn't get a "changed →" chip on top of it.
 

@@ -3,7 +3,7 @@ import { api } from "../api.js";
 import { clear, h, hydrateIcons, icon, toast } from "../ui.js";
 import { announce, app, notify } from "./app.js";
 import { Canvas, cardId, clearSavedLayouts, typing } from "./canvas.js";
-import { CANVASES, canvasFor, CARDS, defaultCards, drawerItems, rank, renderCard } from "./cards/index.js";
+import { CANVASES, canvasFor, CARDS, defaultCards, drawerItems, firstRun, rank, renderCard } from "./cards/index.js";
 import { describe, initChat, renderChat, sendChat, setSuggestions } from "./chat.js";
 import * as flame from "./flame.js";
 import { initModes } from "./modes.js";
@@ -31,7 +31,36 @@ app.refresh = async ({ ripple = false } = {}) => {
   await loadPreview();
   app.canvas?.renderAll();
   if (before) rippleChanges(before);
+  updateWelcome();
 };
+
+app.firstRun = firstRun;
+
+// First run: the flame waits in the middle of the Prepare canvas. Once the household is saved, readiness appears.
+function updateWelcome() {
+  const show = firstRun() && app.canvasName === "prepare";
+  let w = document.getElementById("welcome");
+  if (!show) {
+    if (w) {
+      w.remove();
+      setSuggestions(app.canvasName);
+      renderChat();
+      if (app.canvasName === "prepare" && app.canvas) for (const t of ["stages", "next"]) app.canvas.spawn(t, null, { focus: false, reveal: false });
+    }
+    return;
+  }
+  if (w) return;
+  w = h("div", { class: "welcome", id: "welcome" },
+    h("div", { class: "face big" }),
+    h("p", {}, "Tell me who lives with you."),
+    h("div", { class: "row" },
+      h("button", { class: "btn primary", type: "button", onclick: () => {
+        const c = app.canvas.get("household");
+        if (c) { c.ui.edit = structuredClone(app.data.household.profile); app.canvas.paint(c); app.canvas.reveal("household", { focus: true }); }
+      } }, "Fill in myself"),
+      h("button", { class: "btn", type: "button", onclick: loadDemo }, "Try the demo family")));
+  document.querySelector(".canvas-ui").appendChild(w);
+}
 
 // Every number on a card carries data-num; after a change, cards whose numbers moved glow.
 function snapshotNumbers() {
@@ -65,6 +94,7 @@ app.show = async (name, { push = true } = {}) => {
   app.canvas.open(name);
   setSuggestions(name);
   renderDrawer();
+  updateWelcome();
 };
 
 // Show a card, switching canvas first if it lives elsewhere.

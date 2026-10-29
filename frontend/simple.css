@@ -650,3 +650,18 @@ body.sos-open .flyer { display: none; }
   .print-card li { margin: 2pt 0; }
   .print-card .foot { margin-top: 14pt; font-size: 9pt; color: #444; }
 }
+
+/* ------------------------------------------------------------------ first run */
+.welcome {
+  position: absolute; left: 50%; bottom: 84px; translate: -50% 0; display: flex; flex-direction: column; align-items: center; gap: 14px;
+  text-align: center; pointer-events: auto; padding: 22px 26px; border-radius: 24px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent); box-shadow: var(--shadow-up); max-width: min(420px, calc(100% - 32px));
+}
+.welcome p { font-size: 22px; font-weight: 750; }
+.face.big { width: 84px; }
+.quick { display: flex; flex-wrap: wrap; gap: 8px; }
+.quick .chip { font-size: 14.5px; padding: 6px 12px; text-transform: none; display: inline-flex; align-items: center; gap: 5px; color: var(--text); }
+.quick .chip.got { background: var(--ok-bg); border-color: transparent; color: var(--ok); }
+.quick .chip svg { width: 14px; height: 14px; }
+.quick-pick { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: var(--surface-2); }
+@media (max-width: 760px) { .welcome { position: fixed; bottom: 160px; top: auto; translate: -50% 0; } }

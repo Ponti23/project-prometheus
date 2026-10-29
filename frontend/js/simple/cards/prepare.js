@@ -233,13 +233,14 @@ function household(c) {
     tag: hh.confirmed ? "" : "Not set up",
     body: [
       line("People", num(`${p.adults} adult${p.adults === 1 ? "" : "s"} · ${p.children} child${p.children === 1 ? "" : "ren"}`, "household.people")),
-      line("Pets", pets || "None"),
+      // Every line carries data-num, so a proposal from the chat fills the card in live, in pencil.
+      line("Pets", num(pets || "None", "household.pets")),
       line("Goal", num(`${p.duration_days} days`, "household.goal")),
-      p.needs_medication ? line("Medicine", "Someone takes it daily") : null,
+      line("Medicine", num(p.needs_medication ? "Someone takes it daily" : "No", "household.medicine")),
       p.hot_climate ? line("Climate", "Hot") : null,
       [...p.dietary_restrictions, ...p.special_requirements].length
         ? h("ul", { class: "notes" }, [...p.dietary_restrictions, ...p.special_requirements].map((n) => h("li", {}, n))) : null,
-      row(button("Edit", () => { c.ui.edit = structuredClone(p); app.canvas.paint(c); }, "sm")),
+      row(button(hh.confirmed ? "Edit" : "Fill in myself", () => { c.ui.edit = structuredClone(p); app.canvas.paint(c); }, hh.confirmed ? "sm" : "sm primary")),
     ],
     mini: mini(`${people} ${people === 1 ? "person" : "people"}`, `${p.duration_days} days`),
   };
@@ -284,6 +285,50 @@ function householdEdit(c, p) {
 function addPet(d, kind) {
   const p = d.pets.find((x) => x.kind === kind);
   if (p) p.count += 1; else d.pets.push({ kind, size: kind === "cat" ? "small" : "medium", count: 1 });
+}
+
+// ---------------------------------------------------------------- quick check (first run)
+// Common gear you can tap if you already have it. Water and food need amounts, so they live on their own cards.
+const QUICK = ["torch", "radio", "first_aid_kit", "can_opener", "power_bank", "batteries", "sanitation_bags", "toilet_paper", "hand_hygiene", "documents"];
+const QUICK_NAMES = {
+  torch: "Torch", radio: "Radio", first_aid_kit: "First aid kit", can_opener: "Can opener", power_bank: "Power bank",
+  batteries: "Spare batteries", sanitation_bags: "Bin bags", toilet_paper: "Toilet paper", hand_hygiene: "Soap", documents: "Copies of documents",
+};
+
+function quick(c) {
+  const targets = Object.fromEntries(app.data.readiness.targets.map((t) => [t.key, t]));
+  const ui = c.ui;
+  const add = async (key) => {
+    const t = targets[key];
+    try {
+      await api.post("/inventory", { name: QUICK_NAMES[key], category: t.category, quantity: ui.count || 1, unit: t.unit, target_key: key });
+      ui.picking = null; ui.count = 1;
+      announce(`Added ${QUICK_NAMES[key]}`);
+      await app.refresh({ ripple: true });
+    } catch (e) { toast(e.message, true); }
+  };
+  const keys = QUICK.filter((k) => targets[k]);
+  const have = keys.filter((k) => targets[k].have > 0);
+  return {
+    icon: "task", title: "Quick check", width: 340, status: have.length === keys.length ? "met" : "",
+    tag: `${have.length} of ${keys.length}`,
+    body: [
+      h("p", { class: "muted" }, "Tap what you already have."),
+      h("div", { class: "quick" }, keys.map((k) => {
+        const got = targets[k].have > 0;
+        if (ui.picking === k) {
+          return h("div", { class: "quick-pick" }, h("strong", {}, QUICK_NAMES[k]),
+            stepper(ui.count || 1, (v) => { ui.count = v; app.canvas.paint(c); }, { min: 1, max: 200, label: QUICK_NAMES[k] }),
+            button("Add", () => add(k), "primary sm"), link("Cancel", () => { ui.picking = null; app.canvas.paint(c); }));
+        }
+        return h("button", { type: "button", class: `chip${got ? " got" : ""}`, disabled: got, "aria-pressed": String(got),
+          onclick: () => { ui.picking = k; ui.count = 1; app.canvas.paint(c); } }, got ? icon("check") : null, QUICK_NAMES[k]);
+      })),
+      h("p", { class: "row" }, h("span", { class: "muted" }, "Water and food:"),
+        link("Water", () => app.spawn("category", "water")), link("Food", () => app.spawn("category", "food"))),
+    ],
+    mini: mini(`${have.length} of ${keys.length}`, "checked"),
+  };
 }
 
 // ---------------------------------------------------------------- expiring & broken
@@ -332,6 +377,7 @@ export const PREPARE = {
     canvas: "prepare", width: 330, rank: 10, keys: () => summary().categories.map((c) => c.key),
     icon: (k) => CAT_ICON[k], title: (k) => catOf(k)?.label || k, render: category,
   },
+  quick: { canvas: "prepare", width: 340, rank: 3, icon: () => "task", title: () => "Quick check", render: quick },
   expiring: { canvas: "prepare", width: 300, rank: 30, icon: () => "clock", title: () => "Check these", render: expiring },
   why: { canvas: null, width: 320, rank: 40, icon: () => "help", title: () => "How do we know?", render: why, hidden: true },
 };

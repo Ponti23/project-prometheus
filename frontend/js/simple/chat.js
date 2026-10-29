@@ -9,6 +9,7 @@ const $ = (id) => document.getElementById(id);
 const log = $("chatLog"), form = $("chatForm"), input = $("chatInput"), sendBtn = $("sendBtn");
 const stateEl = $("chatState"), suggestionsEl = $("suggestions"), chatEl = $("chat");
 
+const FIRST_RUN = ["It's just me", "2 adults and 2 kids, and a dog", "We're a family of five"];
 const SUGGEST = {
   prepare: ["I bought 5 L of water", "What should I get next?", "Our old torch is broken"],
   survive: ["The power is out. What do we do?", "How long is fridge food safe?"],
@@ -53,7 +54,8 @@ export function initChat() {
 }
 
 export function setSuggestions(name) {
-  clear(suggestionsEl, (SUGGEST[name] || []).map((s) => h("button", { class: "suggestion", type: "button", onclick: () => sendChat(s) }, s)));
+  const list = name === "prepare" && app.firstRun?.() ? FIRST_RUN : SUGGEST[name] || [];
+  clear(suggestionsEl, list.map((s) => h("button", { class: "suggestion", type: "button", onclick: () => sendChat(s) }, s)));
 }
 
 function idle() {
@@ -72,7 +74,8 @@ function setBusy(on) {
 function welcome() {
   const on = app.status?.ai.configured;
   return h("div", { class: "msg assistant" }, h("div", { class: "bubble" },
-    on ? h("p", {}, "Hi, I'm Prometheus. Tell me what you have, or what's happening.")
+    on && app.firstRun?.() ? h("p", {}, "Hi, I'm Prometheus. Tell me who lives with you.")
+    : on ? h("p", {}, "Hi, I'm Prometheus. Tell me what you have, or what's happening.")
        : h("p", {}, "Chat is off right now (no AI connected). Your cards, plans and guides still work.")));
 }
 

@@ -37,6 +37,7 @@ export function renderCard(c) {
 export function defaultCards(name) {
   const s = app.data.summary;
   if (name === "prepare") {
+    if (firstRun()) return [{ type: "household" }, { type: "quick" }];
     const out = [{ type: "stages" }, { type: "next" }, { type: "category", key: "water" }];
     if (s && s.expired.length + s.expiring_soon.length + s.unavailable.length) out.push({ type: "expiring" });
     return out;
@@ -48,6 +49,11 @@ export function defaultCards(name) {
   if (name === "rebuild") return [{ type: "path" }, { type: "lesson", key: app.data.household?.topic || "energy_basics" }];
   if (name === "vault") return [{ type: "search" }, { type: "guide", key: "kb-survival-kit" }];
   return [];
+}
+
+// A brand-new household: nothing saved yet.
+export function firstRun() {
+  return !!app.data.household && !app.data.household.confirmed && !app.data.inventory?.length;
 }
 
 export function drawerItems(name) {
