@@ -1,26 +1,152 @@
 {
   "_note": "Single registry of every external reference Prometheus may cite. 'checked' records whether a human/script confirmed the link resolves; run scripts/check_sources.py to refresh. Prometheus must only cite ids from this file.",
   "sources": [
-    {"id": "ready_water", "title": "Water (emergency water supply)", "publisher": "Ready.gov (FEMA, US)", "url": "https://www.ready.gov/water", "checked": false},
-    {"id": "ready_food", "title": "Food (emergency food supply)", "publisher": "Ready.gov (FEMA, US)", "url": "https://www.ready.gov/food", "checked": false},
-    {"id": "ready_kit", "title": "Build a Kit", "publisher": "Ready.gov (FEMA, US)", "url": "https://www.ready.gov/kit", "checked": false},
-    {"id": "ready_power", "title": "Power Outages", "publisher": "Ready.gov (FEMA, US)", "url": "https://www.ready.gov/power-outages", "checked": false},
-    {"id": "redcross_au_packing", "title": "Get packing — emergency survival kit", "publisher": "Australian Red Cross", "url": "https://www.redcross.org.au/emergencies/prepare/packing/", "checked": false},
-    {"id": "redcross_au_checklist", "title": "Get Packing Checklist 2025 (PDF)", "publisher": "Australian Red Cross", "url": "https://www.redcross.org.au/globalassets/cms/emergency-services/preparedness/Get-Packing-Checklist-2025.pdf", "checked": false},
-    {"id": "redcross_au_prepare", "title": "Prepare for emergencies (RediPlan)", "publisher": "Australian Red Cross", "url": "https://www.redcross.org.au/emergencies/prepare/", "checked": false},
-    {"id": "dfes_wa", "title": "Department of Fire and Emergency Services (WA)", "publisher": "DFES Western Australia", "url": "https://www.dfes.wa.gov.au/", "checked": false},
-    {"id": "emergency_wa", "title": "Emergency WA — current warnings and incidents", "publisher": "Government of Western Australia", "url": "https://www.emergency.wa.gov.au/", "checked": false},
-    {"id": "triple_zero", "title": "Triple Zero (000) — when and how to call", "publisher": "Australian Government", "url": "https://www.triplezero.gov.au/", "checked": false},
-    {"id": "foodsafety_outage", "title": "Three ways to keep food safe when you lose power", "publisher": "FoodSafety.gov (US)", "url": "https://www.foodsafety.gov/blog/three-ways-keep-food-safe-when-you-lose-power", "checked": false},
-    {"id": "cdc_water", "title": "How to Make Water Safe in an Emergency", "publisher": "US CDC", "url": "https://www.cdc.gov/water-emergency/about/", "checked": false},
-    {"id": "cdc_co", "title": "Avoiding Carbon Monoxide Poisoning", "publisher": "US CDC", "url": "https://www.cdc.gov/natural-disasters/psa-toolkit/avoiding-carbon-monoxide-poisoning.html", "checked": false},
-    {"id": "cdc_generator", "title": "Use a Generator Safely", "publisher": "US CDC", "url": "https://www.cdc.gov/natural-disasters/psa-toolkit/use-a-generator-safely.html", "checked": false},
-    {"id": "healthdirect_firstaid", "title": "First aid", "publisher": "healthdirect Australia", "url": "https://www.healthdirect.gov.au/first-aid", "checked": false},
-    {"id": "dietary_guidelines", "title": "Dietary Guidelines for Americans (estimated calorie needs)", "publisher": "USDA / HHS", "url": "https://www.dietaryguidelines.gov/", "checked": false},
-    {"id": "openstax_physics", "title": "College Physics 2e (free textbook)", "publisher": "OpenStax, Rice University", "url": "https://openstax.org/details/books/college-physics-2e", "checked": false},
-    {"id": "phet_circuits", "title": "Circuit Construction Kit: DC (simulation)", "publisher": "PhET, University of Colorado Boulder", "url": "https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc", "checked": false},
-    {"id": "energy_gov_solar", "title": "How Does Solar Work?", "publisher": "US Department of Energy", "url": "https://www.energy.gov/eere/solar/how-does-solar-work", "checked": false},
-    {"id": "esfi", "title": "Electrical Safety Foundation International", "publisher": "ESFI", "url": "https://www.esfi.org/", "checked": false},
-    {"id": "wa_building_energy", "title": "Building and Energy (electrical safety regulator, WA)", "publisher": "Government of Western Australia", "url": "https://www.wa.gov.au/organisation/building-and-energy", "checked": false}
+    {
+      "id": "ready_water",
+      "title": "Water (emergency water supply)",
+      "publisher": "Ready.gov (FEMA, US)",
+      "url": "https://www.ready.gov/water",
+      "checked": false
+    },
+    {
+      "id": "ready_food",
+      "title": "Food (emergency food supply)",
+      "publisher": "Ready.gov (FEMA, US)",
+      "url": "https://www.ready.gov/food",
+      "checked": false
+    },
+    {
+      "id": "ready_kit",
+      "title": "Build a Kit",
+      "publisher": "Ready.gov (FEMA, US)",
+      "url": "https://www.ready.gov/kit",
+      "checked": false
+    },
+    {
+      "id": "ready_power",
+      "title": "Power Outages",
+      "publisher": "Ready.gov (FEMA, US)",
+      "url": "https://www.ready.gov/power-outages",
+      "checked": false
+    },
+    {
+      "id": "redcross_au_packing",
+      "title": "Get packing — emergency survival kit",
+      "publisher": "Australian Red Cross",
+      "url": "https://www.redcross.org.au/emergencies/prepare/packing/",
+      "checked": true
+    },
+    {
+      "id": "redcross_au_checklist",
+      "title": "Get Packing Checklist 2025 (PDF)",
+      "publisher": "Australian Red Cross",
+      "url": "https://www.redcross.org.au/globalassets/cms/emergency-services/preparedness/Get-Packing-Checklist-2025.pdf",
+      "checked": true
+    },
+    {
+      "id": "redcross_au_prepare",
+      "title": "Prepare for emergencies (RediPlan)",
+      "publisher": "Australian Red Cross",
+      "url": "https://www.redcross.org.au/emergencies/prepare/",
+      "checked": true
+    },
+    {
+      "id": "dfes_wa",
+      "title": "Department of Fire and Emergency Services (WA)",
+      "publisher": "DFES Western Australia",
+      "url": "https://www.dfes.wa.gov.au/",
+      "checked": true
+    },
+    {
+      "id": "emergency_wa",
+      "title": "Emergency WA — current warnings and incidents",
+      "publisher": "Government of Western Australia",
+      "url": "https://www.emergency.wa.gov.au/",
+      "checked": true
+    },
+    {
+      "id": "triple_zero",
+      "title": "Triple Zero (000) — when and how to call",
+      "publisher": "Australian Government",
+      "url": "https://www.triplezero.gov.au/",
+      "checked": true
+    },
+    {
+      "id": "foodsafety_outage",
+      "title": "Three ways to keep food safe when you lose power",
+      "publisher": "FoodSafety.gov (US)",
+      "url": "https://www.foodsafety.gov/blog/three-ways-keep-food-safe-when-you-lose-power",
+      "checked": true
+    },
+    {
+      "id": "cdc_water",
+      "title": "How to Make Water Safe in an Emergency",
+      "publisher": "US CDC",
+      "url": "https://www.cdc.gov/water-emergency/about/",
+      "checked": true
+    },
+    {
+      "id": "cdc_co",
+      "title": "Avoiding Carbon Monoxide Poisoning",
+      "publisher": "US CDC",
+      "url": "https://www.cdc.gov/natural-disasters/psa-toolkit/avoiding-carbon-monoxide-poisoning.html",
+      "checked": true
+    },
+    {
+      "id": "cdc_generator",
+      "title": "Use a Generator Safely",
+      "publisher": "US CDC",
+      "url": "https://www.cdc.gov/natural-disasters/psa-toolkit/use-a-generator-safely.html",
+      "checked": true
+    },
+    {
+      "id": "healthdirect_firstaid",
+      "title": "First aid",
+      "publisher": "healthdirect Australia",
+      "url": "https://www.healthdirect.gov.au/first-aid",
+      "checked": true
+    },
+    {
+      "id": "dietary_guidelines",
+      "title": "Dietary Guidelines for Americans (estimated calorie needs)",
+      "publisher": "USDA / HHS",
+      "url": "https://www.dietaryguidelines.gov/",
+      "checked": true
+    },
+    {
+      "id": "openstax_physics",
+      "title": "College Physics 2e (free textbook)",
+      "publisher": "OpenStax, Rice University",
+      "url": "https://openstax.org/details/books/college-physics-2e",
+      "checked": true
+    },
+    {
+      "id": "phet_circuits",
+      "title": "Circuit Construction Kit: DC (simulation)",
+      "publisher": "PhET, University of Colorado Boulder",
+      "url": "https://phet.colorado.edu/en/simulations/circuit-construction-kit-dc",
+      "checked": true
+    },
+    {
+      "id": "energy_gov_solar",
+      "title": "How Does Solar Work?",
+      "publisher": "US Department of Energy",
+      "url": "https://www.energy.gov/eere/solar/how-does-solar-work",
+      "checked": true
+    },
+    {
+      "id": "esfi",
+      "title": "Electrical Safety Foundation International",
+      "publisher": "ESFI",
+      "url": "https://www.esfi.org/",
+      "checked": false
+    },
+    {
+      "id": "wa_building_energy",
+      "title": "Building and Energy (electrical safety regulator, WA)",
+      "publisher": "Government of Western Australia",
+      "url": "https://www.wa.gov.au/organisation/building-and-energy",
+      "checked": true
+    }
   ]
 }
