@@ -23,14 +23,15 @@ Say "I bought 5 L of water" and the flame flies out of the chat to your Water ca
 - **Survive:** scenario guides (extended blackout, supply disruption, isolation, plus a clearly labelled *fictional* zombie drill), your household's real resource picture, and a drafted response plan you save and tick off.
 - **SOS:** a red button on every screen opens a full-screen emergency flow that needs no AI and works offline: is anyone hurt (call 000), what's happening, one safety question per screen, then the steps one at a time.
 - **Rebuild:** the electricity technology tree as a numbered path of lessons, from "Energy & power" to "Small off-grid DC power", with materials checked against your inventory and mains wiring kept theory-only.
-- **Knowledge Vault:** 20 curated offline entries, linked to sources such as the Australian Red Cross, Emergency WA, Ready.gov, CDC, FoodSafety.gov, OpenStax and PhET.
+- **Knowledge Vault:** 20 curated offline entries, linked to sources such as the Australian Red Cross, Emergency WA, Ready.gov, CDC, FoodSafety.gov, OpenStax and PhET. When the vault is thin or you need current advice, Prometheus searches those same publishers' live sites with **Tavily**.
 
 **Permission modes, like Claude Code:** *Ask first* shows every change and waits. *Auto* saves small supply changes itself, but only when the number is in your own message ("I bought 5 L" saves; "I bought a slab of water" asks), and every automatic save can be undone. *Plan* drafts everything and offers **Save all**.
 
-Prometheus drives all of it through **16 real tools** that read and write your saved data, and it remembers you across sessions. For anyone who wants the details, **Advanced mode** keeps the full workspace: every table, the tool log, and Under the hood.
+Prometheus drives all of it through **17 real tools** that read and write your saved data, and it remembers you across sessions. For anyone who wants the details, **Advanced mode** keeps the full workspace: every table, the tool log, and Under the hood.
 
 ## How I built it
 - **Model:** NVIDIA Nemotron served by **Nebius Token Factory** through its OpenAI-compatible chat completions API with tool calling.
+- **Live search:** **Tavily**, limited to the trusted publishers in the source registry (see below).
 - **Agent loop:** a bounded loop: model → Pydantic-validated tool calls → execute → feed results back → final answer, with a cap on tool rounds.
 - **Backend:** FastAPI + SQLite. Each browser gets its own isolated household, keyed by a cookie. The database holds memory notes, inventory, tasks, pending actions, plans, a tool-call log and rate-limit usage.
 - **Deterministic engines:** the supply calculator, readiness and shortage logic, BM25 search over the knowledge base, and a validated tech-tree graph (acyclic, with safety prerequisites).
@@ -40,7 +41,19 @@ Prometheus drives all of it through **16 real tools** that read and write your s
 - **Transparency:** an "Under the hood" panel shows the model ID Nebius reported, the response ID, latency, token usage, and every tool call with its arguments and effect.
 - **AI coding tools:** I built this with help from Claude Code, an AI coding assistant.
 
+## How I used Tavily
+Prometheus's offline vault is deliberately small and curated, so it can't answer everything, and some advice changes over time. I added Tavily as a live search tool, `web_search`, that Nemotron can call. It runs for real at runtime on the live app.
+
+The catch is that in a safety app, "search the web" can't mean "search *any* website". Prometheus has a source registry (`data/sources.json`) of publishers I've vetted: Ready.gov, the Australian Red Cross, CDC, Emergency WA / DFES, healthdirect, FoodSafety.gov, OpenStax and others. So:
+- Every Tavily request passes those publishers' domains as `include_domains`, so Tavily only searches inside them.
+- The backend checks every result again and drops any page that isn't on a trusted domain or one of its subdomains, so a lookalike site like `evilready.gov` can't get through.
+- The model can cite these pages in chat, but it can't use them as sources for steps in a saved survival plan. Those still have to come from the curated vault.
+- Nemotron checks the offline vault first and only reaches for Tavily when the vault is thin or the user asks for current information. The tool only switches on when a Tavily key is set, and if Tavily can't be reached, Prometheus says so and falls back to the vault.
+
+The result is fresher, more detailed answers from the live web without giving up the "no invented citations" rule. Ask the live app "Search the web: what does Ready.gov say about power outages right now?" and it answers with links to Ready.gov's current power-outage page, its hazard fact sheet PDF and its business toolkit, none of which are in the offline vault.
+
 ## Challenges I ran into
+- **Adding live search without losing trust.** Open web results would have broken the "only cite vetted sources" promise, so I limited Tavily to the vetted publishers' domains and re-checked every result in code.
 - **Keeping an LLM honest in a safety-critical domain.** I moved every number out of the model. Water, food (counted in kcal, not cans) and shortfalls come from a deterministic calculator and a cited assumptions file. The model can only cite sources returned by its own tools, and plan steps that reference unknown sources are rejected.
 - **Agency without surprises.** Write tools never change state directly. They create *pending actions*, and only the user's Approve click executes them.
 - **Reliable tool calling.** I had to handle malformed tool calls, multi-round tool use and provider failures, and show those failures to the user instead of hiding them.
@@ -70,14 +83,14 @@ Tool calling is only as trustworthy as the tools around it. The more I pushed in
 - **Nemotron 3.5 Lightning:** fast, but in long conversations (~15k prompt tokens) it sometimes replied with the literal text `[ERROR: Max turns (10) exceeded]` instead of calling tools (2 of 3 demo runs). A proper API error, or docs on the limit, would help.
 
 ## Built with
-python, fastapi, uvicorn, sqlite, pydantic, httpx, javascript, html5, css3, nvidia-nemotron, nebius-token-factory, docker, render, pytest
+python, fastapi, uvicorn, sqlite, pydantic, httpx, javascript, html5, css3, nvidia-nemotron, nebius-token-factory, tavily, docker, render, pytest
 
 ## Try it out
 - GitHub: https://github.com/Ponti23/project-prometheus
 - Live demo: https://project-prometheus-tp0i.onrender.com (hosted free on Render; the model runs on Nebius Token Factory)
 
 ## Testing instructions for judges
-Open the URL (if it was idle, the first load can take about a minute) → **≡ → Try the demo family** → in the chat, try "I bought 5 L of water" and tap **Save** on the card → "The power just went out across the whole street." → tap **SOS** → "Teach me how electricity works." To see the Nemotron tool calls, open **≡ → Show me how it works** (Advanced mode with Under the hood on).
+Open the URL (if it was idle, the first load can take about a minute) → **≡ → Try the demo family** → in the chat, try "I bought 5 L of water" and tap **Save** on the card → "The power just went out across the whole street." → tap **SOS** → "Teach me how electricity works." → "Search the web: what does Ready.gov say about power outages right now?" (Tavily live search) To see the Nemotron tool calls, open **≡ → Show me how it works** (Advanced mode with Under the hood on).
 
 If there is no live URL, point judges to the "Run it on Windows" steps in the README instead.
 
@@ -93,6 +106,8 @@ If there is no live URL, point judges to the "Run it on Windows" steps in the RE
 | [face-states.png](screenshots/face-states.png) | The face's moods: idle, thinking, listening, speaking, happy, wink, error, sad, sleeping |
 
 Some redesign screenshots were taken before the dark look became the default, so they show the light look.
+
+The live Tavily answer, with its Ready.gov links showing, makes a good gallery image for the Tavily prize.
 
 A screenshot of a real Nemotron conversation with **Under the hood** open would be a strong extra image; take it while recording the demo.
 
