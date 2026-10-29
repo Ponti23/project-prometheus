@@ -1,0 +1,25 @@
+# Production stack for the judging server: the app plus Caddy for automatic HTTPS.
+# Run on the VM from the repo root:  DOMAIN=<host> docker compose -f deploy/docker-compose.yml up -d --build
+# NEBIUS_API_KEY etc. come from the repo-root .env, which lives only on the server (never in the image).
+services:
+  app:
+    build: ..
+    restart: unless-stopped
+    env_file: ../.env
+    environment:
+      PROMETHEUS_DB: /data/prometheus.db
+    volumes:
+      - /srv/prometheus/data:/data
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN, e.g. 203-0-113-7.sslip.io}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /srv/prometheus/caddy:/data

@@ -9,15 +9,29 @@ Judges need a working URL from submission (Oct 30) through the end of judging (a
 Each browser automatically gets its own isolated household (cookie). Judges click **Load demo household** to get synthetic data. No accounts or passwords are needed.
 
 ## Option A (preferred story): Nebius AI Cloud
-Running on Nebius compute strengthens the "built on Nebius" submission. Nebius's container services change often, so **check the current Nebius AI Cloud docs** for the exact commands. The shape is:
-1. Build and push the image to a registry Nebius can pull from (e.g. Nebius Container Registry):
-   `docker build -t <registry>/prometheus:1 . && docker push <registry>/prometheus:1`
-2. Create a small CPU VM (or container service) with a persistent disk. Run:
-   `docker run -d --restart unless-stopped -p 80:8000 -v /mnt/data:/data -e NEBIUS_API_KEY=*** <registry>/prometheus:1`
-3. Put HTTPS in front of it (a Caddy or nginx reverse proxy, or the platform's endpoint) and confirm `/api/status`.
-4. **Cost check before you start:** a small CPU VM for about 7 weeks. Stop it after judging.
+`scripts/deploy_nebius.sh` does the whole thing from your machine: it creates a small CPU VM with a 30 GiB disk, installs Docker through cloud-init, ships the current commit over SSH, writes the server `.env`, and starts the app behind Caddy. Caddy gets a free HTTPS certificate for `<ip-with-dashes>.sslip.io`, so no domain is needed. SQLite lives at `/srv/prometheus/data` on the VM's disk and survives restarts and redeploys.
 
-> ⚠️ This step creates paid infrastructure. It is **not done** and waits for your approval.
+One-time setup:
+```bash
+curl -sSL https://storage.eu-north1.nebius.cloud/cli/install.sh | bash   # nebius CLI
+nebius profile create                                                    # log in, pick your project
+```
+You also need `jq`, an SSH key (`~/.ssh/id_ed25519.pub` or `id_rsa.pub`) and a `.env` with `NEBIUS_API_KEY`.
+
+Deploy (and redeploy after any new commit; it reuses the VM recorded in `var/nebius-deploy.env`):
+```bash
+bash scripts/deploy_nebius.sh
+```
+It finishes by calling `/api/ai/verify` on the public HTTPS URL and printing the link.
+
+Overrides: `PLATFORM=cpu-e2` if your region has no `cpu-d3`, `PRESET`, `NB_PROJECT_ID` (otherwise the profile's project), `SSH_PUBKEY`, `DOMAIN`. If a `nebius` command rejects a flag, your CLI version differs: check `nebius compute instance create --help`. If the URL doesn't answer, make sure the VPC's security rules allow inbound TCP 80 and 443.
+
+Tear down after judging (around Dec 15) so billing stops:
+```bash
+source var/nebius-deploy.env && nebius compute instance delete --id "$INSTANCE_ID" && nebius compute disk delete --id "$DISK_ID"
+```
+
+> ⚠️ This creates paid infrastructure (one small CPU VM plus a disk, for about 7 weeks).
 
 ## Option B (fallback): Render / Railway / Fly.io
 Any host that runs a Dockerfile with a persistent disk works. Avoid platforms without persistent storage (for example plain serverless functions): SQLite data would vanish.

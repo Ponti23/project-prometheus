@@ -22,5 +22,5 @@ Use this to resume work in a fresh session. _Updated: 2026-10-29._
 1. ~~Verify Nebius + live tests~~ (done). Note: in a cloud session, `pip install -r requirements.txt` can hang on the `uvicorn[standard]` extras; install the packages individually.
 2. ~~Live demo rehearsal via the API~~ (done: every scene triggers the scripted tools and proposals). Still worth one rehearsal in the browser before recording.
 3. Run `python scripts/check_sources.py --write` on a normally connected machine and commit the result.
-4. Deploy following [DEPLOY.md](DEPLOY.md) (after the user approves). Confirm `/api/ai/verify` returns `ok: true` on the hosted URL.
+4. Deploy: the user runs `bash scripts/deploy_nebius.sh` on their machine (approved; this session has no Nebius Cloud credentials and nebius.cloud is blocked). It ends by checking `/api/ai/verify` on the HTTPS URL. See [DEPLOY.md](DEPLOY.md).
 5. Make the repo public, merge into a default branch, record the video (under 3 minutes), and submit on Devpost.
