@@ -16,8 +16,10 @@ from typing import Any, Callable, Literal
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
 
+from ..config import Settings, get_settings
 from ..db import Store
 from ..knowledge import search as kb
+from ..knowledge import web
 from ..prepare.calculator import load_assumptions, target_keys
 from ..prepare.readiness import calculate_readiness, missing_supplies, restock_task_drafts
 from ..prepare.summary import CATEGORIES, card_for, num_key
@@ -85,6 +87,10 @@ class KnowledgeQuery(BaseModel):
         default=None,
         description="Optional topic filter: communication, energy, first-aid, food, preparedness, science, shelter or water",
     )
+
+
+class WebQuery(BaseModel):
+    query: str = Field(min_length=2, max_length=200, description="What to look up, in plain words")
 
 
 class ScenarioQuery(BaseModel):
@@ -229,6 +235,22 @@ def _search_knowledge(ctx: ToolContext, a: KnowledgeQuery) -> dict[str, Any]:
         "results": results,
         "citation_rule": "Cite only these sources, using their exact title and url.",
         "note": None if results else "No matching entries in the offline vault. Say so rather than guessing.",
+    }
+
+
+def _web_search(ctx: ToolContext, a: WebQuery) -> dict[str, Any]:
+    key = get_settings().tavily_api_key
+    if not key:
+        return {"ok": False, "error": "web search is not configured"}
+    try:
+        results = web.search(a.query, key)
+    except web.WebSearchUnavailable as e:
+        return {"ok": False, "error": str(e), "note": "Say web search is unavailable right now; use the offline vault."}
+    return {
+        "results": results,
+        "citation_rule": "These pages are from the trusted source sites only. Cite only these, using their exact title and url. "
+                         "They are not vault entries, so never use them as knowledge_refs in a survival plan.",
+        "note": None if results else "No matching pages on the trusted source sites. Say so rather than guessing.",
     }
 
 
@@ -399,6 +421,7 @@ TOOLS: list[Tool] = [
     Tool("calculate_readiness", "Deterministically compute planning targets for this household and compare them with inventory. Returns coverage of planning targets (not survival probability).", NoArgs, "read", _calc_readiness),
     Tool("get_missing_supplies", "List planning targets that are not yet met, with exact shortfalls, plus expired/expiring items.", NoArgs, "read", _missing),
     Tool("search_knowledge", "Search the offline, source-attributed knowledge vault (preparedness, water, food, shelter, first aid, energy, science).", KnowledgeQuery, "read", _search_knowledge),
+    Tool("web_search", "Search the live websites of the trusted publishers in the source registry (Ready.gov, Red Cross, CDC, Emergency WA and others) for current or more detailed guidance than the offline vault has. Use search_knowledge first.", WebQuery, "read", _web_search),
     Tool("get_scenario_guide", "Get triage questions, guideline steps, relevant knowledge and this household's resource situation for an emergency scenario. 'zombie' is a FICTIONAL simulation.", ScenarioQuery, "read", _scenario_guide),
     Tool("get_technology_node", "Open a node in the electricity technology tree: what it is, why it matters, prerequisites, materials the household has or lacks, safety level and sources. Also shows it to the user.", NodeQuery, "read", _tech_node),
     Tool("get_prerequisites", "Get the ordered learning path of prerequisites for a technology tree node.", NodeQuery, "read", _prerequisites),
@@ -414,8 +437,9 @@ TOOLS: list[Tool] = [
 TOOLS_BY_NAME = {t.name: t for t in TOOLS}
 
 
-def tool_specs() -> list[dict[str, Any]]:
-    return [t.spec() for t in TOOLS]
+def tool_specs(settings: Settings | None = None) -> list[dict[str, Any]]:
+    settings = settings or get_settings()
+    return [t.spec() for t in TOOLS if t.name != "web_search" or settings.web_search_configured]
 
 
 def run_tool(store: Store, hid: str, name: str, raw_args: dict[str, Any], ui_hints: list | None = None) -> tuple[dict, bool, str]:

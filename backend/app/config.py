@@ -37,10 +37,15 @@ class Settings:
     max_tool_rounds: int
     request_timeout_s: int
     history_messages: int
+    tavily_api_key: str | None = None
 
     @property
     def ai_configured(self) -> bool:
         return bool(self.nebius_api_key)
+
+    @property
+    def web_search_configured(self) -> bool:
+        return bool(self.tavily_api_key)
 
 
 def get_settings() -> Settings:
@@ -55,4 +60,5 @@ def get_settings() -> Settings:
         max_tool_rounds=_int("PROMETHEUS_MAX_TOOL_ROUNDS", 6),
         request_timeout_s=_int("PROMETHEUS_REQUEST_TIMEOUT", 90),
         history_messages=_int("PROMETHEUS_HISTORY_MESSAGES", 40),
+        tavily_api_key=(os.environ.get("TAVILY_API_KEY") or "").strip() or None,
     )
