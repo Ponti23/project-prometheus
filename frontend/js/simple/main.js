@@ -224,6 +224,8 @@ function renderMenu() {
   const item = (label, ic, fn) => h("button", { role: "menuitem", type: "button", onclick: () => { closeMenu(); fn(); } }, icon(ic), label);
   clear($("menu"),
     item("Try the demo family", "people", loadDemo),
+    item(document.documentElement.dataset.theme === "light" ? "Dark look" : "Light look",
+      document.documentElement.dataset.theme === "light" ? "moon" : "sun", () => $("themeBtn").click()),
     item("What changed", "undo", showChanges),
     item("Print emergency card", "doc", printCard),
     item("Show me how it works", "atom", showHowItWorks),
@@ -280,6 +282,19 @@ async function resetHousehold() {
   announce("Started over");
 }
 
+// Two looks: the original dark one (default) and a warm light one. Remembered in this browser.
+function setTheme(theme) {
+  const light = theme === "light";
+  if (light) document.documentElement.dataset.theme = "light"; else delete document.documentElement.dataset.theme;
+  store.set("prometheus.theme", theme);
+  const btn = $("themeBtn");
+  btn.setAttribute("aria-pressed", String(light));
+  btn.setAttribute("aria-label", light ? "Switch to the dark look" : "Switch to the light look");
+  btn.title = btn.getAttribute("aria-label");
+  clear(btn, icon(light ? "moon" : "sun"));
+  document.querySelector('meta[name="theme-color"]').content = light ? "#fbf7f1" : "#121513";
+}
+
 function updateZoom(z) {
   $("zoomPct").textContent = `${Math.round(z * 100)}%`;
 }
@@ -295,6 +310,8 @@ function bindUi() {
   document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => app.show(t.dataset.canvas)));
   $("addCard").addEventListener("click", () => toggleDrawer());
   $("sosBtn").addEventListener("click", () => openSos());
+  $("themeBtn").addEventListener("click", () => setTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light"));
+  setTheme(document.documentElement.dataset.theme || "dark");
   app.openSos = openSos;
   $("zoomIn").addEventListener("click", () => app.canvas.zoomAt(1.2));
   $("zoomOut").addEventListener("click", () => app.canvas.zoomAt(1 / 1.2));

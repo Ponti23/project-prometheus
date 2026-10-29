@@ -8,7 +8,10 @@
   <meta name="theme-color" content="#121513">
   <link rel="icon" href="assets/emblem.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
-  <script>try { if (localStorage.getItem("prometheus.ui") === "advanced") location.replace("advanced.html"); } catch (e) { /* storage unavailable */ }</script>
+  <script>try {
+    if (localStorage.getItem("prometheus.ui") === "advanced") location.replace("advanced.html");
+    if (localStorage.getItem("prometheus.theme") === "light") document.documentElement.dataset.theme = "light";
+  } catch (e) { /* storage unavailable */ }</script>
   <link rel="stylesheet" href="simple.css">
 </head>
 <body>
@@ -21,6 +24,7 @@
       <button class="tab" role="tab" data-canvas="vault"><span data-icon="book"></span><span class="lbl">Vault</span></button>
     </nav>
     <div class="bar-end">
+      <button class="icon-btn" id="themeBtn" type="button" aria-pressed="false"><span data-icon="sun"></span></button>
       <button class="sos" id="sosBtn" aria-label="SOS: emergency help">SOS</button>
       <button class="icon-btn" id="menuBtn" aria-label="Menu" aria-haspopup="menu" aria-expanded="false"><span data-icon="menu"></span></button>
     </div>

@@ -31,6 +31,40 @@
   color-scheme: dark;
 }
 
+/* The warm light look, one tap away (the sun/moon button in the top bar). */
+:root[data-theme="light"] {
+  --bg: #fbf7f1;
+  --surface: #ffffff;
+  --surface-2: #f6efe6;
+  --line: #ece2d6;
+  --line-2: #dccbb8;
+  --text: #2b211a;
+  --muted: #6c5d52;
+  --faint: #998a7e;
+  --brand: #ff8a1f;
+  --brand-ink: #9c4700;
+  --brand-soft: #fff0df;
+  --on-brand: #2b1600;
+  --ok: #2f7d4a;
+  --ok-bg: #e5f4e8;
+  --warn: #9a5b00;
+  --warn-bg: #fff1d6;
+  --bad: #b3261e;
+  --bad-bg: #fde7e4;
+  --pencil: #c77700;
+  --pencil-bg: #fff6e6;
+  --dot: rgba(90, 60, 30, 0.16);
+  --shadow: 0 1px 2px rgba(60, 35, 15, 0.06), 0 6px 20px rgba(60, 35, 15, 0.07);
+  --shadow-up: 0 2px 4px rgba(60, 35, 15, 0.08), 0 18px 40px rgba(60, 35, 15, 0.16);
+  --radius: 16px;
+  --blue: #2563a8; --blue-bg: #eaf2fc; --blueprint: #e9f1fb; --blueprint-dot: rgba(37, 99, 168, 0.22);
+  color-scheme: light;
+}
+:root[data-theme="light"] body { background: var(--bg); }
+:root[data-theme="light"] .btn.primary:hover { background: #ff9c3f; }
+:root[data-theme="light"] .fiction { background: #efe8ff; color: #5b3fb3; }
+:root[data-theme="light"] .ladder .reached .rung, :root[data-theme="light"] .tick input:checked::after { color: #fff; }
+
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
 body {
@@ -400,6 +434,7 @@ input[type="text"], input[type="number"], select {
   body { font-size: 17px; }
   .bar { height: 54px; gap: 6px; padding: 0 10px; }
   .logo span { display: none; }
+  #themeBtn { display: none; } /* in the ≡ menu on phones */
   .tabs { margin-left: 4px; gap: 2px; min-width: 0; }
   .tab { padding: 8px 10px; font-size: 16px; }
   .tab:not([aria-selected="true"]) .lbl { display: none; }
