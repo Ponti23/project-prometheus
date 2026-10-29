@@ -1,6 +1,6 @@
 # Devpost submission draft
 
-Copy each section into the matching field on the Devpost project page. Gallery images are in [screenshots/](screenshots/).
+Copy each section into the matching field on the Devpost project page. Gallery images are in [gallery/](gallery/); upload them in numbered order.
 
 ## Project name
 Project Prometheus: Humanity's Backup Brain
@@ -67,14 +67,19 @@ Open the URL → Settings → **Load demo household** → try: "How ready are we
 If there is no live URL, point judges to the "Run it on Windows" steps in the README instead.
 
 ## Gallery images
+Upload these in order. They are 3000×2000 PNGs (Devpost's 3:2 ratio, each under 5 MB). The first one is the cover thumbnail.
+
 | File | Shows |
 |---|---|
-| [companion.png](screenshots/companion.png) | Companion home with the fire-spirit face |
-| [prepare.png](screenshots/prepare.png) | Household profile and smart survival kit |
-| [survive.png](screenshots/survive.png) | Scenario guides |
-| [rebuild.png](screenshots/rebuild.png) | Electricity technology tree |
-| [vault.png](screenshots/vault.png) | Knowledge Vault |
-| [face-states.png](screenshots/face-states.png) | The face's moods: idle, thinking, listening, speaking, happy, wink, error, sad, sleeping |
+| [01-cover.png](gallery/01-cover.png) | Title card: the fire-spirit emblem, tagline, Prepare · Survive · Rebuild |
+| [02-companion.png](gallery/02-companion.png) | Companion home with the household snapshot |
+| [03-prepare.png](gallery/03-prepare.png) | Household profile and smart survival kit |
+| [04-survive.png](gallery/04-survive.png) | Scenario guides |
+| [05-rebuild.png](gallery/05-rebuild.png) | Electricity technology tree |
+| [06-vault.png](gallery/06-vault.png) | Knowledge Vault |
+| [07-face-states.png](gallery/07-face-states.png) | The face's nine moods, labelled |
+
+The raw app screenshots are in [screenshots/](screenshots/).
 
 A screenshot of a real Nemotron conversation with **Under the hood** open would be a strong extra image; take it while recording the demo.
 
