@@ -88,11 +88,15 @@ function messageEl(m, actions) {
   if (m.role !== "assistant") return null;
   // Intermediate assistant messages that only carried tool calls are summarised in the final message trace.
   if (!m.meta?.trace && !m.content) return null;
+  if (m.meta?.draft) return null;  // Folded into the final reply of the same turn.
   if (!m.meta?.trace) return m.content ? h("div", { class: "msg assistant" }, h("div", { class: "bubble", html: markdown(m.content) })) : null;
   const trace = m.meta.trace;
   const calls = trace.flatMap((s) => s.tool_calls);
   return h("div", { class: "msg assistant" },
     h("div", { class: "bubble", html: markdown(m.content) }),
+    m.meta.sources?.length ? h("div", { class: "sources", "aria-label": "Sources" },
+      h("span", { class: "sources-label" }, "Sources"),
+      m.meta.sources.map((s) => h("a", { href: s.url, target: "_blank", rel: "noopener", title: s.publisher }, s.title))) : null,
     calls.length ? h("div", { class: "tools-used", "aria-label": "Tools used" },
       calls.map((c) => h("span", { class: `tool-pill ${c.kind}${c.ok ? "" : " fail"}`, title: c.ok ? c.effect : "failed" }, c.name))) : null,
     (m.meta.actions || []).map((id) => actions[id] && actionCard(actions[id])),

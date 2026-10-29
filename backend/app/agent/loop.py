@@ -8,11 +8,18 @@ from typing import Any
 
 from ..config import Settings
 from ..db import Store
+from ..knowledge.search import get_entry
 from .llm import ChatClient, LLMUnavailable, clean_content
 from .persona import system_message
 from .tools import TOOLS_BY_NAME, run_tool, tool_specs
 
 MAX_TOOL_RESULT_CHARS = 9000
+MAX_FOOTER_SOURCES = 6
+PLAN_NUDGE = (
+    "[App note] You fetched a scenario guide but haven't proposed a survival plan. Call create_survival_plan now for "
+    "this household, using knowledge_refs from the guide. Then reply with ONE short sentence telling the user the plan "
+    "is ready for them to approve. Don't repeat your earlier answer."
+)
 
 
 class RateLimited(Exception):
@@ -24,9 +31,14 @@ def history_for_model(store: Store, hid: str, limit: int) -> list[dict[str, Any]
     # Start at a user turn so we never send an orphaned tool result.
     while rows and rows[0]["role"] not in ("user", "event"):
         rows.pop(0)
+    # A draft reply and its plan nudge only matter inside their own turn; the final message already contains the draft.
+    last_user = max((i for i, m in enumerate(rows) if m["role"] == "user"), default=-1)
+    rows = [m for i, m in enumerate(rows) if i > last_user or not (m["role"] == "note" or (m.get("meta") or {}).get("draft"))]
     out: list[dict[str, Any]] = []
     for m in rows:
-        if m["role"] == "user":
+        if m["role"] == "note":
+            out.append({"role": "user", "content": m["content"] or ""})
+        elif m["role"] == "user":
             out.append({"role": "user", "content": m["content"] or ""})
         elif m["role"] == "event":
             out.append({"role": "user", "content": f"[App event] {m['content']}"})
@@ -68,6 +80,39 @@ def _parse_args(raw: str) -> tuple[dict[str, Any] | None, str | None]:
     return val, None
 
 
+def collect_sources(result: Any, found: dict[str, dict[str, str]]) -> None:
+    """Gather the {title, publisher, url} sources a tool result carries, in order, without duplicates."""
+    if isinstance(result, dict):
+        if {"title", "publisher", "url"} <= result.keys():
+            found.setdefault(result["url"], {k: result[k] for k in ("title", "publisher", "url")})
+            return
+        for v in result.values():
+            collect_sources(v, found)
+    elif isinstance(result, list):
+        for v in result:
+            collect_sources(v, found)
+
+
+def _turn_sources(results: list[tuple[str, dict, dict]]) -> list[dict[str, str]]:
+    found: dict[str, dict[str, str]] = {}
+    # A proposed plan's own citations come first, then everything else the turn's tools returned.
+    for name, args, result in results:
+        if name == "create_survival_plan" and result.get("action_id"):
+            for step in args.get("steps", []):
+                for ref in step.get("knowledge_refs", []):
+                    collect_sources(get_entry(ref), found)
+    for _, _, result in results:
+        collect_sources(result, found)
+    return list(found.values())[:MAX_FOOTER_SOURCES]
+
+
+def _needs_plan_nudge(results: list[tuple[str, dict, dict]]) -> bool:
+    names = {name for name, _, result in results if result.get("ok", True) is not False}
+    return "get_scenario_guide" in names and not any(
+        name == "create_survival_plan" and result.get("action_id") for name, _, result in results
+    )
+
+
 def run_turn(
     store: Store, hid: str, user_text: str, client: ChatClient, settings: Settings, mode: str | None = None
 ) -> dict[str, Any]:
@@ -82,6 +127,8 @@ def run_turn(
     trace: list[dict[str, Any]] = []
     ui_hints: list[dict[str, Any]] = []
     actions: list[str] = []
+    results: list[tuple[str, dict, dict]] = []
+    draft: str | None = None
     tools = tool_specs()
 
     for round_no in range(1, settings.max_tool_rounds + 2):
@@ -102,9 +149,18 @@ def run_turn(
         content = clean_content(comp.message.get("content"))
 
         if not calls:
+            if draft is None and offer_tools and content and _needs_plan_nudge(results):
+                # The model answered an emergency without proposing a plan: give it one round to do so.
+                draft = content
+                store.add_message(hid, "assistant", content, meta={"draft": True})
+                store.add_message(hid, "note", PLAN_NUDGE)
+                continue
+            if draft is not None:
+                content = f"{draft}\n\n{content}".strip()
             final = store.add_message(
                 hid, "assistant", content or "(Prometheus returned an empty reply.)",
-                meta={"trace": trace, "ui_hints": ui_hints, "actions": actions},
+                meta={"trace": trace, "ui_hints": ui_hints, "actions": actions,
+                      "sources": _turn_sources(results)},
             )
             return {"message": final, "trace": trace, "ui_hints": ui_hints, "actions": [store.get_action(hid, a) for a in actions]}
 
@@ -118,6 +174,7 @@ def run_turn(
                 result, ok, effect = run_tool(store, hid, name, args or {}, ui_hints)
             if result.get("action_id"):
                 actions.append(result["action_id"])
+            results.append((name, args or {}, result))
             store.log_tool(hid, name, args or {"_raw": call["function"]["arguments"]}, result, ok, effect)
             payload = json.dumps(result, default=str)
             if len(payload) > MAX_TOOL_RESULT_CHARS:

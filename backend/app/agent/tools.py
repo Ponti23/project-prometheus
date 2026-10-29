@@ -79,7 +79,10 @@ class InventoryQuery(BaseModel):
 
 class KnowledgeQuery(BaseModel):
     query: str = Field(min_length=2, max_length=200, description="What to look up, in plain words")
-    topic: str | None = Field(default=None, description="Optional topic filter")
+    topic: str | None = Field(
+        default=None,
+        description="Optional topic filter: communication, energy, first-aid, food, preparedness, science, shelter or water",
+    )
 
 
 class ScenarioQuery(BaseModel):
@@ -185,7 +188,9 @@ def _missing(ctx: ToolContext, _: NoArgs) -> dict[str, Any]:
 
 
 def _search_knowledge(ctx: ToolContext, a: KnowledgeQuery) -> dict[str, Any]:
-    results = kb.search(a.query, limit=4, topic=a.topic)
+    # An unknown topic (e.g. a scenario id like "blackout") would filter out everything, so ignore it.
+    topic = a.topic if a.topic in kb.topics() else None
+    results = kb.search(a.query, limit=4, topic=topic)
     return {
         "results": results,
         "citation_rule": "Cite only these sources, using their exact title and url.",
@@ -236,6 +241,10 @@ def _get_tasks(ctx: ToolContext, _: NoArgs) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------- propose handlers
+def _open_task_keys(store: Store, hid: str) -> set[str]:
+    return {t["target_key"] for t in store.list_tasks(hid) if t["status"] == "open" and t["target_key"]}
+
+
 def _pending(ctx: ToolContext, kind: str, payload: dict[str, Any], summary: str) -> dict[str, Any]:
     action = ctx.store.create_action(ctx.hid, kind, payload, summary)
     return {
@@ -277,6 +286,20 @@ def _propose_restock(ctx: ToolContext, a: RestockArgs) -> dict[str, Any]:
         missing = [m for m in missing if m["key"] in set(a.target_keys)]
     if not missing:
         return {"ok": True, "status": "nothing_to_propose", "note": "All planning targets are met (or none selected)."}
+    # Don't propose the same shortfall twice: skip keys with an open task or an unanswered restock proposal.
+    covered = _open_task_keys(ctx.store, ctx.hid)
+    pending = [x for x in ctx.store.list_actions(ctx.hid, status="pending") if x["kind"] == "save_approved_tasks"]
+    for x in pending:
+        covered |= {t.get("target_key") for t in x["payload"]["tasks"]}
+    missing = [m for m in missing if m["key"] not in covered]
+    if not missing:
+        return {
+            "ok": True,
+            "status": "already_proposed",
+            "pending_action_ids": [x["id"] for x in pending],
+            "note": "Every shortfall already has an open task or a proposal awaiting approval. Point the user to those "
+                    "instead of proposing again.",
+        }
     drafts = restock_task_drafts(missing)
     result = _pending(ctx, "save_approved_tasks", {"tasks": drafts}, f"Save {len(drafts)} restock tasks to your checklist")
     result["proposed_tasks"] = drafts
@@ -338,7 +361,7 @@ def run_tool(store: Store, hid: str, name: str, raw_args: dict[str, Any], ui_hin
     result = tool.handler(ctx, args)
     ok = result.get("ok", True) is not False
     effect = {"read": "none", "propose": "pending_action", "note": "suggested_memory"}[tool.kind] if ok else "none"
-    if name == "propose_restock_tasks" and result.get("status") == "nothing_to_propose":
+    if name == "propose_restock_tasks" and result.get("status") in {"nothing_to_propose", "already_proposed"}:
         effect = "none"
     return result, ok, effect
 
@@ -365,7 +388,13 @@ def execute_action(store: Store, hid: str, action: dict[str, Any]) -> dict[str, 
         changes = InventoryItemPatch.model_validate(p["changes"]).model_dump(exclude_none=True)
         return {"item": store.update_item(hid, p["item_id"], changes)}
     if kind == "save_approved_tasks":
-        saved = [store.add_task(hid, TaskIn.model_validate(t), source="prometheus") for t in p["tasks"]]
+        # Approving an older, overlapping proposal must not duplicate tasks that are already open.
+        open_keys = _open_task_keys(store, hid)
+        saved = [
+            store.add_task(hid, TaskIn.model_validate(t), source="prometheus")
+            for t in p["tasks"]
+            if not t.get("target_key") or t["target_key"] not in open_keys
+        ]
         return {"tasks": saved}
     if kind == "create_plan":
         steps = [{**s, "done": False} for s in ensure_priority_order(p["steps"])]
