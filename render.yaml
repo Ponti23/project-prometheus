@@ -1,0 +1,15 @@
+# Render Blueprint: New → Blueprint → pick this repo. Free plan, no credit card.
+services:
+  - type: web
+    name: project-prometheus
+    runtime: docker
+    plan: free
+    branch: main
+    autoDeploy: true
+    # "/" is the static page; /api/* routes would create a household on every check.
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: "8000"
+      - key: NEBIUS_API_KEY
+        sync: false

@@ -1,6 +1,6 @@
 """Smoke-test a running Prometheus deployment.
 
-Usage: python scripts/smoke_test.py https://your-space.hf.space [--chat] [--wait SECONDS]
+Usage: python scripts/smoke_test.py https://your-app.onrender.com [--chat] [--wait SECONDS]
 --wait keeps retrying /api/status until the server is up (useful right after a deploy).
 --chat sends one real message to the model (uses a few Token Factory credits).
 """
