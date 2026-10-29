@@ -159,7 +159,7 @@ def run_turn(
     auto: list[str] = []
     results: list[tuple[str, dict, dict]] = []
     draft: str | None = None
-    tools = tool_specs()
+    tools = tool_specs(settings)
 
     for round_no in range(1, settings.max_tool_rounds + 2):
         messages = [system_message(store, hid, view)] + history_for_model(store, hid, settings.history_messages)

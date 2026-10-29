@@ -32,7 +32,7 @@ The companion is the heart of the app. The survival kit calculator, inventory, k
 - **Real tool calling.** Every tool reads or writes the SQLite database. Read tools run automatically.
 - **You approve changes.** Tools that would change data (`update_household_profile`, `add_inventory_item`, `update_inventory_item`, `propose_restock_tasks`, `create_survival_plan`) only create a *pending action*. State changes only when you click **Approve** (`POST /api/actions/{id}/approve`).
 - **No invented numbers.** Supply targets and shortfalls come from `backend/app/prepare/` and `data/assumptions.json`, never from the model. Food is counted in **kcal / meal-equivalents, not cans**.
-- **No invented citations.** The model can only cite sources returned by `search_knowledge` / `get_scenario_guide`, and survival-plan steps with unknown knowledge IDs are rejected by validation.
+- **No invented citations.** The model can only cite sources returned by `search_knowledge` / `get_scenario_guide`, and survival-plan steps with unknown knowledge IDs are rejected by validation. Optional live web search (`web_search`, via Tavily) only searches the sites in the source registry, and any result from another site is dropped.
 - **Previews are computed, not imagined.** A pencil value (60 L → 65 L) comes from `GET /api/actions/{id}/preview`, which runs the calculator on a copy of your data and saves nothing. You can **Edit** a proposal before saving it, and **Undo** any saved change.
 - **Permission modes, like Claude Code.** *Ask first* (default) proposes everything. *Auto* saves only small supply changes, and only when the amount is in your own message ("I bought 5 L" saves; "I bought a slab" asks). Household and plan changes always ask, and every automatic save is listed under **What changed** with Undo. *Plan* only drafts, then offers **Save all**.
 - **"Coverage of planning targets"**, never a survival probability.
@@ -114,6 +114,7 @@ The tests cover the calculator (the 5-person / 30-day regression), readiness (un
 | `PROMETHEUS_DB` | `var/prometheus.db` | SQLite file |
 | `PROMETHEUS_DAILY_TURNS_PER_HOUSEHOLD` / `_GLOBAL` | 80 / 2000 | Cost guard for public demos |
 | `PROMETHEUS_MAX_TOOL_ROUNDS` | 6 | Max tool rounds per message |
+| `TAVILY_API_KEY` | — | Optional. Turns on live search of the trusted source sites via [Tavily](https://tavily.com) |
 
 Secrets are only read from the environment or `.env` (gitignored). They are never logged or returned by the API.
 
@@ -121,7 +122,7 @@ Secrets are only read from the environment or `.env` (gitignored). They are neve
 
 All supply numbers live in `data/assumptions.json`. Each one carries its **basis**: `guideline` means it comes from the cited source, and `planning default` means it's a Prometheus assumption you can change. For example, water is ~3.8 L (1 US gallon) per person per day ([Ready.gov](https://www.ready.gov/water)), doubled in a hot climate. Food uses 2,000 kcal per adult and 1,600 kcal per child per day as planning defaults.
 
-The source registry (`data/sources.json`) is the only set of links Prometheus may cite. Run `python scripts/check_sources.py --write` on a normally connected machine to verify every link and mark it `checked`.
+The source registry (`data/sources.json`) is the only set of sites Prometheus may cite. The vault cites its exact links; live web search (when `TAVILY_API_KEY` is set) is limited to the same sites. Run `python scripts/check_sources.py --write` on a normally connected machine to verify every link and mark it `checked`.
 
 Prometheus provides general preparedness information only. In an emergency, follow official guidance and contact emergency services (000 in Australia).
 

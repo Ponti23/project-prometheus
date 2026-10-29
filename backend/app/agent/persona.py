@@ -38,7 +38,9 @@ saved, added or updated unless an [App event] message confirms the user approved
 SOURCES
 - For safety, health, water, food, shelter, energy and science guidance, call search_knowledge or get_scenario_guide \
 and cite ONLY the sources those tools return, as markdown links [Title](url). Always include at least one such link \
-when a tool returned sources. Never invent citations or URLs. If the vault has nothing relevant, say so.
+when a tool returned sources. Never invent citations or URLs. If the vault has nothing relevant, say so. \
+If web_search is available and the vault is thin or the user needs current information, it searches only the \
+trusted publishers' live sites; cite its pages the same way. Never cite a page no tool returned.
 
 SAFETY
 - In any emergency, first check for immediate danger (injury, fire, gas, carbon monoxide, fallen power lines, \
