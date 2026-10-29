@@ -96,7 +96,7 @@ The tests cover the calculator (the 5-person / 30-day regression), readiness (un
 |---|---|---|
 | `NEBIUS_API_KEY` | — | Nebius Token Factory key (required for chat) |
 | `NEBIUS_BASE_URL` | `https://api.tokenfactory.nebius.com/v1/` | OpenAI-compatible endpoint |
-| `NEBIUS_MODEL` | `nvidia/Nemotron-3_5-Lightning` | Confirm with `scripts/verify_nebius.py` |
+| `NEBIUS_MODEL` | `nvidia/nemotron-3-super-120b-a12b` | Confirm with `scripts/verify_nebius.py` |
 | `PROMETHEUS_DB` | `var/prometheus.db` | SQLite file |
 | `PROMETHEUS_DAILY_TURNS_PER_HOUSEHOLD` / `_GLOBAL` | 80 / 2000 | Cost guard for public demos |
 | `PROMETHEUS_MAX_TOOL_ROUNDS` | 6 | Max tool rounds per message |

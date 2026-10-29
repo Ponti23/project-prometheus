@@ -6,7 +6,7 @@ Deadline: **Oct 30, 2026, 10:00 AM PDT**. The priority is a reliable, honest dem
 - [x] Repo was empty, so we started fresh: FastAPI + SQLite + vanilla JS.
 - [x] `.env.example`, `.gitignore`, Apache-2.0 license, Windows instructions.
 - [x] Nebius endpoint confirmed as `https://api.tokenfactory.nebius.com/v1/` (OpenAI-compatible).
-- [x] Confirm the Nemotron model ID with a real key (`scripts/verify_nebius.py`). Default is the brief's `nvidia/Nemotron-3_5-Lightning`.
+- [x] Confirm the Nemotron model ID with a real key (`scripts/verify_nebius.py`). Default is `nvidia/nemotron-3-super-120b-a12b`.
 
 ## Phase 1: Core AI companion
 - [x] SQLite store, typed schemas, per-browser household.
