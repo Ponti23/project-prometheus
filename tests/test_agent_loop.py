@@ -102,3 +102,55 @@ def test_system_prompt_contains_household_context(store, hid, settings):
     assert system["role"] == "system"
     assert "2 adults, 3 children" in system["content"] and "PROMETHEUS" in system["content"]
     assert len(client.calls[0]["tools"]) >= 12
+
+
+PLAN_STEPS = [
+    {"text": "Check for CO", "priority": "immediate", "knowledge_refs": ["kb-carbon-monoxide"]},
+    {"text": "Radio on", "priority": "today", "knowledge_refs": []},
+    {"text": "Review daily", "priority": "ongoing", "knowledge_refs": ["kb-emergency-plan"]},
+]
+
+
+def test_emergency_answer_without_plan_gets_one_nudge(store, hid, settings):
+    load_demo(store, hid)
+    client = FakeClient([
+        {"role": "assistant", "content": "", "tool_calls": [tool_call("get_scenario_guide", {"scenario": "blackout"}, "c1")]},
+        {"role": "assistant", "content": "First, check for carbon monoxide."},
+        {"role": "assistant", "content": "", "tool_calls": [tool_call(
+            "create_survival_plan", {"scenario": "blackout", "title": "Blackout plan", "steps": PLAN_STEPS}, "c2")]},
+        {"role": "assistant", "content": "Your plan is ready to approve."},
+    ])
+    out = run_turn(store, hid, "The power is out. What do we do?", client, settings)
+
+    assert out["message"]["content"] == "First, check for carbon monoxide.\n\nYour plan is ready to approve."
+    assert len(out["actions"]) == 1 and out["actions"][0]["kind"] == "create_plan"
+    assert "[App note]" in client.calls[2]["messages"][-1]["content"]
+    # The plan's own citations lead the sources footer.
+    assert out["message"]["meta"]["sources"][0]["url"].startswith("https://")
+    # The next turn sees the final reply once, without the draft or the nudge.
+    store.add_message(hid, "user", "Thanks. What next?")
+    hist = history_for_model(store, hid, 40)
+    assert not any("[App note]" in (m["content"] or "") for m in hist)
+    assert sum("check for carbon monoxide" in (m["content"] or "") for m in hist) == 1
+
+
+def test_plan_nudge_happens_at_most_once(store, hid, settings):
+    client = FakeClient([
+        {"role": "assistant", "content": "", "tool_calls": [tool_call("get_scenario_guide", {"scenario": "blackout"}, "c1")]},
+        {"role": "assistant", "content": "Stay safe."},
+        {"role": "assistant", "content": "I'd rather ask a few questions first."},
+    ])
+    out = run_turn(store, hid, "Blackout!", client, settings)
+    assert out["message"]["content"] == "Stay safe.\n\nI'd rather ask a few questions first."
+    assert len(client.calls) == 3
+
+
+def test_no_plan_nudge_outside_survive(store, hid, settings):
+    client = FakeClient([
+        {"role": "assistant", "content": "", "tool_calls": [tool_call("search_knowledge", {"query": "carbon monoxide"}, "c1")]},
+        {"role": "assistant", "content": "Never run a generator indoors."},
+    ])
+    out = run_turn(store, hid, "Is a generator in the garage safe?", client, settings)
+    assert len(client.calls) == 2
+    sources = out["message"]["meta"]["sources"]
+    assert sources and all(s["url"].startswith("https://") for s in sources)
