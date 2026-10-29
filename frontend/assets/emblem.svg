@@ -1,10 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="g" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0" stop-color="#f2b45a"/><stop offset=".55" stop-color="#ffcf7a"/><stop offset="1" stop-color="#4fd1b5"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="14" fill="#121513"/>
-  <path d="M32 6 54 19v26L32 58 10 45V19z" fill="none" stroke="#4fd1b5" stroke-width="3"/>
-  <path d="M32 15c4 7 11 11 11 21a11 11 0 0 1-22 0c0-5 3-8 5-11 0 4 2 6 4 6-2-6 0-11 2-16z" fill="url(#g)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 0 108 114">
+  <!-- Prometheus the fire spirit at rest; mirrors frontend/js/face.js -->
+  <path d="M50 3C57 17 69 22 70 37C75 32 77 25 76 18C88 32 93 50 91 67C89 93 72 110 50 110C28 110 11 93 9 67C8 52 13 40 21 31C21 39 24 45 30 48C27 30 38 17 50 3Z" fill="#ff8a1f"/>
+  <path d="M50 3C57 17 69 22 70 37C75 32 77 25 76 18C88 32 93 50 91 67C89 93 72 110 50 110C28 110 11 93 9 67C8 52 13 40 21 31C21 39 24 45 30 48C27 30 38 17 50 3Z" fill="#ffd23f" transform="translate(13 26.4) scale(.74)"/>
+  <path d="M50 44 74 58v28L50 100 26 86V58z" fill="#d61f5f" stroke="#d61f5f" stroke-width="9" stroke-linejoin="round"/>
+  <path d="M34 62 50 52.5 66 62" fill="none" stroke="#ff5a8a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".6"/>
+  <g transform="translate(50 74) scale(1.2) translate(-80 -20)" fill="#fff" stroke="#fff" stroke-width="1.4" stroke-linejoin="round">
+    <path d="M-7.0,-2.0 Q-7.0,-6.5 -2.5,-6.5 L2.5,-6.5 Q7.0,-6.5 7.0,-2.0 L7.0,2.0 Q7.0,6.5 2.5,6.5 L-2.5,6.5 Q-7.0,6.5 -7.0,2.0 Z" transform="translate(71.8 20)"/>
+    <path d="M-7.0,-2.0 Q-7.0,-6.5 -2.5,-6.5 L2.5,-6.5 Q7.0,-6.5 7.0,-2.0 L7.0,2.0 Q7.0,6.5 2.5,6.5 L-2.5,6.5 Q-7.0,6.5 -7.0,2.0 Z" transform="translate(88.2 20)"/>
+  </g>
 </svg>
