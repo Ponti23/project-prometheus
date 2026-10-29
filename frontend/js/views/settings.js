@@ -57,7 +57,7 @@ export async function renderSettings(root, { state, refresh }) {
           h("td", { class: "mono" }, r.tool),
           h("td", {}, r.ok ? "✓" : "✕"),
           h("td", {}, h("span", { class: `badge ${r.effect === "state_changed_after_approval" ? "teal" : r.effect === "pending_action" ? "amber" : ""}` }, r.effect)),
-          h("td", { class: "mono", style: { fontSize: "11px", maxWidth: "360px", wordBreak: "break-word" } }, JSON.stringify(r.args))))))) :
+          h("td", { class: "mono", style: { fontSize: "11px", minWidth: "220px", maxWidth: "360px", wordBreak: "break-word" }, title: JSON.stringify(r.args) }, shortArgs(r.args))))))) :
         h("div", { class: "empty" }, "No tool calls yet.")),
 
     h("section", { class: "panel" },
@@ -79,6 +79,12 @@ function noteRow(n, refresh, rerender) {
       if (text && text.trim()) { await api.patch(`/memory/${n.id}`, { text: text.trim() }); rerender(); }
     } }, "Edit"),
     h("button", { class: "btn ghost sm", "aria-label": "Delete note", onclick: async () => { await api.del(`/memory/${n.id}`); rerender(); } }, icon("trash")));
+}
+
+// Plan and task proposals carry long arguments; show a preview and keep the full JSON in the tooltip.
+function shortArgs(args) {
+  const s = JSON.stringify(args);
+  return s.length > 160 ? s.slice(0, 160) + "…" : s;
 }
 
 function kv(k, v) {

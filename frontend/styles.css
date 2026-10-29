@@ -205,6 +205,9 @@ table.data input.qty { width: 80px; padding: 4px 6px; }
 .bubble code { font-family: var(--mono); background: var(--bg); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
 .bubble table { border-collapse: collapse; margin: 6px 0; font-size: 12.5px; }
 .bubble td, .bubble th { border: 1px solid var(--line); padding: 3px 7px; }
+.bubble th { text-align: left; color: var(--teal); font-weight: 600; }
+.bubble .table-wrap { overflow-x: auto; margin: 6px 0 8px; }
+.bubble hr { border: 0; border-top: 1px solid var(--line); margin: 10px 0; }
 
 .sources { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; margin-top: 7px; font-size: 12px; }
 .sources-label { font: 600 10.5px/1 var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); }

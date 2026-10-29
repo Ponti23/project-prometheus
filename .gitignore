@@ -8,3 +8,4 @@ var/
 *.db
 *.db-journal
 .DS_Store
+video/
