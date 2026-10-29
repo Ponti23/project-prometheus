@@ -41,6 +41,22 @@ The companion is the heart of the app. The survival kit calculator, inventory, k
 
 ---
 
+## Built with NVIDIA Nemotron on Nebius Token Factory
+
+**Model:** `nvidia/nemotron-3-super-120b-a12b` (Nemotron 3 Super, ~12B active parameters) is the default. Prometheus chains several tool calls per turn over long conversations, and Super 120B handled that reliably at a reasonable latency. `nvidia/Nemotron-3_5-Lightning` was also tested: it's faster, but in long conversations (~15k prompt tokens) it sometimes replied with the literal text `[ERROR: Max turns (10) exceeded]` instead of calling tools (2 of 3 demo runs). It can still be chosen with `NEBIUS_MODEL`.
+
+**How Nemotron is used:** out of the box, with no fine-tuning. A persona system prompt sets the honesty rules, each request carries a snapshot of the household, and the 16 tools are OpenAI-style functions with Pydantic-validated arguments (`backend/app/agent/`). Every number, citation and state change stays in deterministic code. Nemotron decides which tools to call and explains the results.
+
+**Where Token Factory sped things up:**
+- **No inference infrastructure.** No GPUs to run, just an API key and an HTTPS endpoint. `backend/app/agent/llm.py` calls the OpenAI-compatible chat completions API with plain `httpx` and no SDK, so the work went into the agent and its guardrails.
+- **Switching models is one setting.** `NEBIUS_MODEL` makes it easy to compare Super 120B and Lightning on the same demo conversation.
+- **Real metadata for transparency.** Each response's model ID, response ID and token usage feed the **Under the hood** panel, so you can see every Nemotron call and the tools it used.
+- **Checked before deploying.** `scripts/verify_nebius.py` lists the Nemotron models your key can use and runs a real tool-calling probe. `tests/test_nebius_live.py` runs the agent against the live API.
+
+The app server is a small FastAPI service, hosted free on Render, that calls Token Factory for every chat turn. See [DEPLOY.md](docs/DEPLOY.md).
+
+---
+
 ## Architecture
 
 ```
