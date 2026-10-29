@@ -72,6 +72,13 @@ export function decorate(c) {
       n.after(h("span", { class: `pencil${app.holdPencils ? "" : " drawn"}`, "aria-label": `will be ${v}` }, h("span", { class: "arrow", "aria-hidden": "true" }, "→"), v));
     }
   }
+  // Auto mode: an Undo chip stays on the card for a few seconds after a change saves itself.
+  const recent = (app.data.actions || []).filter((a) => a.status === "approved" && (app.recentAuto?.get(a.id) || 0) > Date.now() && ownerCard(a) === c.id);
+  for (const a of recent) {
+    c.el.querySelector(".card-body").prepend(h("div", { class: "auto-chip", "data-action": a.id },
+      icon("bolt"), h("span", {}, `Saved: ${describe(a)}`),
+      h("button", { class: "link", type: "button", onclick: () => app.undo(a) }, icon("undo"), "Undo")));
+  }
   const mine = pending().filter((a) => ownerCard(a) === c.id);
   if (!mine.length) return;
   c.el.classList.add("has-proposal");
@@ -144,6 +151,36 @@ app.approve = async (a) => {
   });
   await renderChat();
   return ok;
+};
+
+app.undo = async (a) => {
+  try {
+    await api.post(`/actions/${a.id}/undo`);
+    app.recentAuto?.delete(a.id);
+    flashFace(["confused", 1400]);
+    announce(`Undone: ${describe(a)}`);
+  } catch (e) { toast(e.message, true); }
+  await app.refresh({ ripple: true });
+  await renderChat();
+};
+
+// Save all: a stamping tour, one change at a time, stopping if one fails.
+app.saveAll = async (list) => {
+  for (const a of list) {
+    const fresh = app.data.actions.find((x) => x.id === a.id);
+    if (fresh?.status !== "pending") continue;
+    if (!(await app.approve(fresh))) break;
+  }
+};
+
+// Review: show every card that has a change waiting.
+app.review = async (list) => {
+  const ids = [...new Set(list.map(ownerCard).filter(Boolean))];
+  for (const id of ids) {
+    const [type, key] = id.includes(":") ? id.split(/:(.*)/s) : [id, null];
+    await app.spawn(type, key || null, { focus: false, reveal: false });
+  }
+  await app.canvas.revealAll(ids);
 };
 
 app.reject = async (a) => {

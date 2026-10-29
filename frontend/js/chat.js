@@ -121,7 +121,7 @@ function actionCard(a) {
   const tasks = a.kind === "save_approved_tasks" ? a.payload.tasks : null;
   const steps = a.kind === "create_plan" ? a.payload.steps : null;
   const resolved = a.status !== "pending";
-  const statusText = { approved: "✓ Approved — saved", rejected: "✕ Rejected — nothing changed", failed: "⚠ Failed to apply" }[a.status];
+  const statusText = { approved: "✓ Approved — saved", rejected: "✕ Rejected — nothing changed", failed: "⚠ Failed to apply", undone: "↶ Undone" }[a.status];
   return h("div", { class: "action-card" + (resolved ? " resolved" : "") },
     h("div", { class: "label" }, resolved ? statusText : "◆ Proposal — needs your approval"),
     h("div", { class: "summary" }, a.summary),

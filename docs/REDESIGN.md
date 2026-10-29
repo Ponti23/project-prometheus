@@ -263,9 +263,9 @@ Work top to bottom. After each phase:
 - [x] Flame flight choreography, ripple, edge pointers, switching canvases
 
 **Phase 3: Permission modes**
-- [ ] Chip + Shift+Tab: Ask first / Auto / Plan
-- [ ] Auto: what counts as small, the number check, the undo endpoint, "What changed"
-- [ ] Plan: blueprint look, Approve all, stamping tour
+- [x] Chip + Shift+Tab: Ask first / Auto / Plan
+- [x] Auto: what counts as small, the number check, the undo endpoint, "What changed"
+- [x] Plan: blueprint look, Approve all, stamping tour
 
 **Phase 4: The other canvases**
 - [ ] Survive, Rebuild (path + lesson) and Vault (search + guide) cards
@@ -303,4 +303,10 @@ _(Append each default you had to pick, with a one-line reason.)_
 - **The prompt gets card names, not ids** ("Cards on screen: Ready in stages, Water"). With ids, the model repeated "light_power" to the user.
 - **A tool-result instruction changed.** It used to say "Approve or Reject"; it now says the change is "saved only when they approve it in the app", which fits both modes' buttons.
 - **Cards that grow push the cards below them down** (`settle()`), so a pencil line or form never overlaps a neighbour.
+- **Shift+Tab only cycles modes inside the message box.** Everywhere else it still moves focus backwards, so keyboard users aren't stuck; Tab still leaves the box.
+- **"Save all", not "Approve all"**, following the copy rule (Save / Edit / No). It appears under any reply that left two or more changes waiting, not only in Plan mode.
+- **Auto's number check accepts the new amount or the difference.** "We drank 2 L" may become quantity 60 → 58; 2 is in the message, so it saves. Thousands separators are understood ("20,000"); words like "a dozen" always ask.
+- **Undo works for any saved change** (`POST /api/actions/{id}/undo`, from a snapshot taken just before applying). The chat offers it after every save; "What changed" lists only Auto's saves, as designed.
+- **Auto saves aren't written into the chat as events during the turn.** The model learns from its own tool result (`status: saved_automatically`), which keeps tool calls and results next to each other in the history. Undo does add an event, so the model knows.
+- **New columns `before_json` and `resolved_by`** on `pending_actions`, added on startup to older database files.
 

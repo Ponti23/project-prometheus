@@ -11,7 +11,7 @@ from ..db import Store
 from ..knowledge.search import get_entry
 from .llm import ChatClient, LLMUnavailable, clean_content
 from .persona import system_message
-from .tools import TOOLS_BY_NAME, run_tool, tool_specs
+from .tools import TOOLS_BY_NAME, ActionError, auto_blocker, execute_action, run_tool, snapshot, tool_specs
 
 MAX_TOOL_RESULT_CHARS = 9000
 MAX_FOOTER_SOURCES = 6
@@ -113,9 +113,37 @@ def _needs_plan_nudge(results: list[tuple[str, dict, dict]]) -> bool:
     )
 
 
+def apply_action(store: Store, hid: str, action: dict[str, Any], by: str = "user") -> dict[str, Any]:
+    """Apply a pending action through execute_action(), keeping a snapshot for Undo. Raises ActionError/ValueError."""
+    before = snapshot(store, hid, action)
+    try:
+        result = execute_action(store, hid, action)
+    except (ActionError, ValueError) as e:
+        store.resolve_action(hid, action["id"], "failed", {"error": str(e)}, by=by)
+        raise
+    store.resolve_action(hid, action["id"], "approved", result, before=before, by=by)
+    store.log_tool(hid, action["kind"], action["payload"], result, True,
+                   "auto_approved" if by == "auto" else "state_changed_after_approval")
+    return result
+
+
+def _auto_save(store: Store, hid: str, result: dict[str, Any], user_text: str) -> dict[str, Any]:
+    """Auto mode: save a small proposal straight away, or say why it still needs the user."""
+    action = store.get_action(hid, result["action_id"])
+    blocker = auto_blocker(store, hid, action, user_text)  # type: ignore[arg-type]
+    if blocker:
+        return {**result, "auto_mode": f"Not saved automatically: {blocker}. The user must approve it."}
+    try:
+        apply_action(store, hid, action, by="auto")  # type: ignore[arg-type]
+    except (ActionError, ValueError) as e:
+        return {**result, "status": "failed", "error": str(e), "instruction": "This could not be saved. Tell the user."}
+    return {**result, "status": "saved_automatically",
+            "instruction": "Auto mode saved this small change straight away; the user can undo it. Say it's done in a few words."}
+
+
 def run_turn(
     store: Store, hid: str, user_text: str, client: ChatClient, settings: Settings, mode: str | None = None,
-    view: dict[str, Any] | None = None,
+    view: dict[str, Any] | None = None, permission: str = "ask",
 ) -> dict[str, Any]:
     mine, total = store.bump_usage(hid)
     if mine > settings.daily_turns_per_household or total > settings.daily_turns_global:
@@ -128,6 +156,7 @@ def run_turn(
     trace: list[dict[str, Any]] = []
     ui_hints: list[dict[str, Any]] = []
     actions: list[str] = []
+    auto: list[str] = []
     results: list[tuple[str, dict, dict]] = []
     draft: str | None = None
     tools = tool_specs()
@@ -160,10 +189,11 @@ def run_turn(
                 content = f"{draft}\n\n{content}".strip()
             final = store.add_message(
                 hid, "assistant", content or "(Prometheus returned an empty reply.)",
-                meta={"trace": trace, "ui_hints": ui_hints, "actions": actions,
+                meta={"trace": trace, "ui_hints": ui_hints, "actions": actions, "auto_saved": auto,
                       "sources": _turn_sources(results)},
             )
-            return {"message": final, "trace": trace, "ui_hints": ui_hints, "actions": [store.get_action(hid, a) for a in actions]}
+            return {"message": final, "trace": trace, "ui_hints": ui_hints, "auto_saved": auto,
+                    "actions": [store.get_action(hid, a) for a in actions]}
 
         store.add_message(hid, "assistant", content, tool_calls=calls)
         for call in calls:
@@ -175,6 +205,11 @@ def run_turn(
                 result, ok, effect = run_tool(store, hid, name, args or {}, ui_hints)
             if result.get("action_id"):
                 actions.append(result["action_id"])
+                if permission == "auto":
+                    result = _auto_save(store, hid, result, user_text)
+                    if result.get("status") == "saved_automatically":
+                        auto.append(result["action_id"])
+                        effect = "auto_approved"
             results.append((name, args or {}, result))
             store.log_tool(hid, name, args or {"_raw": call["function"]["arguments"]}, result, ok, effect)
             payload = json.dumps(result, default=str)
@@ -193,8 +228,10 @@ def run_turn(
     raise AssertionError("unreachable")  # pragma: no cover
 
 
-def record_action_event(store: Store, hid: str, action: dict[str, Any], approved: bool, detail: str = "") -> None:
-    verb = "APPROVED" if approved else "REJECTED"
+def record_action_event(
+    store: Store, hid: str, action: dict[str, Any], approved: bool, detail: str = "", verb: str | None = None,
+) -> None:
+    verb = verb or ("APPROVED" if approved else "REJECTED")
     text = f"User {verb} proposal {action['id']} ({action['kind']}): {action['summary']}."
     if detail:
         text += f" {detail}"

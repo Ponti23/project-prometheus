@@ -10,6 +10,7 @@ Three kinds:
 from __future__ import annotations
 
 import copy
+import re
 from dataclasses import dataclass
 from typing import Any, Callable, Literal
 
@@ -490,6 +491,76 @@ def simulate_action(profile: HouseholdProfile, inventory: list[dict[str, Any]], 
             if i["id"] == p["item_id"]:
                 i.update(changes)
     return profile, inventory
+
+
+# ---------------------------------------------------------------- undo and Auto mode
+def snapshot(store: Store, hid: str, action: dict[str, Any]) -> dict[str, Any]:
+    """What an action is about to overwrite, stored before it's applied so it can be undone."""
+    if action["kind"] == "update_profile":
+        h = store.get_household(hid)
+        return {"profile": h["profile"].model_dump(), "confirmed": h["profile_confirmed"]}
+    if action["kind"] == "update_inventory":
+        return {"item": store.get_item(hid, action["payload"]["item_id"])}
+    return {}
+
+
+ITEM_FIELDS = ("name", "category", "quantity", "unit", "target_key", "kcal_per_unit", "expires_on", "status", "notes")
+
+
+def undo_action(store: Store, hid: str, action: dict[str, Any]) -> None:
+    kind, before, result = action["kind"], action.get("before") or {}, action.get("result") or {}
+    if kind == "update_profile":
+        store.save_profile(hid, HouseholdProfile.model_validate(before["profile"]), confirmed=before["confirmed"])
+    elif kind == "add_inventory":
+        store.delete_item(hid, result["item"]["id"])
+    elif kind == "update_inventory":
+        old = before["item"]
+        if store.get_item(hid, old["id"]) is None:
+            raise ActionError("item no longer exists")
+        store.update_item(hid, old["id"], {k: old[k] for k in ITEM_FIELDS})
+    elif kind == "save_approved_tasks":
+        for t in result.get("tasks", []):
+            store.delete_task(hid, t["id"])
+    elif kind == "create_plan":
+        store.delete_plan(hid, result["plan"]["id"])
+    else:
+        raise ActionError(f"can't undo {kind}")
+
+
+# Auto mode saves only small, undoable supply changes, and only when it didn't have to guess a number.
+AUTO_KINDS = {"add_inventory", "update_inventory", "save_approved_tasks"}
+AUTO_FIELDS = {"quantity", "status", "expires_on", "kcal_per_unit", "notes"}
+_NUMBER = re.compile(r"\d+(?:[.,]\d+)?")
+
+
+def numbers_in(text: str) -> set[float]:
+    text = re.sub(r"(?<=\d),(?=\d{3}\b)", "", text)  # 20,000 → 20000; 1,5 stays a decimal
+    return {float(n.replace(",", ".")) for n in _NUMBER.findall(text)}
+
+
+def auto_blocker(store: Store, hid: str, action: dict[str, Any], user_text: str) -> str | None:
+    """None if Auto mode may save this straight away, else the reason it must ask."""
+    kind, p = action["kind"], action["payload"]
+    if kind not in AUTO_KINDS:
+        return "household and plan changes always ask first"
+    said = numbers_in(user_text)
+    if kind == "add_inventory":
+        if float(p["quantity"]) not in said:
+            return "the amount isn't in the user's message"
+        if p.get("kcal_per_unit") and float(p["kcal_per_unit"]) not in said:
+            return "the kcal isn't in the user's message"
+    if kind == "update_inventory":
+        ch = p["changes"]
+        if set(ch) - AUTO_FIELDS:
+            return "renaming or re-linking an item asks first"
+        if "quantity" in ch:
+            old = float((store.get_item(hid, p["item_id"]) or {}).get("quantity", 0))
+            new = float(ch["quantity"])
+            if not {new, round(abs(new - old), 6)} & said:
+                return "the amount isn't in the user's message"
+        if ch.get("kcal_per_unit") and float(ch["kcal_per_unit"]) not in said:
+            return "the kcal isn't in the user's message"
+    return None
 
 
 EDITED = " (edited by you)"

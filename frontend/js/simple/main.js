@@ -4,8 +4,9 @@ import { clear, h, hydrateIcons, icon, toast } from "../ui.js";
 import { announce, app, notify } from "./app.js";
 import { Canvas, cardId, clearSavedLayouts, typing } from "./canvas.js";
 import { CANVASES, canvasFor, CARDS, defaultCards, drawerItems, rank, renderCard } from "./cards/index.js";
-import { initChat, renderChat, sendChat, setSuggestions } from "./chat.js";
+import { describe, initChat, renderChat, sendChat, setSuggestions } from "./chat.js";
 import * as flame from "./flame.js";
+import { initModes } from "./modes.js";
 import { decorate, loadPreview, ownerCard, pending, target } from "./pencils.js";
 
 const $ = (id) => document.getElementById(id);
@@ -78,14 +79,17 @@ app.chatContext = () => ({
 });
 
 // The chat drives the canvas: tools say which cards a turn was about; the app places them and the flame shows the way.
-app.applyHints = async (hints) => {
-  try { await choreograph(hints); } finally {
+app.recentAuto = new Map();
+app.applyHints = async (hints, out = {}) => {
+  for (const id of out.auto_saved || []) app.recentAuto.set(id, Date.now() + 9000);
+  if (out.auto_saved?.length) setTimeout(() => app.canvas.renderAll(), 9100);
+  try { await choreograph(hints, out); } finally {
     app.holdPencils = false;
     document.querySelectorAll(".pencil").forEach((p) => p.classList.add("drawn"));
   }
 };
 
-async function choreograph(hints) {
+async function choreograph(hints, out) {
   const withCard = hints.filter((x) => x.card && CARDS[x.card.type]);
   let chosen = withCard.filter((x) => (x.priority ?? 1) >= 1);
   // Background reads (priority 0) only show a card when nothing else did, and only on this canvas.
@@ -112,13 +116,19 @@ async function choreograph(hints) {
     if (c && x.filter !== undefined) { c.ui.filter = x.filter; app.canvas.paint(c); }
   }
   await app.canvas.revealAll(here.map(([id]) => id));
+  // Auto mode: small changes already saved themselves; the flame stamps each one straight away.
+  const saved = (out.auto_saved || []).map((id) => app.data.actions.find((a) => a.id === id)).filter(Boolean);
+  for (const a of saved.slice(0, 3)) await flame.stamp(target(a), async () => true);
   const waiting = pending().filter((a) => here.some(([id]) => ownerCard(a) === id));
-  if (waiting.length) {
+  if (waiting.length && document.body.dataset.permission === "plan") {
+    // Plan mode: pencil in every change, then come back with "N changes ready".
+    await flame.pencil(waiting.map(target).filter(Boolean).slice(0, 6));
+  } else if (waiting.length) {
     // Visit the changed number on each proposal's card, then other numbers that would move (at most three).
     const els = waiting.map(target).filter(Boolean);
     const more = [...document.querySelectorAll(".card .num.was")].filter((n) => !els.some((e) => e === n || e.contains(n)) && !app.canvas.stack);
     await flame.pencil([...els, ...more]);
-  } else {
+  } else if (!saved.length) {
     const els = here.map(([id, x]) => {
       const c = app.canvas.get(id);
       return c && ((x.focus && c.el.querySelector(`[data-num="${x.focus}"]`)) || c.el.querySelector(".card-head"));
@@ -178,11 +188,29 @@ function renderMenu() {
   const item = (label, ic, fn) => h("button", { role: "menuitem", type: "button", onclick: () => { closeMenu(); fn(); } }, icon(ic), label);
   clear($("menu"),
     item("Try the demo family", "people", loadDemo),
+    item("What changed", "undo", showChanges),
     item("Show me how it works", "atom", showHowItWorks),
     item("Advanced mode", "gear", () => { store.set("prometheus.ui", "advanced"); location.href = "advanced.html"; }),
     h("hr"),
     item("Clear conversation", "eraser", async () => { await api.del("/chat/history"); await renderChat(); }),
     item("Start over", "trash", resetHousehold));
+}
+
+// Every change Auto mode saved by itself, newest first, each with Undo.
+function showChanges() {
+  const list = app.data.actions.filter((a) => a.resolved_by === "auto").reverse();
+  const close = () => panel.remove();
+  document.getElementById("changesPanel")?.remove();
+  const panel = h("div", { class: "panel-pop", id: "changesPanel", role: "dialog", "aria-label": "What changed" },
+    h("div", { class: "row" }, h("h2", {}, "What changed"), h("button", { class: "icon-btn", "aria-label": "Close", onclick: close }, icon("x"))),
+    list.length ? h("ul", {}, list.map((a) => h("li", {},
+      h("span", {}, describe(a)),
+      a.status === "approved"
+        ? h("button", { class: "link", type: "button", onclick: async () => { await app.undo(a); showChanges(); } }, icon("undo"), "Undo")
+        : h("span", { class: "muted" }, "Undone"))))
+      : h("p", { class: "muted" }, "Nothing saved automatically yet. Switch the chat to Auto to let Prometheus save small changes."));
+  document.body.appendChild(panel);
+  panel.querySelector("button").focus();
 }
 
 function closeMenu() {
@@ -250,7 +278,7 @@ function bindUi() {
   // Remember which card you tapped, so "this" in the chat means that card.
   $("canvas").addEventListener("focusin", (e) => { const c = e.target.closest(".card"); if (c) app.focusedCard = c.dataset.id; });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { closeMenu(); toggleDrawer(false); }
+    if (e.key === "Escape") { closeMenu(); toggleDrawer(false); document.getElementById("changesPanel")?.remove(); }
     if (typing(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.shiftKey && e.code === "Digit1") { e.preventDefault(); app.canvas.fit(); }
     else if (e.key === "+" || e.key === "=") app.canvas.zoomAt(1.2);
@@ -282,6 +310,7 @@ async function boot() {
     app.status = await api.get("/status"); // creates the household cookie before the parallel calls
     await app.refresh();
     initChat();
+    initModes();
     const fromHash = location.hash.slice(1);
     await app.show(CANVASES[fromHash] ? fromHash : store.get("prometheus.simple.canvas") || "prepare");
     await renderChat();

@@ -117,6 +117,8 @@ class ChatIn(BaseModel):
     canvas: Canvas | None = None
     cards: list[Annotated[str, Field(max_length=120)]] = Field(default_factory=list, max_length=40)
     focused_card: str | None = Field(default=None, max_length=120)
+    # Ask first (default) proposes everything; Auto saves small undoable supply changes; Plan only drafts.
+    permission_mode: Literal["ask", "auto", "plan"] = "ask"
 
 
 class ActionEdit(BaseModel):

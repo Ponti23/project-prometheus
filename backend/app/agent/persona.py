@@ -96,6 +96,13 @@ def view_lines(view: dict[str, Any] | None) -> list[str]:
         "The approve button says Save. Keep replies short: one to three sentences in plain words, no tables, "
         "unless the user asks for detail. Never mention internal ids or category keys.",
     ]
+    mode = view.get("permission_mode")
+    if mode == "auto":
+        lines.append("AUTO MODE: small supply changes you propose are saved straight away when the amount is in the user's "
+                     "message; other changes wait for approval. Each tool result says which happened.")
+    elif mode == "plan":
+        lines.append("PLAN MODE: only look and draft. Propose every change this needs as proposals in this one reply, "
+                     "then say in one sentence how many changes are ready to approve. Nothing is saved until they approve.")
     if view.get("focused_card"):
         lines.append(f"The user tapped the {card_name(view['focused_card'])} card just before typing, so 'this' or 'that' "
                      "probably means it.")

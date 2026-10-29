@@ -3,6 +3,7 @@ import { api } from "../api.js";
 import { flashFace, setFaceBase } from "../face.js";
 import { clear, h, icon, markdown, toast } from "../ui.js";
 import { app, qty } from "./app.js";
+import { getMode } from "./modes.js";
 
 const $ = (id) => document.getElementById(id);
 const log = $("chatLog"), form = $("chatForm"), input = $("chatInput"), sendBtn = $("sendBtn");
@@ -93,16 +94,26 @@ function messageEl(m) {
   if (m.role === "error") return h("div", { class: "msg error" }, icon("warn"), "Chat isn't working right now. Your cards still do.");
   if (m.role !== "assistant" || !m.content || m.meta?.draft || !m.meta?.trace) return null;
   const actions = (m.meta.actions || []).map((id) => app.data.actions.find((a) => a.id === id)).filter(Boolean);
+  const waiting = actions.filter((a) => a.status === "pending");
   return h("div", { class: "msg assistant" },
     h("div", { class: "bubble", html: markdown(m.content) }),
     m.meta.sources?.length ? h("div", { class: "sources", "aria-label": "Sources" },
       icon("book"), m.meta.sources.map((s) => h("a", { href: s.url, target: "_blank", rel: "noopener noreferrer", title: s.publisher }, s.title))) : null,
-    actions.map(actionEl));
+    actions.map(actionEl),
+    // Several changes at once (Plan mode drafts them all): save them in one go, or look at each on its card.
+    waiting.length > 1 ? h("div", { class: "ready" },
+      h("strong", {}, `${waiting.length} changes ready`),
+      h("button", { class: "btn primary sm", type: "button", onclick: () => app.saveAll(waiting) }, "Save all"),
+      h("button", { class: "btn sm", type: "button", onclick: () => app.review(waiting) }, "Review")) : null);
 }
 
 function actionEl(a) {
   const pending = a.status === "pending";
-  const done = { approved: ["check", "Saved"], rejected: ["x", "Not saved"], failed: ["warn", "Couldn't save"] }[a.status];
+  const auto = a.resolved_by === "auto";
+  const done = {
+    approved: ["check", auto ? "Saved automatically" : "Saved"], rejected: ["x", "Not saved"],
+    failed: ["warn", "Couldn't save"], undone: ["undo", "Undone"],
+  }[a.status] || ["info", a.status];
   return h("div", { class: `proposal ${a.status}`, "data-action": a.id },
     h("div", { class: "what" }, icon(pending ? "pencil" : done[0]), h("span", {}, describe(a))),
     a.kind === "save_approved_tasks" ? h("ul", {}, a.payload.tasks.map((t) => h("li", {}, t.title))) : null,
@@ -111,7 +122,8 @@ function actionEl(a) {
       ? h("div", { class: "row" },
           h("button", { class: "btn primary sm", type: "button", onclick: () => app.approve(a) }, "Save"),
           h("button", { class: "btn sm ghost", type: "button", onclick: () => app.reject(a) }, "No"))
-      : h("div", { class: "done" }, done[1]));
+      : h("div", { class: "done" }, done[1],
+          a.status === "approved" ? h("button", { class: "link", type: "button", onclick: () => app.undo(a) }, icon("undo"), "Undo") : null));
 }
 
 // Proposals in plain words, built from the payload the server validated.
@@ -155,13 +167,13 @@ export async function sendChat(text) {
   log.scrollTop = log.scrollHeight;
   setBusy(true);
   try {
-    const out = await api.post("/chat", { message: text, mode: app.canvasName, ...app.chatContext() });
+    const out = await api.post("/chat", { message: text, mode: app.canvasName, permission_mode: getMode(), ...app.chatContext() });
     app.holdPencils = true;
     await app.refresh();
     setBusy(false);
     await renderChat();
     flashFace(["speaking", 1400], [out.actions?.length ? "wink" : "happy", 1400]);
-    await app.applyHints(out.ui_hints || [], out.actions || [], text);
+    await app.applyHints(out.ui_hints || [], out);
   } catch (e) {
     typing.remove();
     setBusy(false);
