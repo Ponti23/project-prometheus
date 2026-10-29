@@ -1,6 +1,6 @@
 import { api } from "./api.js";
 import { initChat, renderChat, sendChat, setSuggestions } from "./chat.js";
-import { clear, emblemSvg, fmt, h, hydrateIcons, pct, setEmblemState, toast } from "./ui.js";
+import { clear, fmt, h, hydrateIcons, pct, setEmblemState, toast } from "./ui.js";
 import { renderCompanion } from "./views/companion.js";
 import { renderPrepare } from "./views/prepare.js";
 import { renderRebuild } from "./views/rebuild.js";
@@ -148,7 +148,6 @@ export function setAiChip(status) {
 }
 
 async function boot() {
-  document.querySelectorAll(".emblem").forEach((e) => (e.innerHTML = emblemSvg()));
   hydrateIcons();
   document.querySelectorAll(".nav-btn").forEach((b) => b.addEventListener("click", () => navigate(b.dataset.mode)));
   const toggle = document.getElementById("ctxToggle");

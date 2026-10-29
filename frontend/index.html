@@ -9,21 +9,10 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Shared SVG gradient for every emblem instance -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-      <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
-        <stop offset="0" stop-color="#f2b45a"/>
-        <stop offset=".55" stop-color="#ffcf7a"/>
-        <stop offset="1" stop-color="#4fd1b5"/>
-      </linearGradient>
-    </defs>
-  </svg>
-
   <div class="app">
     <nav class="rail" aria-label="Main">
       <div class="brand">
-        <div class="emblem" id="railEmblem" data-state="idle"></div>
+        <div class="face rail-face"></div>
         <div class="word">PROMETHEUS</div>
       </div>
       <button class="nav-btn" data-mode="companion"><span data-icon="spark"></span>Companion</button>

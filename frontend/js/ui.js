@@ -63,17 +63,7 @@ export function hydrateIcons(root = document) {
   root.querySelectorAll("[data-icon]").forEach((el) => el.replaceWith(icon(el.dataset.icon)));
 }
 
-export function emblemSvg() {
-  return `<svg viewBox="0 0 64 64" aria-hidden="true">
-    <path class="hex" d="M32 4 56 18v28L32 60 8 46V18z"/>
-    <ellipse class="orbit" cx="32" cy="32" rx="27" ry="9" transform="rotate(-24 32 32)"/>
-    <path class="flame" d="M32 14c4 7 11 11 11 21a11 11 0 0 1-22 0c0-5 3-8 5-11 0 4 2 6 4 6-2-6 0-11 2-16z"/>
-    <circle class="core" cx="32" cy="38" r="3"/>
-  </svg>`;
-}
-
 export function setEmblemState(state) {
-  document.querySelectorAll(".emblem").forEach((e) => (e.dataset.state = state));
   setFaceBase({ thinking: "thinking", tool: "thinking", offline: "sleeping" }[state] || "idle");
 }
 
