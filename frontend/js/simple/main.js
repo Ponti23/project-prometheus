@@ -24,6 +24,8 @@ app.refresh = async ({ ripple = false } = {}) => {
     api.get("/tasks"), api.get("/actions"), api.get("/plans"),
   ]);
   Object.assign(app.data, { summary, household, inventory, readiness, tasks, actions, plans });
+  // Views that depend on the household's supplies or notes are fetched again on the next paint.
+  for (const k of Object.keys(app.cache)) if (/^\/(scenarios\/|techtree\/|memory)/.test(k)) delete app.cache[k];
   await loadPreview();
   app.canvas?.renderAll();
   if (before) rippleChanges(before);

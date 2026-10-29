@@ -541,3 +541,51 @@ body[data-permission="plan"] .canvas {
 body[data-permission="plan"] .card { border: 1.5px dashed color-mix(in srgb, var(--blue) 55%, transparent); box-shadow: none; }
 body[data-permission="plan"] .card.has-proposal { border-color: var(--pencil); }
 @media (max-width: 760px) { body[data-permission="plan"] .canvas { background-image: none; } }
+
+/* ------------------------------------------------------------------ survive, rebuild, vault */
+.picker, .results, .path, .path ol, .steps, .triage, .plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.picker button, .results button, .path button {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 10px; border: 0; background: none; border-radius: 10px; text-align: left;
+}
+.picker button:hover, .results button:hover, .path button:hover { background: var(--surface-2); }
+.picker svg { width: 20px; height: 20px; color: var(--brand-ink); }
+.picker button span:first-of-type { flex: 1; font-weight: 600; }
+.results button { flex-direction: column; align-items: flex-start; gap: 2px; border-top: 1px solid var(--line); border-radius: 0; }
+.results li:first-child button { border-top: 0; }
+.results span { font-size: 14px; color: var(--muted); }
+.call { display: flex; gap: 8px; align-items: flex-start; padding: 9px 11px; border-radius: 12px; background: var(--bad-bg); color: var(--bad); font-weight: 650; }
+.call svg { width: 18px; height: 18px; margin-top: 2px; }
+.fiction { display: flex; gap: 8px; align-items: center; padding: 8px 11px; border-radius: 12px; background: #efe8ff; color: #5b3fb3; font-weight: 650; }
+@media (prefers-color-scheme: dark) { .fiction { background: #2c2445; color: #c8b8ff; } }
+.fiction svg { width: 18px; height: 18px; }
+.steps li { display: flex; gap: 10px; justify-content: space-between; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--line); }
+.steps li:first-child { border-top: 0; }
+.triage { counter-reset: q; gap: 8px; }
+.triage li { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); }
+.triage li:first-child { border-top: 0; }
+.segmented.sm button { padding: 3px 14px; }
+.segmented button[aria-pressed="true"] { background: var(--brand); color: #2b1600; }
+.btn.danger { background: #c8102e; border-color: #c8102e; color: #fff; }
+.kv .v.bad { color: var(--bad); }
+.checklist.drafted .tick input { border-style: dashed; border-color: var(--pencil); }
+.checklist .tick input:disabled { cursor: default; }
+.path { gap: 2px; }
+.path .n { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--surface-2); font-weight: 750; font-size: 13.5px; flex: none; }
+.path .t { flex: 1; }
+.path li.here .n { background: var(--brand); color: #2b1600; }
+.path li.dim { opacity: 0.4; }
+.path .choice { padding: 4px 0 4px 10px; border-left: 3px solid var(--line-2); margin: 4px 0 4px 12px; }
+.path .choose { font-size: 13px; font-weight: 700; color: var(--muted); padding-left: 10px; }
+.tag.ok { background: var(--ok-bg); color: var(--ok); }
+.try { padding: 10px 12px; border-radius: 12px; background: var(--surface-2); display: flex; flex-direction: column; gap: 4px; }
+.plain { gap: 4px; padding-left: 2px; }
+.plain li { padding-left: 16px; position: relative; }
+.plain li::before { content: "•"; position: absolute; left: 2px; color: var(--muted); }
+ul.plain li:has(.sdot) { padding-left: 0; }
+ul.plain li:has(.sdot)::before { content: none; }
+.search-row { display: flex; gap: 6px; }
+.search-row input { flex: 1; min-width: 0; border: 1px solid var(--line-2); background: var(--bg); border-radius: 10px; padding: 7px 10px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line-2); background: var(--surface); border-radius: 999px; padding: 3px 11px; font-size: 13.5px; color: var(--muted); text-transform: capitalize; }
+.chip[aria-pressed="true"] { background: var(--brand-soft); border-color: var(--brand); color: var(--brand-ink); }
+.fold { border: 0; background: none; padding: 0; font: inherit; font-weight: 700; color: var(--brand-ink); }

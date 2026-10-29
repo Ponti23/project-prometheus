@@ -117,7 +117,7 @@ function actionEl(a) {
   return h("div", { class: `proposal ${a.status}`, "data-action": a.id },
     h("div", { class: "what" }, icon(pending ? "pencil" : done[0]), h("span", {}, describe(a))),
     a.kind === "save_approved_tasks" ? h("ul", {}, a.payload.tasks.map((t) => h("li", {}, t.title))) : null,
-    a.kind === "create_plan" ? h("ol", {}, a.payload.steps.map((s) => h("li", {}, s.text))) : null,
+    a.kind === "create_plan" ? h("div", { class: "done" }, `${a.payload.steps.length} steps, on the plan card`) : null,
     pending
       ? h("div", { class: "row" },
           h("button", { class: "btn primary sm", type: "button", onclick: () => app.approve(a) }, "Save"),

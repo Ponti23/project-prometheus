@@ -2,8 +2,11 @@
 import { h } from "../../ui.js";
 import { app } from "../app.js";
 import { PREPARE } from "./prepare.js";
+import { REBUILD } from "./rebuild.js";
+import { SURVIVE } from "./survive.js";
+import { VAULT } from "./vault.js";
 
-export const CARDS = { ...PREPARE };
+export const CARDS = { ...PREPARE, ...SURVIVE, ...REBUILD, ...VAULT };
 
 export const CANVASES = {
   prepare: { title: "Prepare", icon: "box" },
@@ -12,16 +15,19 @@ export const CANVASES = {
   vault: { title: "Vault", icon: "book" },
 };
 
-// Which canvas a card belongs on. Cards like "How do we know?" open wherever you are.
+// Which canvas a card belongs on. Reference cards (How do we know?, guides, memory) open wherever you are.
 export function canvasFor(type) {
-  return CARDS[type]?.canvas || app.canvasName;
+  const d = CARDS[type];
+  return !d?.canvas || d.float ? app.canvasName : d.canvas;
 }
 
 export function renderCard(c) {
   const def = CARDS[c.type];
   if (!def || !app.data.summary) return null;
   try {
-    return def.render(c);
+    const v = def.render(c);
+    if (v) v.width ||= def.width;
+    return v;
   } catch (e) {
     console.error(e);
     return { icon: "warn", title: def.title(c.key), body: h("p", { class: "muted" }, "This card couldn't load.") };
@@ -35,7 +41,13 @@ export function defaultCards(name) {
     if (s && s.expired.length + s.expiring_soon.length + s.unavailable.length) out.push({ type: "expiring" });
     return out;
   }
-  return Object.entries(CARDS).filter(([, d]) => d.canvas === name && d.default).map(([type, d]) => ({ type, key: d.default === true ? null : d.default }));
+  if (name === "survive") {
+    const plan = app.data.plans?.[0];
+    return [{ type: "scenarios" }, plan ? { type: "plan", key: plan.scenario } : { type: "scenario", key: "blackout" }, { type: "resources" }];
+  }
+  if (name === "rebuild") return [{ type: "path" }, { type: "lesson", key: app.data.household?.topic || "energy_basics" }];
+  if (name === "vault") return [{ type: "search" }, { type: "guide", key: "kb-survival-kit" }];
+  return [];
 }
 
 export function drawerItems(name) {

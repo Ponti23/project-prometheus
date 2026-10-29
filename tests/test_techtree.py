@@ -51,3 +51,11 @@ def test_node_view_and_unlocks():
     assert v["materials"][0]["have"] is True
     assert all(s["url"].startswith("https://") for s in v["sources"])
     assert techtree.node_view("nope") is None
+
+
+def test_materials_dont_match_unrelated_items():
+    from backend.app.rebuild.techtree import node_view
+
+    inv = [{"name": "Toilet paper", "status": "ok"}, {"name": "Manual can opener", "status": "ok"}]
+    mats = node_view("energy_basics", inv)["materials"]
+    assert not any(m["have"] for m in mats)

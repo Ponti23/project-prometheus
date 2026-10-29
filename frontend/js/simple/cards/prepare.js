@@ -325,13 +325,13 @@ function why(c) {
 }
 
 export const PREPARE = {
-  stages: { canvas: "prepare", rank: 0, icon: () => "flag", title: () => "Ready in stages", render: stages },
-  next: { canvas: "prepare", rank: 1, icon: () => "list", title: () => "Next up", render: next },
-  household: { canvas: "prepare", rank: 2, icon: () => "people", title: () => "Household", render: household },
+  stages: { canvas: "prepare", width: 340, rank: 0, icon: () => "flag", title: () => "Ready in stages", render: stages },
+  next: { canvas: "prepare", width: 300, rank: 1, icon: () => "list", title: () => "Next up", render: next },
+  household: { canvas: "prepare", width: 300, rank: 2, icon: () => "people", title: () => "Household", render: household },
   category: {
-    canvas: "prepare", rank: 10, keys: () => summary().categories.map((c) => c.key),
+    canvas: "prepare", width: 330, rank: 10, keys: () => summary().categories.map((c) => c.key),
     icon: (k) => CAT_ICON[k], title: (k) => catOf(k)?.label || k, render: category,
   },
-  expiring: { canvas: "prepare", rank: 30, icon: () => "clock", title: () => "Check these", render: expiring },
-  why: { canvas: null, rank: 40, icon: () => "help", title: () => "How do we know?", render: why, hidden: true },
+  expiring: { canvas: "prepare", width: 300, rank: 30, icon: () => "clock", title: () => "Check these", render: expiring },
+  why: { canvas: null, width: 320, rank: 40, icon: () => "help", title: () => "How do we know?", render: why, hidden: true },
 };

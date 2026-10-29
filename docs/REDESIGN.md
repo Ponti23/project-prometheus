@@ -268,7 +268,7 @@ Work top to bottom. After each phase:
 - [x] Plan: blueprint look, Approve all, stamping tour
 
 **Phase 4: The other canvases**
-- [ ] Survive, Rebuild (path + lesson) and Vault (search + guide) cards
+- [x] Survive, Rebuild (path + lesson) and Vault (search + guide) cards
 
 **Phase 5: SOS**
 - [ ] Takeover flow
@@ -309,4 +309,10 @@ _(Append each default you had to pick, with a one-line reason.)_
 - **Undo works for any saved change** (`POST /api/actions/{id}/undo`, from a snapshot taken just before applying). The chat offers it after every save; "What changed" lists only Auto's saves, as designed.
 - **Auto saves aren't written into the chat as events during the turn.** The model learns from its own tool result (`status: saved_automatically`), which keeps tool calls and results next to each other in the history. Undo does add an event, so the model knows.
 - **New columns `before_json` and `resolved_by`** on `pending_actions`, added on startup to older database files.
+- **A "What's happening?" card picks the scenario** on Survive (the zombie drill is listed as "Zombie drill · Fiction"). The table had no picker, and something has to choose.
+- **Guides, "How do we know?" and Memory open on the canvas you're on**, because they're reference cards. A "Why?" on a Survive step shouldn't throw you over to the Vault tab. Guides are still listed in the Vault's drawer.
+- **Scenario cards fold "Today" and "Keep doing"** behind a tap; "Right now" is always open. Unfolded, the blackout card was over 1,100px tall.
+- **Lesson numbers follow tier order**, and a tier with several nodes shows "Choose next" (3 · 4 · 5).
+- **Fixed a material match in `electricity.json`.** "Notebook & pencil" matched "paper" and "pen", so toilet paper and a can opener counted as a notebook and a pen (in Advanced too). It now matches notebook, pencil and notepad, with a test.
+- **Each card type declares its width** in the registry, so the first layout is right even while a card is still loading.
 

@@ -122,8 +122,12 @@ export class Canvas {
         const a = list[i], ah = a.el.offsetHeight, aw = a.el.offsetWidth;
         for (let j = i + 1; j < list.length; j++) {
           const b = list[j];
-          const sideBySide = a.x + aw <= b.x || b.x + b.el.offsetWidth <= a.x;
-          if (!sideBySide && b.y >= a.y && b.y < a.y + ah + GAP / 2) { b.y = a.y + ah + GAP; changed = moved = true; }
+          const overlapX = Math.min(a.x + aw, b.x + b.el.offsetWidth) - Math.max(a.x, b.x);
+          if (overlapX <= 0 || b.y < a.y || b.y >= a.y + ah + GAP / 2) continue;
+          // A neighbour that only clips the edge moves right; one underneath moves down.
+          if (overlapX < 80 && b.x > a.x) b.x = a.x + aw + GAP;
+          else b.y = a.y + ah + GAP;
+          changed = moved = true;
         }
       }
       if (!changed) break;
