@@ -28,7 +28,7 @@ Deadline: **Oct 30, 2026, 10:00 AM PDT**. The priority is a reliable, honest dem
 ## Phase 5: Polish & submission
 - [x] Dark lab UI, emblem activity states, status labels + icons (not colour alone), responsive layout.
 - [ ] Run `scripts/check_sources.py --write` on a normally connected machine.
-- [ ] Deploy to Nebius AI Cloud (see DEPLOY.md). **Needs your approval.**
+- [ ] Deploy to the free Hugging Face Space (see DEPLOY.md): add `HF_TOKEN` + `NEBIUS_API_KEY` repo secrets, run the deploy workflow.
 - [ ] Record the < 3 min video (DEMO_SCRIPT.md), push the repo public, fill in Devpost.
 
 ## Known risks

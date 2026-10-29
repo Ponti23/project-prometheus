@@ -55,14 +55,14 @@ Tool calling is only as trustworthy as the tools around it. The more we pushed i
 ```
 
 ## Built with
-python, fastapi, uvicorn, sqlite, pydantic, httpx, javascript, html5, css3, nvidia-nemotron, nebius-token-factory, docker, pytest
+python, fastapi, uvicorn, sqlite, pydantic, httpx, javascript, html5, css3, nvidia-nemotron, nebius-token-factory, docker, hugging-face-spaces, pytest
 
 ## Try it out
 - GitHub: https://github.com/Ponti23/project-prometheus
-- Live demo: _add the URL once deployed_
+- Live demo: _add the `https://<user>-<space>.hf.space` URL from the deploy run_ (hosted free on Hugging Face Spaces; the model runs on Nebius Token Factory)
 
 ## Testing instructions for judges
-Open the URL → Settings → **Load demo household** → try: "How ready are we for 30 days? Propose restock tasks." → Approve → "The power grid has collapsed. What should we do?" → "Teach me how electricity works." Turn on **Under the hood** to see the Nemotron tool calls.
+Open the URL (if it was idle, the first load can take about a minute) → Settings → **Load demo household** → try: "How ready are we for 30 days? Propose restock tasks." → Approve → "The power grid has collapsed. What should we do?" → "Teach me how electricity works." Turn on **Under the hood** to see the Nemotron tool calls.
 
 If there is no live URL, point judges to the "Run it on Windows" steps in the README instead.
 

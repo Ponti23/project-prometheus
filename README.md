@@ -1,3 +1,15 @@
+---
+title: Project Prometheus
+emoji: 🔥
+colorFrom: red
+colorTo: yellow
+sdk: docker
+app_port: 8000
+pinned: false
+license: apache-2.0
+short_description: AI apocalypse buddy on NVIDIA Nemotron + Nebius
+---
+
 # Project Prometheus — Humanity's Backup Brain
 
 > **Prepare today. Survive tomorrow. Rebuild the future.**

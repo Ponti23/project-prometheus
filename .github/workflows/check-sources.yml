@@ -1,0 +1,18 @@
+# Checks every citation link in data/sources.json from a runner with normal internet access.
+name: Check source links
+
+on:
+  pull_request:
+    paths: ["data/sources.json", "scripts/check_sources.py", ".github/workflows/check-sources.yml"]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install httpx
+      - run: python scripts/check_sources.py
