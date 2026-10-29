@@ -130,7 +130,8 @@ class PlanStepArg(BaseModel):
 
 class SurvivalPlanArgs(BaseModel):
     scenario: Literal["blackout", "supply_disruption", "isolation", "zombie"]
-    title: str = Field(min_length=3, max_length=100)
+    title: str | None = Field(default=None, min_length=3, max_length=100,
+                              description="Defaults to '<scenario title> plan' if omitted")
     summary: str = Field(default="", max_length=600)
     steps: list[PlanStepArg] = Field(min_length=3, max_length=15)
 
@@ -284,7 +285,9 @@ def _propose_restock(ctx: ToolContext, a: RestockArgs) -> dict[str, Any]:
 
 
 def _create_plan(ctx: ToolContext, a: SurvivalPlanArgs) -> dict[str, Any]:
-    fictional = load_scenarios()[a.scenario]["fictional"]
+    scenario = load_scenarios()[a.scenario]
+    fictional = scenario["fictional"]
+    a.title = a.title or f"{scenario['title'].replace(' (FICTIONAL SIMULATION)', '')} plan"
     payload = a.model_dump()
     payload["fictional"] = fictional
     label = " (FICTIONAL SIMULATION)" if fictional else ""

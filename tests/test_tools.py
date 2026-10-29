@@ -89,6 +89,12 @@ def test_survival_plan_proposal_and_fiction_flag(store, hid):
     assert [s["priority"] for s in plan["steps"]] == ["immediate", "today", "ongoing"]
 
 
+def test_survival_plan_title_defaults_from_scenario(store, hid):
+    steps = [{"text": "Check for CO", "priority": "immediate", "knowledge_refs": []}] * 3
+    res, ok, _ = run_tool(store, hid, "create_survival_plan", {"scenario": "zombie", "steps": steps})
+    assert ok and res["summary"].startswith("Save survival plan 'Zombie apocalypse plan' (FICTIONAL SIMULATION)")
+
+
 def test_remember_note_is_only_suggested(store, hid):
     res, ok, effect = run_tool(store, hid, "remember_note", {"text": "Grandma visits on weekends"})
     assert ok and effect == "suggested_memory"
