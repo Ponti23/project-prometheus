@@ -1,5 +1,6 @@
-// Prometheus's face: the "Block" direction from the Notch Face Kit. Two rounded squares on a black
-// notch that glide between expressions. Every `.face` element on the page mirrors the same live face.
+// Prometheus's face: a little fire spirit. The eyes are the "Block" direction from the Notch Face Kit
+// (two rounded squares that glide between expressions), set in a glowing hex core inside a flickering
+// flame. Every `.face` element on the page mirrors the same live face; CSS restyles the flame per mood.
 const CX = 80, CY = 20, RADIUS = 4.5, SCAN = 4;
 
 const P = (w, t, b, x, y = 0, rot = 0, s = 0, sb = 0) => ({ w, t, b, x, y, rot, s, sb });
@@ -59,9 +60,19 @@ function current() {
   return flashes.length ? flashes[0][0] : base;
 }
 
+const FLAME = "M50 3C57 17 69 22 70 37C75 32 77 25 76 18C88 32 93 50 91 67C89 93 72 110 50 110C28 110 11 93 9 67C8 52 13 40 21 31C21 39 24 45 30 48C27 30 38 17 50 3Z";
+const SPARKLE = "M0,-5 Q0.8,-0.8 5,0 Q0.8,0.8 0,5 Q-0.8,0.8 -5,0 Q-0.8,-0.8 0,-5Z";
+
 function mount(el) {
-  // Cropped to the area the eyes actually travel, so they read larger in the app than on a real notch.
-  el.innerHTML = `<svg viewBox="36 4 88 32" aria-hidden="true"><path/><path/></svg>`;
+  // The eye group maps kit coordinates (centred on 80,20) onto the core at 50,72.
+  el.innerHTML = `<svg viewBox="0 0 100 114" aria-hidden="true">
+    <path class="flame outer" d="${FLAME}"/>
+    <path class="flame inner" d="${FLAME}"/>
+    <path class="core" d="M50 44 74 58v28L50 100 26 86V58z"/>
+    <path class="core-shine" d="M34 62 50 52.5 66 62"/>
+    <g class="eyes" transform="translate(50 74) scale(1.2) translate(-80 -20)"><path/><path/></g>
+    <g class="sparkles"><path d="${SPARKLE}" transform="translate(30 66)"/><path d="${SPARKLE}" transform="translate(71 88) scale(.7)"/></g>
+  </svg>`;
   el.setAttribute("role", "img");
 }
 
@@ -88,7 +99,7 @@ function frame(now) {
     el.dataset.face = name;
     el.setAttribute("aria-label", `Prometheus looks ${name.replace("-", " ")}`);
     el.style.setProperty("--eye", p.accent);
-    el.querySelectorAll("path").forEach((path, i) => {
+    el.querySelectorAll(".eyes path").forEach((path, i) => {
       path.setAttribute("d", eyePath(cur[i]));
       path.setAttribute("transform", `translate(${r2(CX + cur[i].x)} ${r2(CY + cur[i].y)}) rotate(${r2(cur[i].rot)})`);
     });
