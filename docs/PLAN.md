@@ -27,9 +27,9 @@ Deadline: **Oct 30, 2026, 10:00 AM PDT**. The priority is a reliable, honest dem
 
 ## Phase 5: Polish & submission
 - [x] Dark lab UI, emblem activity states, status labels + icons (not colour alone), responsive layout.
-- [ ] Run `scripts/check_sources.py --write` on a normally connected machine.
-- [ ] Deploy to Render for free (see DEPLOY.md): New → Blueprint → this repo, enter `NEBIUS_API_KEY`, then set the `APP_URL` repo variable.
-- [ ] Record the < 3 min video (DEMO_SCRIPT.md), push the repo public, fill in Devpost.
+- [x] Check source links (16/21 OK; Ready.gov ×4 and esfi.org got 403 from the script, check them in a browser).
+- [x] Deploy to Render for free: https://project-prometheus-tp0i.onrender.com (smoke test passed).
+- [ ] Record the < 3 min video (DEMO_SCRIPT.md), fill in Devpost.
 
 ## Known risks
 - The model may answer without calling tools. Mitigation: the persona instructs it to use tools, and the live test asserts tool use. If needed, use a larger Nemotron or lower the temperature.

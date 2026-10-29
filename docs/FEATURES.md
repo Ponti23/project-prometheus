@@ -58,6 +58,6 @@ _Last updated: 2026-10-27._
 |---|---|
 | Offline data mode (all non-chat features work without AI) | ✅ |
 | Dockerfile with a persistent `/data` volume | 🟡 Not yet built or run |
-| Hosted judging URL (Nebius AI Cloud) | ⏳ Needs your approval and credentials. See DEPLOY.md |
+| Hosted judging URL | ✅ https://project-prometheus-tp0i.onrender.com (free Render plan). See DEPLOY.md |
 | Local llama.cpp inference | ⏳ Planned (same `ChatClient` interface) |
 | Voice, images, GPS, multiplayer, auto-purchasing | ⏳ Out of scope for the MVP |
