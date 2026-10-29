@@ -16,7 +16,7 @@ load_dotenv(ROOT_DIR / ".env")
 
 DEFAULT_BASE_URL = "https://api.tokenfactory.nebius.com/v1/"
 # Confirm against GET /v1/models for your account (see scripts/verify_nebius.py).
-DEFAULT_MODEL = "nvidia/nemotron-3-super-120b-a12b"
+DEFAULT_MODEL = "nvidia/Nemotron-3_5-Lightning"
 
 
 def _int(name: str, default: int) -> int:

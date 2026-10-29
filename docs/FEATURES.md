@@ -10,8 +10,8 @@ _Last updated: 2026-10-27._
 ## AI companion
 | Feature | Status | Evidence |
 |---|---|---|
-| Nebius Token Factory client (OpenAI-compatible chat + tools) | 🟡 | `backend/app/agent/llm.py`. Not yet run against Nebius, because no key was available in the build environment. Run `scripts/verify_nebius.py`. |
-| Nemotron model ID confirmed for the account | 🟡 | Default `nvidia/nemotron-3-super-120b-a12b` (taken from Nebius's own Nemotron page). `verify_nebius.py` lists the real IDs. |
+| Nebius Token Factory client (OpenAI-compatible chat + tools) | ✅ | `backend/app/agent/llm.py`. Verified against the live API with `scripts/verify_nebius.py` and `tests/test_nebius_live.py` (3 passed). |
+| Nemotron model ID confirmed for the account | ✅ | Default `nvidia/Nemotron-3_5-Lightning` (the brief's model), confirmed live with tool calling. `nvidia/nemotron-3-super-120b-a12b` also works. |
 | Agent loop with multi-round tool calling | ✅ | `tests/test_agent_loop.py` (scripted client) |
 | 15 validated tools on real state | ✅ | `tests/test_tools.py` |
 | Write tools only propose; approval executes | ✅ | `test_propose_tools_never_mutate_until_approved`, `test_full_prepare_flow_with_approval_and_recalculation` |

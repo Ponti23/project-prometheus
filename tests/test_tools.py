@@ -114,5 +114,34 @@ def test_search_knowledge_returns_sources(store, hid):
     assert top["sources"][0]["url"].startswith("https://")
 
 
+def test_search_knowledge_ignores_unknown_topic(store, hid):
+    # Models pass scenario ids like "blackout" as the topic; that must not filter out every entry.
+    res, _, _ = run_tool(store, hid, "search_knowledge", {"query": "blackout first steps safety", "topic": "blackout"})
+    assert res["results"]
+
+
+def test_restock_is_not_proposed_twice(store, hid):
+    load_demo(store, hid)
+    first, _, _ = run_tool(store, hid, "propose_restock_tasks", {})
+    again, ok, effect = run_tool(store, hid, "propose_restock_tasks", {})
+    assert ok and effect == "none" and again["status"] == "already_proposed"
+    assert again["pending_action_ids"] == [first["action_id"]]
+
+    execute_action(store, hid, store.get_action(hid, first["action_id"]))
+    store.resolve_action(hid, first["action_id"], "approved", None)
+    after, _, effect = run_tool(store, hid, "propose_restock_tasks", {})
+    assert effect == "none" and after["status"] == "already_proposed"
+
+
+def test_approving_overlapping_restock_proposals_does_not_duplicate_tasks(store, hid):
+    load_demo(store, hid)
+    a = store.create_action(hid, "save_approved_tasks", {"tasks": [{"title": "Water", "target_key": "water", "quantity": 5, "unit": "L"}]}, "a")
+    b = store.create_action(hid, "save_approved_tasks", {"tasks": [{"title": "Water", "target_key": "water", "quantity": 5, "unit": "L"}]}, "b")
+    before = len(store.list_tasks(hid))
+    execute_action(store, hid, a)
+    execute_action(store, hid, b)
+    assert len(store.list_tasks(hid)) == before + 1
+
+
 def test_every_tool_has_a_kind():
     assert {t.kind for t in TOOLS} <= {"read", "propose", "note"}
